@@ -12,84 +12,92 @@ const SignUp = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!formValues.username) {
-      errors.username = "Username is required";
-    } else if (!/^[A-Za-z0-9_]{3,15}$/.test(formValues.username)) {
-      errors.username =
-        "Username should be 3-15 characters long and can only contain letters, numbers, and underscores.';";
-    }
+    /*   if (!formValues.nombre) {
+      errors.nombre = "nombre is required";
+    } else if (!/^[A-Za-z0-9_]{3,15}$/.test(formValues.nombre)) {
+      errors.nombre =
+        "El nombre de usuario debe tener entre 3 y 15 caracteres y solo puede contener letras, números y guiones bajos";
+    } */
 
-    if(!formValues.email){
-errors.email="Email is required"
-    }else if(!/\S+@\S+\.\S+/.test(formValues.email)){
-      errors.email="Please enter a valid email address"
+    if (!formValues.email) {
+      errors.email = "El email es obligatorio";
+    } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
+      errors.email = "Por favor ingrese una dirección de email válida";
     }
-    if (!formValues.mobile) {
-      errors.mobile = 'Mobile number is required';
-    } else if (!/^\d{10}$/.test(formValues.mobile)) {
-      errors.mobile = 'Mobile number should be 10 digits';
+    if (!formValues.nro_documento) {
+      errors.nro_documento = "El número de documento es obligatorio";
+    } else if (!/^\d{8}$/.test(formValues.nro_documento)) {
+      errors.nro_documento = "El número de documento debe tener 8 dígitos";
     }
 
     if (!formValues.password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     }
-return errors;
-
+    return errors;
   };
 
-
-  const handleSubmit=async (e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formValues);
-    
-    const errors=validateForm();
+
+    const errors = validateForm();
     console.log(errors);
-    if(Object.keys(errors).length===0){
+    if (Object.keys(errors).length === 0) {
       // alert("Form submitted")
-    }else{
+    } else {
       // alert("Form Submission Failed");
       setFormErrors(errors);
     }
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/register-user", formValues);
-      console.log(response, 'res');
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/register-user",
+        formValues
+      );
+      console.log(response, "res");
 
       if (response.data.success) {
-          toast.success(response.data.message || 'Registration successful!');
-          setFormValues({username:"",email:"",mobile:"",password:""});
-          setFormErrors("");
+        toast.success(response.data.message || "Registration successful!");
+        setFormValues({
+          /* nombre: "", */
+          email: "",
+          nro_documento: "",
+          password: "",
+        });
+        setFormErrors("");
       } else {
-          toast.error(response.data.message || 'Registration failed!');
+        toast.error(response.data.message || "Registration failed!");
       }
-  } catch (error) {
-      console.error('Error during registration:', error);
-      toast.error(error.response.data.message || "Something went wrong. Please try again later.");
-  }
-    
-    
-
-  }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      toast.error(
+        error.response.data.message ||
+          "Something went wrong. Please try again later."
+      );
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
-    
   };
   return (
     <div className="login-container">
       <h2>Registrarse</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Nombre de usuario</label>
+          {/*  <label>Nombre de usuario</label>
           <input
             type="text"
             placeholder="Ingrese su nombre de usuario"
-            name="username"
-            value={formValues.username}
+            name="nombre"
+            value={formValues.nombre}
             onChange={handleInputChange}
-           
           />
-         {formErrors.username?<span className="error-message">{formErrors.username}</span>:''} 
+          {formErrors.nombre ? (
+            <span className="error-message">{formErrors.nombre}</span>
+          ) : (
+            ""
+          )} */}
         </div>
         <div className="form-group">
           <label>Email</label>
@@ -100,18 +108,26 @@ return errors;
             value={formValues.email}
             onChange={handleInputChange}
           />
-          {formErrors.email?<span className="error-message">{formErrors.email}</span>:''} 
+          {formErrors.email ? (
+            <span className="error-message">{formErrors.email}</span>
+          ) : (
+            ""
+          )}
         </div>
         <div className="form-group">
-          <label>Número de teléfono</label>
+          <label>D.N.I</label>
           <input
-            type="tel"
-            name="mobile"
-            placeholder="Ingrese su número de teléfono"
-            value={formValues.mobile}
+            type="text"
+            name="nro_documento"
+            placeholder="Ingrese su D.N.I"
+            value={formValues.nro_documento}
             onChange={handleInputChange}
           />
-          {formErrors.mobile?<span className="error-message">{formErrors.mobile}</span>:''} 
+          {formErrors.nro_documento ? (
+            <span className="error-message">{formErrors.nro_documento}</span>
+          ) : (
+            ""
+          )}
         </div>
         <div className="form-group">
           <label>Contraseña</label>
@@ -122,7 +138,11 @@ return errors;
             value={formValues.password}
             onChange={handleInputChange}
           />
-          {formErrors.password?<span className="error-message">{formErrors.password}</span>:''} 
+          {formErrors.password ? (
+            <span className="error-message">{formErrors.password}</span>
+          ) : (
+            ""
+          )}
         </div>
         <button type="submit" className="login-btn">
           Registrarse

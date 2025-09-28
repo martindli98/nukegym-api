@@ -3,31 +3,35 @@ import { pool } from "../config/db.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = '76348734687346874363443434343443333333333'; // Ensure this is set in your .env file
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Register User
 export const registerUser = async (user) => {
     try {
-        const [existingUser] = await pool.query('SELECT * FROM users WHERE email = ?', [user.email]);
+        const [existingUser] = await pool.query('SELECT * FROM Usuario WHERE email = ? OR nro_documento = ?', [user.email, user.nro_documento/* , user.nombre */]);
         if (existingUser.length > 0) {
-            return { success: false, message: 'User already exists' };
+            return { success: false, message: 'El usuario ya existe.' };
         }
         
         const hashedPassword = await bcrypt.hash(user.password, 10);
-        const query = `INSERT INTO users (name, email, mobile, password, userType) VALUES (?, ?, ?, ?,?)`;
-        const values = [user.username, user.email, user.mobile, hashedPassword,user.userType];
+        const query = `INSERT INTO Usuario ( email, nro_documento, password, id_rol) VALUES (?, ?, ?, 2)`;
+        const values = [/* user.nombre, */ user.email, user.nro_documento, hashedPassword, user.id_rol];
         await pool.query(query, values);
         return { success: true, message: 'User registered successfully' };
     } catch (error) {
         console.error("Registration error:", error);
-        return { success: false, message: 'Registration failed. Please try again later.' };
+        return {
+          success: false,
+          message:
+            "Falló el registro. Por favor, inténtelo de nuevo más tarde.",
+        };
     }
 };
 
 // Login User with JWT token
 export const loginUser = async (email, password) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        const [rows] = await pool.query('SELECT * FROM Usuario WHERE email = ?', [email]);
         if (rows.length === 0) {
             return { success: false, message: 'User not found' };
         }
@@ -41,7 +45,7 @@ export const loginUser = async (email, password) => {
         
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.id, email: user.email, userType:user.userType },
+            { id: user.id, email: user.email },
             JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -52,11 +56,15 @@ export const loginUser = async (email, password) => {
             success: true, 
             message: 'Login successful', 
             token, 
-            user: { id: user.id, email: user.email, userType:user.userType } 
+            user: { id: user.id, email: user.email } 
         };
     } catch (error) {
         console.error("Login error:", error);
-        return { success: false, message: 'Login failed. Please try again later.' };
+        return {
+          success: false,
+          message:
+            "Falló el inicio de sesión. Por favor, inténtelo de nuevo más tarde.",
+        };
     }
 };
 
@@ -71,7 +79,7 @@ export const getUserFromToken = async (token) => {
         console.log("Decoded token:", decoded);
 
         // Retrieve user details from the database
-        const [rows] = await pool.query('SELECT id, name, email, mobile, userType FROM users WHERE id = ?', [decoded.id]);
+        const [rows] = await pool.query('SELECT id, email, nro_documento FROM Usuario WHERE id = ?', [decoded.id]);
 
         if (rows.length === 0) {
             return { success: false, message: 'User not found' };

@@ -50,7 +50,7 @@ function UserHomeScreen() {
   };
   return (
     <div>
-      <h2 style={{ textAlign: "center" }}>Bienvenido {userData.name}</h2>
+      <h2 style={{ textAlign: "center" }}>Bienvenido {userData.nombre}</h2>
       <div style={{textAlign:'center'}}>
          <h2>Email: {userData.email} </h2>
       </div>

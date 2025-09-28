@@ -1,8 +1,8 @@
 class UserModel {
     constructor(user) {
-      this.username = user.username || '';
+      this.nombre = user.nombre || '';
       this.email = user.email || '';
-      this.mobile = user.mobile || '';
+      this.nro_documento = user.nro_documento || '';
       this.password = user.password || '';
     }
   }

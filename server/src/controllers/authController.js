@@ -3,15 +3,17 @@ import UserModel from '../models/userModel.js';
 import { registerUser, loginUser, getUserFromToken } from '../services/authService.js';
 
 export const register = async (req, res) => {
-    const { username, email, mobile, password, userType } = req.body;
+    const { /* nombre, */ email, nro_documento, password} = req.body;
 
     // Validate required fields
-    if (!username || !email || !mobile || !password) {
-        return res.status(400).json({ success: false, message: 'All fields are required' });
+    if ((/* !nombre || */ !email || !nro_documento || !password)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Debe rellenar todos los campos." });
     }
 
     // Create user instance
-    const user = new UserModel({ username, email, mobile, password, userType });
+    const user = new UserModel({ /* nombre, */ email, nro_documento, password });
 
     try {
         // Register user using auth service
@@ -25,7 +27,7 @@ export const register = async (req, res) => {
         console.error('Error in user registration:', error);
         return res.status(500).json({ 
             success: false, 
-            message: 'Registration failed. Please try again later.' 
+            message: 'Falló el registro. Por favor, inténtelo de nuevo más tarde.' 
         });
     }
 };
@@ -35,7 +37,7 @@ export const login = async (req, res) => {
 
     // Validate required fields
     if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Email and password are required' });
+        return res.status(400).json({ success: false, message: 'El email y la contraseña son obligatorios.' });
     }
 
     try {
@@ -51,7 +53,7 @@ export const login = async (req, res) => {
         console.error('Error in user login:', error);
         return res.status(500).json({ 
             success: false, 
-            message: 'Login failed. Please try again later.' 
+            message: 'Falló el inicio de sesión. Por favor, inténtelo de nuevo más tarde.' 
         });
     }
 };
@@ -62,7 +64,7 @@ export const getUserDetails = async (req, res) => {
     console.log(token);
 
     if (!token) {
-        return res.status(401).json({ success: false, message: 'Token not provided' });
+        return res.status(401).json({ success: false, message: 'Token no proporcionado' });
     }
 
     try {
@@ -75,6 +77,6 @@ export const getUserDetails = async (req, res) => {
         }
     } catch (error) {
         console.error('Error fetching user details:', error);
-        return res.status(500).json({ success: false, message: 'Failed to retrieve user details' });
+        return res.status(500).json({ success: false, message: 'Falló al recuperar los detalles del usuario.' });
     }
 };

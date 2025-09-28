@@ -57,7 +57,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error during login:", error);
-      toast.error(error.response.data.message || "Something went wrong. Please try again later.");
+      toast.error(error.response.data.message || "Algo salio mal. Intenta de nuevo");
     }
   };
 
