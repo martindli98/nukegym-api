@@ -41,7 +41,7 @@ const Header = () => {
     <nav className="navbar">
       <div className="navbar-logo">
         <img
-          src={require("../nukegymlogo.jpeg")}
+          src={require("../img/LOGO GYM.png")}
           alt="Profile"
           className="profile-photo-circle"
         />
