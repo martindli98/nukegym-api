@@ -4,7 +4,7 @@ export const getUserId = async (req, res) => {
   try {
     const userId = req.user.id; 
     const [rows] = await pool.query(
-      `SELECT id, nombre, apellido, email
+      `SELECT id, nombre, apellido, email , id_rol
        FROM usuario
        WHERE id = ?
        LIMIT 1`,
@@ -55,5 +55,27 @@ export const feedback = async (req, res) => {
       success: false,
       message: "Error al guardar el feedback",
     });
+  }
+};
+
+export const getComments = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, id_cliente, comentario, fecha
+       FROM Encuesta
+       ORDER BY fecha DESC` // opcional: ordenar por fecha
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "No hay comentarios." });
+    }
+
+    return res.json({
+      success: true,
+      data: rows,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
