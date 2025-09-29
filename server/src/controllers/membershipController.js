@@ -3,7 +3,8 @@ import { pool } from "../config/db.js";
 export const getMembership = async (req, res) => {
   try {
     
-    const userId = 1;
+    /* const userId = 2; */
+     const userId = req.user.id;
 
     // membresía más reciente del usuario
     const [rows] = await pool.query(

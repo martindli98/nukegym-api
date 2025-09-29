@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import RenderCard from "../components/Membership/renderCard"; 
+import RenderCard from "../components/Membership/renderCard";
 
 function Membership() {
   const [membership, setMembership] = useState(null);
@@ -23,6 +23,7 @@ function Membership() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        /* console.log("Respuesta de membresía:", response.data); */
 
         if (response.data.success) {
           setMembershipStatus(response.data.membershipActive);
@@ -41,7 +42,6 @@ function Membership() {
     fetchMembershipStatus();
   }, []);
 
-
   if (error) {
     return <RenderCard title={error} color="red" />;
   }
@@ -51,22 +51,21 @@ function Membership() {
   }
 
   if (membershipStatus === true) {
-  return <RenderCard title="✅ Tu membresía está activa" />;
-} else {
-  
-  if (membership?.data?.estado === "baja") {
-    console.log('entra a baja')
-    return <RenderCard title="⚠️ Tu membresía está dada de baja" />;
+    return <RenderCard title="✅ Tu membresía está activa" />;
   } else {
-    return (
-      <RenderCard
-        title="❌ Tu membresía expiró"
-        subtitle="Adquirí un plan para acceder al gimnasio 🏋️‍♂️"
-      />
-    );
+    if (membership?.data?.estado === "baja") {
+      console.log("entra a baja");
+      return <RenderCard title="⚠️ Tu membresía está dada de baja" />;
+    } else {
+      return (
+        console.log("entra a expiro @@@@@@"),
+        <RenderCard
+          title="❌ Tu membresía expiró"
+          subtitle="Adquirí un plan para acceder al gimnasio 🏋️‍♂️"
+        />
+      );
+    }
   }
-}
-
 }
 
 export default Membership;
