@@ -37,10 +37,10 @@ function Profile() {
                 Reintentar
               </button>
               <button
-                onClick={() => (window.location.href = "/login")}
+                onClick={() => (window.location.href = "/")}
                 className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition duration-200"
               >
-                Ir a Login
+                Ir a Inicio
               </button>
             </div>
           </div>

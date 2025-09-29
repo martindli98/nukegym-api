@@ -17,37 +17,45 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
   return (
-    <Router>
-      <Header />
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/membership" element={<Membership />} />
-          <Route path="/feedback" element={<Feedback />} />
-          
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-      <Footer/>
-      <ToastContainer
-        position="top-center"
-        autoClose={1000}
-        hideProgressBar={true}
-        closeOnClick
-        // pauseOnHover
-        theme="colored"
-      />
-    </Router>
+    <div> 
+      <Router>
+        <div> 
+        <Header />
+        </div>
+        <div> 
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/membership" element={<Membership />} />
+            <Route path="/feedback" element={<Feedback />} />
+            
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+        </div>
+        <div> 
+        <Footer/>
+        <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar={true}
+          closeOnClick
+          // pauseOnHover
+          theme="colored"
+        />
+        </div>
+      </Router>
+    </div>
   );
 };
 
