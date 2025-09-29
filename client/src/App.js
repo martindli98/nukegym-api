@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css"; // Import default CSS for toasti
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Membership from "./pages/Membership";
+import Footer from "./components/Footer";
+import Feedback from "./pages/Feedback";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/feedback" element={<Feedback />} />
+          
           <Route
             path="/profile"
             element={
@@ -34,6 +38,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <Footer/>
       <ToastContainer
         position="top-center"
         autoClose={1000}

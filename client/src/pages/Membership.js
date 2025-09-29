@@ -42,30 +42,41 @@ function Membership() {
     fetchMembershipStatus();
   }, []);
 
-  if (error) {
-    return <RenderCard title={error} color="red" />;
-  }
+      let cardToRender;
 
-  if (membershipStatus === null) {
-    return <RenderCard title="Cargando estado de la membresía..." />;
-  }
+        if (error) {
+          cardToRender = <RenderCard title={error} color="red" />;
+        } else if (membershipStatus === null) {
+          cardToRender = <RenderCard title="Cargando estado de la membresía..." />;
+        } else if (membershipStatus === true) {
+          cardToRender = <RenderCard title="✅ Tu membresía está activa" color="green" />;
+        } else if (membership?.data?.estado === "baja") {
+          cardToRender = <RenderCard title="⚠️ Tu membresía está dada de baja" color="yellow" />;
+        } else {
+          cardToRender = (
+            <RenderCard
+              title="❌ Tu membresía expiró"
+              subtitle="Adquirí un plan para acceder al gimnasio 🏋️‍♂️"
+              color="red"
+            />
+          );
+        }
 
-  if (membershipStatus === true) {
-    return <RenderCard title="✅ Tu membresía está activa" />;
-  } else {
-    if (membership?.data?.estado === "baja") {
-      console.log("entra a baja");
-      return <RenderCard title="⚠️ Tu membresía está dada de baja" />;
-    } else {
-      return (
-        console.log("entra a expiro @@@@@@"),
-        <RenderCard
-          title="❌ Tu membresía expiró"
-          subtitle="Adquirí un plan para acceder al gimnasio 🏋️‍♂️"
-        />
-      );
-    }
-  }
-}
+        return (
+          <div
+          style={{
+            backgroundImage: `url(${require("../img/fondo2.jpg")})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+            {cardToRender}
+          </div>
+        );
+      }
 
 export default Membership;

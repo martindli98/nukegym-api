@@ -12,13 +12,6 @@ const SignUp = () => {
   const validateForm = () => {
     const errors = {};
 
-    /*   if (!formValues.nombre) {
-      errors.nombre = "nombre is required";
-    } else if (!/^[A-Za-z0-9_]{3,15}$/.test(formValues.nombre)) {
-      errors.nombre =
-        "El nombre de usuario debe tener entre 3 y 15 caracteres y solo puede contener letras, números y guiones bajos";
-    } */
-
     if (!formValues.email) {
       errors.email = "El email es obligatorio";
     } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {

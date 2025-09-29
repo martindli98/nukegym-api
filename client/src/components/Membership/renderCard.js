@@ -1,16 +1,5 @@
 // Función para centralizar estilos y reusar
 const RenderCard = ({ title, subtitle, color = "white" }) => (
-  <div
-    style={{
-      backgroundImage: `url(${require("../../img/fondo2.jpg")})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      height: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
     <div
       style={{
         backgroundColor: "rgba(0,0,0,0.6)", // negro con opacidad
@@ -28,7 +17,7 @@ const RenderCard = ({ title, subtitle, color = "white" }) => (
         </p>
       )}
     </div>
-  </div>
+  
 );
 
 export default RenderCard;
