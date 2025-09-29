@@ -7,7 +7,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   // Validation function for email and password
   const validateForm = () => {
@@ -36,68 +36,56 @@ const Login = () => {
 
     try {
       // Make API request to login
-      const response = await axios.post("http://localhost:3000/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.data.success) {
-        console.log(response);
-        
-        toast.success("Login successful!");
-        // Redirect or save token as needed
+        console.log(" Login exitoso:", response.data);
+
         const token = response.data.token;
-        console.log(token);
-        
+        const user = response.data.user; // Asumimos que el backend devuelve datos del usuario
+
+        // Guardar token en sessionStorage para consistencia
         sessionStorage.setItem("authToken", token);
-        navigate('/homeScreen')
-        fetchUserDetails();
+
+        // Guardar datos del usuario para el Header
+        const userData = {
+          isLoggedIn: true,
+          userData: {
+            name: user?.nombre || user?.email || "Usuario",
+            email: user?.email,
+            id: user?.id,
+          },
+        };
+
+        sessionStorage.setItem("userData", JSON.stringify(userData));
+
+        console.log(" Datos guardados:", {
+          token: !!token,
+          userData: userData,
+        });
+
+        toast.success("¡Login exitoso! Redirigiendo...");
+
+        // Redirigir al perfil después de un breve delay
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1000);
       } else {
-        toast.error(response.data.message || "Login failed");
+        toast.error(response.data.message || "Login fallido");
       }
     } catch (error) {
       console.error("Error during login:", error);
-      toast.error(error.response.data.message || "Algo salio mal. Intenta de nuevo");
+      toast.error(
+        error.response.data.message || "Algo salio mal. Intenta de nuevo"
+      );
     }
   };
-
- 
-
-  // useEffect(() => {
-    
-  // }, []);
-  const fetchUserDetails = async () => {
-    try {
-      // Retrieve token from localStorage or other secure storage
-      const token = sessionStorage.getItem('authToken'); // Replace with actual token retrieval
-      console.log(token);
-      
-      if (!token) {
-        // setError('User is not logged in');
-        return;
-      }
-
-      // Make the API request with the token in the Authorization header
-      const response = await axios.get('http://localhost:3000/api/auth/get-userDetails', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      console.log(response);
-      
-      if (response.data.success) {
-        console.log(response.data.user);
-      } else {
-        console.log(response.data.message || 'Failed to fetch user details');
-      }
-    } catch (err) {
-      console.error('Error fetching user details:', err);
-      console.log(err.response?.data?.message || 'An error occurred');
-    }
-  };
-
-  // fetchUserDetails();
 
   return (
     <div className="login-container">
@@ -112,7 +100,9 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {errors.email && <span className="error-message">{errors.email}</span>}
+          {errors.email && (
+            <span className="error-message">{errors.email}</span>
+          )}
         </div>
         <div className="form-group">
           <label>Contraseña</label>
@@ -123,13 +113,15 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {errors.password && <span className="error-message">{errors.password}</span>}
+          {errors.password && (
+            <span className="error-message">{errors.password}</span>
+          )}
         </div>
         <button type="submit" className="login-btn">
           Entrar
         </button>
       </form>
-      
+
       <p style={{ textAlign: "center" }}>
         ¿No tienes una cuenta?{" "}
         <Link

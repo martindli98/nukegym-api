@@ -1,13 +1,13 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserModel from "../model/userModel";
 
 const SignUp = () => {
   const [formValues, setFormValues] = useState(new UserModel({}));
-
   const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const errors = {};
@@ -36,42 +36,117 @@ const SignUp = () => {
     return errors;
   };
 
+  // Función para iniciar sesión automáticamente después del registro
+  const autoLogin = async (email, password) => {
+    try {
+      console.log("Iniciando sesión automáticamente...");
+
+      const loginResponse = await axios.post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email: email,
+          password: password,
+        }
+      );
+
+      if (loginResponse.data.success) {
+        const token = loginResponse.data.token;
+        const user = loginResponse.data.user;
+
+        // Guardar token en sessionStorage
+        sessionStorage.setItem("authToken", token);
+
+        // Guardar datos del usuario para el Header
+        const userData = {
+          isLoggedIn: true,
+          userData: {
+            name: user?.nombre || user?.email || "Usuario",
+            email: user?.email,
+            id: user?.id,
+          },
+        };
+
+        sessionStorage.setItem("userData", JSON.stringify(userData));
+
+        console.log(" Login automático exitoso");
+        toast.success("¡Registro exitoso! Redirigiendo al perfil...");
+
+        // Redirigir al perfil después de un breve delay
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1500);
+
+        return true;
+      } else {
+        console.error("Error en login automático:", loginResponse.data.message);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error en login automático:", error);
+      toast.error(
+        "Registro exitoso, pero hubo un problema al iniciar sesión. Por favor, inicia sesión manualmente."
+      );
+
+      // Redirigir al login si el auto-login falla
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formValues);
+    console.log("Datos del formulario:", formValues);
 
     const errors = validateForm();
-    console.log(errors);
-    if (Object.keys(errors).length === 0) {
-      // alert("Form submitted")
-    } else {
-      // alert("Form Submission Failed");
+    console.log("Errores de validación:", errors);
+
+    if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      toast.error("Por favor corrige los errores en el formulario");
+      return;
     }
+
     try {
+      console.log("Enviando datos de registro...");
+
       const response = await axios.post(
         "http://localhost:3000/api/auth/register-user",
         formValues
       );
-      console.log(response, "res");
+
+      console.log(" Respuesta del registro:", response.data);
 
       if (response.data.success) {
-        toast.success(response.data.message || "Registration successful!");
-        setFormValues({
-          /* nombre: "", */
-          email: "",
-          nro_documento: "",
-          password: "",
-        });
-        setFormErrors("");
+        // Limpiar errores
+        setFormErrors({});
+
+        console.log(" Iniciando sesión automáticamente...");
+
+        // Realizar login automático
+        const loginSuccess = await autoLogin(
+          formValues.email,
+          formValues.password
+        );
+
+        if (loginSuccess) {
+          // Limpiar formulario solo si el login automático fue exitoso
+          setFormValues({
+            email: "",
+            nro_documento: "",
+            password: "",
+          });
+        }
       } else {
-        toast.error(response.data.message || "Registration failed!");
+        toast.error(response.data.message || "Error en el registro");
       }
     } catch (error) {
-      console.error("Error during registration:", error);
+      console.error(" Error durante el registro:", error);
       toast.error(
-        error.response.data.message ||
-          "Something went wrong. Please try again later."
+        error.response?.data?.message ||
+          "Algo salió mal. Por favor intenta de nuevo."
       );
     }
   };

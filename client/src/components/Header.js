@@ -24,8 +24,17 @@ const Header = () => {
   };
 
   const logout = () => {
+    // Limpiar completamente toda la información de sesión
     sessionStorage.clear();
-    setUserData("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+
+    // Resetear estado local
+    setUserData(null);
+
+    console.log("Logout completed - All session data cleared");
+
+    // Redirigir al home
     navigate("/");
   };
   return (
@@ -59,8 +68,8 @@ const Header = () => {
           <>
             <li className="navbar-profile">
               <Link
-                to="/homeScreen"
-                className={location.pathname === "/homeScreen" ? "active" : ""}
+                to="/profile"
+                className={location.pathname === "/profile" ? "active" : ""}
                 style={{ display: "flex" }}
               >
                 <img
