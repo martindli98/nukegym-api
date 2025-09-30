@@ -62,6 +62,14 @@ const Header = () => {
             Membresia
           </Link>
         </li>
+        <li>
+          <Link
+            to="/routine"
+            className={location.pathname === "/routine" ? "active" : ""}
+          >
+            Rutina
+          </Link>
+        </li>
 
         {/* Conditional Rendering based on user login status */}
         {userData ? (
