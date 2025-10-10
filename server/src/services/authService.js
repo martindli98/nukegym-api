@@ -73,6 +73,7 @@ export const loginUser = async (email, password) => {
             : user.id_rol === 2
             ? "cliente"
             : "entrenador",
+        id_trainer: user.id_trainer,
       },
     };
   } catch (error) {

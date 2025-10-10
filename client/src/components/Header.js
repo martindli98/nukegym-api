@@ -74,12 +74,17 @@ const Header = () => {
         {/* Conditional Rendering based on user login status */}
         {userData ? (
           <>
-            <li>
-              <Link to="/trainers" className="">
-                Entrenadores
-              </Link>
-            </li>
+            {userData.id_rol === 2 && (
+              <li>
+                <Link to="/trainers">Entrenadores</Link>
+              </li>
+            )}
 
+            {userData.id_rol === 3 && (
+              <li>
+                <Link to="/trainers">Alumnos</Link>
+              </li>
+            )}
             {userData.id_rol === 1 && (
               <li>
                 <Link

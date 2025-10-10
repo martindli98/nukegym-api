@@ -11,6 +11,7 @@ import Membership from "./pages/Membership";
 import Footer from "./components/Footer";
 import Feedback from "./pages/Feedback";
 import Routine from "./pages/Routine";
+import Trainer from "./pages/Trainer";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -33,6 +34,15 @@ const App = () => {
               <Route path="/membership" element={<Membership />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/routine" element={<Routine />} />
+
+              <Route
+                path="/trainers"
+                element={
+                  <ProtectedRoute rolPermitido="cliente">
+                    <Trainer />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route
                 path="/profile"
