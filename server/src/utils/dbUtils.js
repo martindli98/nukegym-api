@@ -13,13 +13,15 @@ const userTableQuery = `CREATE TABLE IF NOT EXISTS Usuario (
     num_personal VARCHAR(20),
     password VARCHAR(255) NOT NULL,
     id_rol INT(11) NOT NULL,
+    id_trainer INT NULL,
     apellido VARCHAR(100) NOT NULL,
     nro_documento INT(11) UNIQUE NOT NULL,
     fechaNac DATE,
     baja_usuario BOOLEAN DEFAULT FALSE,
     patologias VARCHAR(255),
     foto_avatar VARCHAR(255),
-    FOREIGN KEY (id_rol) REFERENCES Rol(id)
+    FOREIGN KEY (id_rol) REFERENCES Rol(id),
+    FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
 const paymentTableQuery = `CREATE TABLE IF NOT EXISTS Pago (

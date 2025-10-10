@@ -62,6 +62,7 @@ const Login = () => {
     id: user?.id,
     rol: user?.rol || "cliente", // O "admin" si id_rol = 1
     id_rol: user?.id_rol,         // guardar también el id_rol directamente
+    id_trainer: user?.id_trainer, // guardar el id_trainer si está disponible
   },
 };
 sessionStorage.setItem("userData", JSON.stringify(userData));
