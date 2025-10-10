@@ -1,34 +1,36 @@
+// authMiddleware.js
 import jwt from "jsonwebtoken";
+import { pool } from "../config/db.js";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "76348734687346874363443434343443333333333";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+  const header = req.headers["authorization"];
+  const token = header && header.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Token requerido" });
 
-  console.log(" Auth Header:", authHeader);
-  console.log(" Token extraído:", token ? "Token presente" : "No token");
-
-  if (!token) {
-    console.log("No se encontró token");
-    return res.status(401).json({
-      success: false,
-      message: "Token de acceso requerido",
-    });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      console.error("Token verification error:", err.message);
-      return res.status(403).json({
-        success: false,
-        message: "Token inválido o expirado",
-      });
-    }
-
-    console.log("Token válido para usuario:", user.id);
-    req.user = user;
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ message: "Token inválido" });
+    req.user = decoded;
     next();
   });
+};
+
+export const onlyAdmin = async (req, res, next) => {
+  try {
+    const [rows] = await pool.query("SELECT id_rol FROM usuario WHERE id = ?", [
+      req.user.id,
+    ]);
+    if (rows.length === 0) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const user = rows[0];
+    if (user.id_rol !== 1) {
+      return res.status(403).json({ message: "Acceso solo para administradores" });
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al verificar rol" });
+  }
 };

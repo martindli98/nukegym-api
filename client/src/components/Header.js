@@ -74,6 +74,27 @@ const Header = () => {
         {/* Conditional Rendering based on user login status */}
         {userData ? (
           <>
+            <li>
+              <Link to="/trainers" className="">
+                Entrenadores
+              </Link>
+            </li>
+
+            {userData.id_rol === 1 && (
+              <li>
+                <Link
+                  to="/admin/roles"
+                  className={`hover:text-orange-500 font-semibold ${
+                    location.pathname === "/admin/roles"
+                      ? "text-orange-500 underline"
+                      : ""
+                  }`}
+                >
+                  Panel de Roles
+                </Link>
+              </li>
+            )}
+
             <li className="navbar-profile">
               <Link
                 to="/profile"

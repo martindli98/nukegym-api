@@ -61,13 +61,18 @@ export const loginUser = async (email, password) => {
 
     return {
       success: true,
-      message: "Login successful",
       token,
       user: {
         id: user.id,
         email: user.email,
-        nombre: user.nombre || null,
-        apellido: user.apellido || null,
+        nombre: user.nombre,
+        id_rol: user.id_rol,
+        rol:
+          user.id_rol === 1
+            ? "admin"
+            : user.id_rol === 2
+            ? "cliente"
+            : "entrenador",
       },
     };
   } catch (error) {

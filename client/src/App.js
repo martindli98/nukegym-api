@@ -15,6 +15,7 @@ import Routine from "./pages/Routine";
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PanelRoles = lazy(() => import("./pages/PanelRoles"));
 
 const App = () => {
   return (
@@ -41,6 +42,16 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/admin/roles"
+                element={
+                  <ProtectedRoute rolPermitido="admin">
+                    <PanelRoles />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

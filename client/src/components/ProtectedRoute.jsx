@@ -1,41 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, rolPermitido }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
     checkAuthStatus();
-  }, [location.pathname]); // Re-check cuando cambia la ruta
+  }, [location.pathname]);
 
   const checkAuthStatus = () => {
     try {
       setLoading(true);
 
-      // Verificar si hay token en cualquiera de las ubicaciones
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("authToken");
+      // Leer token y datos de usuario directamente desde sessionStorage
+      const token = sessionStorage.getItem("authToken");
       const userData = JSON.parse(sessionStorage.getItem("userData") || "null");
 
-      console.log("ProtectedRoute - Token:", !!token);
-      console.log("ProtectedRoute - UserData:", userData);
-
-      // Usuario autenticado si tiene token Y datos de usuario
       const authenticated = !!(token && userData && userData.isLoggedIn);
-
       setIsAuthenticated(authenticated);
 
+      // Limpiar datos si no está autenticado
       if (!authenticated) {
-        // Limpiar cualquier residuo de sesión
-        localStorage.removeItem("token");
         sessionStorage.removeItem("authToken");
         sessionStorage.removeItem("userData");
-        console.log("ProtectedRoute - Limpiando datos de sesión");
+        console.log("ProtectedRoute - sesión eliminada");
+      }
+
+      // Si rolPermitido está definido, verificar que el usuario tenga el rol correcto
+      if (authenticated && rolPermitido) {
+        const userRol = userData?.userData?.rol || userData?.userData?.id_rol;
+        // Asegurate de que el rol de tu backend coincida con este valor
+        if (rolPermitido === "admin" && userData.userData.id_rol !== 1) {
+  setIsAuthenticated(false);
+}
       }
     } catch (error) {
-      console.error("ProtectedRoute - Error checking auth:", error);
+      console.error("ProtectedRoute - Error al verificar auth:", error);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -54,12 +56,12 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // Si no está autenticado, redirigir a login
+  // Si no está autenticado o no tiene rol correcto
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Si está autenticado, mostrar el componente protegido
+  // Usuario autenticado y rol correcto → renderiza componente
   return children;
 };
 

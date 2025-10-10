@@ -54,16 +54,17 @@ const Login = () => {
         sessionStorage.setItem("authToken", token);
 
         // Guardar datos del usuario para el Header
-        const userData = {
-          isLoggedIn: true,
-          userData: {
-            name: user?.nombre || user?.email || "Usuario",
-            email: user?.email,
-            id: user?.id,
-          },
-        };
-
-        sessionStorage.setItem("userData", JSON.stringify(userData));
+ const userData = {
+  isLoggedIn: true,
+  userData: {
+    name: user?.nombre || user?.email || "Usuario",
+    email: user?.email,
+    id: user?.id,
+    rol: user?.rol || "cliente", // O "admin" si id_rol = 1
+    id_rol: user?.id_rol,         // guardar también el id_rol directamente
+  },
+};
+sessionStorage.setItem("userData", JSON.stringify(userData));
 
         console.log(" Datos guardados:", {
           token: !!token,

@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import cors from "cors";
 import membershipRoutes from "./routes/membreshipRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
-
+import roleRoutes from "./routes/roleRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -17,6 +17,8 @@ app.use("/api/users", userRoutes); // Use user routes for API calls
 app.use("/api/auth", authRoutes); // Use user routes for API calls
 app.use("/api/membership", membershipRoutes);
 app.use("/api/feedback", feedbackRoutes);
+
+app.use("/api/roles", roleRoutes);
 
 
 app.listen(process.env.PORT || 3000, async () => {
