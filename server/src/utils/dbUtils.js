@@ -26,10 +26,14 @@ const userTableQuery = `CREATE TABLE IF NOT EXISTS Usuario (
 
 const paymentTableQuery = `CREATE TABLE IF NOT EXISTS Pago (
   id_pago INT(11) AUTO_INCREMENT PRIMARY KEY,
+  id_usuario INT NOT NULL,
     valor DECIMAL(10,2) UNSIGNED NOT NULL,
     fecha_pago DATE NOT NULL,
     descuento DECIMAL(10,2) UNSIGNED DEFAULT 0, 
-    tipo_plan ENUM('1m','3m','6m','1a') NOT NULL
+    tipo_plan ENUM('1m','3m','6m','1a') NOT NULL,
+    estado ENUM('pendiente','aprobado','rechazado') DEFAULT 'pendiente',
+    id_preference VARCHAR(100),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
 const membershipTableQuery = `CREATE TABLE IF NOT EXISTS Membresia (
