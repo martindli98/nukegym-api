@@ -9,10 +9,10 @@ import membershipRoutes from "./routes/membreshipRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
 import trainerRoutes from "./routes/trainerRoutes.js";
+import classRoutes from "./routes/classRoutes.js";
 
 import paymentRoutes from "./routes/paymentRoutes.js";
 // import { MercadoPagoConfig, Preference } from "mercadopago";
-
 
 const app = express();
 app.use(cors());
@@ -50,8 +50,8 @@ app.use(express.json()); // Middleware to parse JSON bodies
 //     const result = await preference.create({ body });
 // console.log("✅ Preferencia creada:", result);
 
-//     res.json({ 
-//       preferenceId: result.id 
+//     res.json({
+//       preferenceId: result.id
 //     });
 //   } catch (error) {
 //     console.error("Error creating preference:", error);
@@ -66,6 +66,7 @@ app.use("/api/feedback", feedbackRoutes);
 
 app.use("/api/roles", roleRoutes);
 app.use("/api/trainers", trainerRoutes);
+app.use("/api", classRoutes);
 
 app.use("/api/payments", paymentRoutes);
 app.use(express.urlencoded({ extended: true }));

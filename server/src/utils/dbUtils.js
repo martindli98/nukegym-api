@@ -51,7 +51,8 @@ const membershipTableQuery = `CREATE TABLE IF NOT EXISTS Membresia (
 const classTableQuery = `CREATE TABLE IF NOT EXISTS Clase(
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_entrenador INT(11) NOT NULL,
-    tipo VARCHAR(255) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
     fecha DATE NOT NULL,
     horario_inicio TIME NOT NULL,
     horario_fin TIME NOT NULL,

@@ -19,7 +19,7 @@ export default function Trainer() {
     } else if (user.id_rol === 3) {
       fetchStudents();
     }
-  }, [user]);
+  }, [/* user */]);
 
   const fetchTrainers = async () => {
     try {

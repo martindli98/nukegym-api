@@ -12,7 +12,7 @@ import Footer from "./components/Footer";
 import Feedback from "./pages/Feedback";
 import Routine from "./pages/Routine";
 import Trainer from "./pages/Trainer";
-/* import Classes from "./pages/Classes"; */
+import Classes from "./pages/Classes";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -35,7 +35,7 @@ const App = () => {
               <Route path="/membership" element={<Membership />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/routine" element={<Routine />} />
-
+              <Route path="/classes" element={<Classes />} />
               <Route
                 path="/trainers"
                 element={
