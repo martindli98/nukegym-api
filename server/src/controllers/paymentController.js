@@ -22,7 +22,7 @@ export const createPreference = async (req, res) => {
         pending: "http://localhost:3001/membership",
       },
       // ⚠️ Sin auto_return en modo local
-      notification_url: "https://nonnutritious-nonremedially-kylah.ngrok-free.dev/api/payments/webhook", // <-- acá llega MP
+      notification_url: "https://unpoignantly-unretrogressive-dong.ngrok-free.dev/api/payments/webhook", // <-- acá llega MP
       metadata: { userId, tipo_plan },
     };
 

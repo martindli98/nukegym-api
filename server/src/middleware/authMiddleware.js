@@ -5,6 +5,13 @@ import { pool } from "../config/db.js";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export const authenticateToken = (req, res, next) => {
+  
+   if (req.originalUrl && req.originalUrl.includes("/api/payments/webhook")) {
+    return next();
+  }
+  
+  
+  
   const header = req.headers["authorization"];
   const token = header && header.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Token requerido" });

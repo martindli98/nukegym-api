@@ -58,6 +58,7 @@ app.use(express.json()); // Middleware to parse JSON bodies
 //     res.status(500).json({ error: "Error al crear la preferencia" });
 //   }
 // });
+app.use("/api/payments", paymentRoutes);
 
 app.use("/api/users", userRoutes); // Use user routes for API calls
 app.use("/api/auth", authRoutes); // Use user routes for API calls
@@ -68,7 +69,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/trainers", trainerRoutes);
 app.use("/api", classRoutes);
 
-app.use("/api/payments", paymentRoutes);
+
 app.use(express.urlencoded({ extended: true }));
 
 app.listen(process.env.PORT || 3000, async () => {
