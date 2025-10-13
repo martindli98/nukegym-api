@@ -3,69 +3,94 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
 
 const Header = () => {
-  const location = useLocation(); // Get the current location
+  const location = useLocation();
   const [userData, setUserData] = useState(null);
-
+  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setTimeout(() => {
       getData();
     }, 200);
+
+    // Leer modo oscuro desde localStorage o sistema
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.classList.add("dark");
+      setDarkMode(true);
+    }
   }, [location]);
 
   const getData = async () => {
     const data = await JSON.parse(sessionStorage.getItem("userData"));
-    console.log("useeffct run");
-
     if (data && data.isLoggedIn) {
       setUserData(data.userData);
     }
   };
 
   const logout = () => {
-    // Limpiar completamente toda la información de sesión
     sessionStorage.clear();
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
-
-    // Resetear estado local
     setUserData(null);
-
-    console.log("Logout completed - All session data cleared");
-
-    // Redirigir al home
     navigate("/");
   };
+
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
+
   return (
-    <nav className="navbar">
-      <div className="navbar-logo">
+    <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50 transition-colors duration-300">
+      {/* Logo */}
+      <div className="flex items-center space-x-2">
         <img
           src={require("../img/LOGO GYM.png")}
-          alt="Profile"
-          className="profile-photo-circle"
+          alt="Logo"
+          className="w-10 h-10 rounded-full object-cover"
         />
-        <span style={{ color: "#F97709" }}>NUKE</span>
-        <span style={{ color: "#691C84" }}>GYM</span>
+        <div className="text-2xl font-bold">
+          <span className="text-orange-500">NUKE</span>
+          <span className="text-purple-700 dark:text-purple-400">GYM</span>
+        </div>
       </div>
-      <ul className="navbar-links">
+
+      {/* Links */}
+      <ul className="flex items-center space-x-6 text-gray-700 dark:text-gray-200">
         <li>
-          <Link to="/" className={location.pathname === "/" ? "active" : ""}>
+          <Link
+            to="/"
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/" ? "text-orange-500 underline" : ""
+            }`}
+          >
             Inicio
           </Link>
         </li>
         <li>
           <Link
             to="/membership"
-            className={location.pathname === "/membership" ? "active" : ""}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/membership" ? "text-orange-500 underline" : ""
+            }`}
           >
-            Membresia
+            Membresía
           </Link>
         </li>
         <li>
           <Link
             to="/routine"
-            className={location.pathname === "/routine" ? "active" : ""}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/routine" ? "text-orange-500 underline" : ""
+            }`}
           >
             Rutina
           </Link>
@@ -73,34 +98,45 @@ const Header = () => {
         <li>
           <Link
             to="/classes"
-            className={location.pathname === "/classes" ? "active" : ""}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/classes" ? "text-orange-500 underline" : ""
+            }`}
           >
             Clases
           </Link>
         </li>
 
-        {/* Conditional Rendering based on user login status */}
+        {/* Conditional Rendering */}
         {userData ? (
           <>
             {userData.id_rol === 2 && (
               <li>
-                <Link to="/trainers">Entrenadores</Link>
+                <Link
+                  to="/trainers"
+                  className="font-medium hover:text-orange-500 transition-colors"
+                >
+                  Entrenadores
+                </Link>
               </li>
             )}
 
             {userData.id_rol === 3 && (
               <li>
-                <Link to="/trainers">Alumnos</Link>
+                <Link
+                  to="/trainers"
+                  className="font-medium hover:text-orange-500 transition-colors"
+                >
+                  Alumnos
+                </Link>
               </li>
             )}
+
             {userData.id_rol === 1 && (
               <li>
                 <Link
                   to="/admin/roles"
-                  className={`hover:text-orange-500 font-semibold ${
-                    location.pathname === "/admin/roles"
-                      ? "text-orange-500 underline"
-                      : ""
+                  className={`font-semibold hover:text-orange-500 transition-colors ${
+                    location.pathname === "/admin/roles" ? "text-orange-500 underline" : ""
                   }`}
                 >
                   Panel de Roles
@@ -108,24 +144,26 @@ const Header = () => {
               </li>
             )}
 
-            <li className="navbar-profile">
+            {/* Profile */}
+            <li className="flex items-center space-x-2">
               <Link
                 to="/profile"
-                className={location.pathname === "/profile" ? "active" : ""}
-                style={{ display: "flex" }}
+                className={`flex items-center space-x-2 font-medium hover:text-orange-500 transition-colors ${
+                  location.pathname === "/profile" ? "text-orange-500" : ""
+                }`}
               >
                 <img
                   src={require("../img1.png")}
                   alt="Profile"
-                  className="profile-photo-circle"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-orange-500"
                 />
-                <span className="username">{userData.name}</span>
+                <span>{userData.name}</span>
               </Link>
             </li>
+
             <li>
               <i
-                className="fas fa-sign-out-alt logo-icon"
-                style={{ cursor: "pointer" }}
+                className="fas fa-sign-out-alt text-xl cursor-pointer hover:text-orange-500 transition-colors"
                 onClick={logout}
               ></i>
             </li>
@@ -135,7 +173,9 @@ const Header = () => {
             <li>
               <Link
                 to="/login"
-                className={location.pathname === "/login" ? "active" : ""}
+                className={`font-medium hover:text-orange-500 transition-colors ${
+                  location.pathname === "/login" ? "text-orange-500 underline" : ""
+                }`}
               >
                 Ingresar
               </Link>
@@ -143,13 +183,29 @@ const Header = () => {
             <li>
               <Link
                 to="/signup"
-                className={location.pathname === "/signup" ? "active" : ""}
+                className={`font-medium hover:text-orange-500 transition-colors ${
+                  location.pathname === "/signup" ? "text-orange-500 underline" : ""
+                }`}
               >
                 Registrarse
               </Link>
             </li>
           </>
         )}
+
+        {/* Botón modo oscuro */}
+        <li>
+          <button
+            onClick={toggleDarkMode}
+            className="text-xl text-gray-700 dark:text-gray-200 hover:text-orange-500 transition-colors"
+          >
+            {darkMode ? (
+              <i className="fas fa-sun"></i> // ☀️ Modo claro
+            ) : (
+              <i className="fas fa-moon"></i> // 🌙 Modo oscuro
+            )}
+          </button>
+        </li>
       </ul>
     </nav>
   );
