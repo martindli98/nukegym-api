@@ -4,7 +4,7 @@ import RenderCard from "../components/Membership/renderCard";
 
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 // Inicializa Mercado Pago con tu Public Key
-initMercadoPago("APP_USR-11d59ac8-e81f-4d7b-8407-6fb56c8550fa", {
+initMercadoPago("APP_USR-8bacf5ea-5022-42bb-91dd-4b92f2b04d7b", {
   locale: "es-AR",
 });
 
@@ -16,37 +16,58 @@ function Membership() {
   const [preferenceId, setPreferenceId] = useState(null);
   //--------------------------------
   const createPreference = async () => {
-    const session = JSON.parse(sessionStorage.getItem("userData"));
-    const user = session?.userData;
+  // Obtener datos del usuario y token desde sessionStorage
+  const session = JSON.parse(sessionStorage.getItem("userData"));
+  const user = session?.userData;
+  const token = sessionStorage.getItem("authToken");
 
-    if (!user || !user.id) {
-      alert("ERROR: Usuario no encontrado. Por favor, inicia sesión.");
-      return;
-    }
-    console.log("Usuario almacenado:", user);
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/payments/create_preference",
-        {
-          title: "Renovación de Membresía",
-          quantity: 1,
-          price: 1000, // Precio en la moneda local
-          userId: user.id,
-          tipo_plan: "1m", // Ejemplo de tipo de plan
+  if (!user || !user.id) {
+    alert("ERROR: Usuario no encontrado. Por favor, inicia sesión.");
+    return null;
+  }
+
+  if (!token) {
+    alert("ERROR: Debes iniciar sesión para realizar pagos.");
+    return null;
+  }
+
+  console.log("Usuario almacenado:", user);
+
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/api/payments/create_preference",
+      {
+        title: "Renovación de Membresía",
+        quantity: 1,
+        price: 1000, // Precio en moneda local
+        userId: user.id,
+        tipo_plan: "1m", // Tipo de plan de ejemplo
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${token}`
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const { preferenceId } = response.data;
-      return preferenceId;
-    } catch (error) {
-      console.error("Error creando la preferencia:", error);
-      throw error;
+      }
+    );
+
+    const { preferenceId } = response.data;
+
+    if (!preferenceId) {
+      throw new Error("No se pudo crear la preferencia de pago.");
     }
-  };
+
+    return preferenceId;
+  } catch (error) {
+    console.error("Error creando la preferencia:", error.response?.data || error);
+    alert(
+      error.response?.data?.message ||
+        "Ocurrió un error al crear la preferencia de pago."
+    );
+    return null;
+  }
+};
+
 
   const handleBuy = async () => {
     const id = await createPreference();

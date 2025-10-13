@@ -22,7 +22,7 @@ export const createPreference = async (req, res) => {
         pending: "http://localhost:3001/membership",
       },
       // ⚠️ Sin auto_return en modo local
-      notification_url: "https://unpoignantly-unretrogressive-dong.ngrok-free.dev/api/payments/webhook", // <-- acá llega MP
+      notification_url: "https://nonnutritious-nonremedially-kylah.ngrok-free.dev/api/payments/webhook", // <-- acá llega MP
       metadata: { userId, tipo_plan },
     };
 
@@ -57,6 +57,7 @@ export const paymentWebhook = async (req, res) => {
 
     // 🔹 Caso 1: notificación de pago directo
     if (topic === "payment") {
+      
       const response = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
         headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` },
       });
@@ -96,10 +97,14 @@ else if (topic === "merchant_order") {
     res.sendStatus(500);
   }
 };
-
-// 🔧 función auxiliar para procesar el pago y actualizar tu BD
+// 🔧 Función auxiliar para procesar el pago y actualizar la BD
 async function processPayment(paymentData) {
-  const { status, metadata, preference_id } = paymentData;
+  if (!paymentData || typeof paymentData !== "object") {
+    console.log("⚠️ paymentData inválido:", paymentData);
+    return;
+  }
+
+  const { status, metadata = {}, preference_id } = paymentData;
 
   console.log("💳 Procesando pago:", { status, preference_id, metadata });
 
@@ -108,28 +113,55 @@ async function processPayment(paymentData) {
     return;
   }
 
-  // Actualizar pago
-  await pool.query(
-    `UPDATE Pago SET estado = ? WHERE id_preference = ?`,
-    [status, preference_id]
-  );
-
-  if (status === "approved" && metadata?.userId) {
-    const [pago] = await pool.query(
-      `SELECT id_pago FROM Pago WHERE id_preference = ?`,
-      [preference_id]
+  try {
+    // 🔹 Actualizar el estado del pago en la base
+    await pool.query(
+      `UPDATE pago SET estado = ? WHERE id_preference = ?`,
+      [status, preference_id]
     );
 
-    if (pago.length > 0) {
-      await pool.query(
-        `INSERT INTO Membresia (id_usuario, id_pago, fechaInicio, fechaFin, tipo, estado)
-         VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), ?, 'activo')`,
-        [metadata.userId, pago[0].id_pago, metadata.tipo_plan]
+    console.log("📦 Estado del pago actualizado en la base:", status);
+
+    // 🔹 Verificar si el pago fue aprobado y hay datos de usuario
+    const userId = metadata.userId || metadata.user_id;
+    const tipoPlan = metadata.tipo_plan;
+
+    if (status === "approved" && userId) {
+      console.log("✅ Pago aprobado para usuario:", userId);
+
+      const [pago] = await pool.query(
+        `SELECT id_pago FROM pago WHERE id_preference = ?`,
+        [preference_id]
       );
-      console.log("✅ Membresía creada para el usuario:", metadata.userId);
+
+      if (pago.length === 0) {
+        console.warn("⚠️ No se encontró el pago asociado a la preferencia:", preference_id);
+        return;
+      }
+
+      // 🔹 Evitar crear membresías duplicadas
+      const [existing] = await pool.query(
+        `SELECT * FROM membresia WHERE id_pago = ?`,
+        [pago[0].id_pago]
+      );
+
+      if (existing.length > 0) {
+        console.log("ℹ️ Membresía ya existente para este pago:", pago[0].id_pago);
+        return;
+      }
+
+      // 🔹 Crear la membresía
+      await pool.query(
+        `INSERT INTO membresia (id_usuario, id_pago, fechaInicio, fechaFin, tipo, estado)
+         VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), ?, 'activo')`,
+        [userId, pago[0].id_pago, tipoPlan]
+      );
+
+      console.log("🎉 Membresía creada para el usuario:", userId);
     } else {
-      console.warn("⚠️ No se encontró el pago asociado a la preferencia:", preference_id);
+      console.log("ℹ️ El pago no fue aprobado o falta metadata del usuario");
     }
+  } catch (error) {
+    console.error("❌ Error procesando el pago:", error);
   }
 }
-
