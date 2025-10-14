@@ -1,10 +1,8 @@
 import express from "express";
-import { getRoutineByUser } from "../controllers/routineController.js";
+import { getMembership } from "../controllers/membershipController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
-
 const router = express.Router();
 
-// Rutas protegidas
-router.get("/user", authenticateToken, getRoutineByUser);
-
+router.get("/status", authenticateToken, getMembership);
+router.get("/membership", authenticateToken, getMembership);
 export default router;
