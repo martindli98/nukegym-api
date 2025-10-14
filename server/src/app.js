@@ -10,7 +10,7 @@ import feedbackRoutes from "./routes/feedbackRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
 import trainerRoutes from "./routes/trainerRoutes.js";
 import classRoutes from "./routes/classRoutes.js";
-
+import routineRoutes from "./routes/routineRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 // import { MercadoPagoConfig, Preference } from "mercadopago";
 
@@ -68,6 +68,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/trainers", trainerRoutes);
 app.use("/api", classRoutes);
+app.use("/api/routine",routineRoutes);
 
 
 app.use(express.urlencoded({ extended: true }));

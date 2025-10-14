@@ -10,9 +10,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Membership from "./pages/Membership";
 import Footer from "./components/Footer";
 import Feedback from "./pages/Feedback";
-import Routine from "./pages/Routine";
+
 import Trainer from "./pages/Trainer";
 import Classes from "./pages/Classes";
+import Routine from "./pages/Routine";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -26,7 +27,7 @@ const App = () => {
         <div>
           <Header />
         </div>
-        <div>
+        <div className="pt-16">
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <Route path="/" element={<Home />} />

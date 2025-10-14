@@ -4,7 +4,7 @@ import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Rutas protegidas
+// Ruta protegida para obtener la rutina del usuario
 router.get("/user", authenticateToken, getRoutineByUser);
 
 export default router;
