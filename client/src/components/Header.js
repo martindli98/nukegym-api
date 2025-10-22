@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import useNotifications from "../hooks/useNotifications";
 import "../App.css";
 
 const Header = () => {
@@ -8,6 +9,9 @@ const Header = () => {
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
+  // Hook para verificar notificaciones (solo para clientes)
+  useNotifications(userData);
+
   useEffect(() => {
     setTimeout(() => {
       getData();
@@ -15,7 +19,10 @@ const Header = () => {
 
     // Leer modo oscuro desde localStorage o sistema
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    if (
+      savedTheme === "dark" ||
+      (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
       document.documentElement.classList.add("dark");
       setDarkMode(true);
     }
@@ -79,7 +86,9 @@ const Header = () => {
           <Link
             to="/membership"
             className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/membership" ? "text-orange-500 underline" : ""
+              location.pathname === "/membership"
+                ? "text-orange-500 underline"
+                : ""
             }`}
           >
             Membresía
@@ -89,7 +98,9 @@ const Header = () => {
           <Link
             to="/routine"
             className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/routine" ? "text-orange-500 underline" : ""
+              location.pathname === "/routine"
+                ? "text-orange-500 underline"
+                : ""
             }`}
           >
             Rutina
@@ -99,7 +110,9 @@ const Header = () => {
           <Link
             to="/classes"
             className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/classes" ? "text-orange-500 underline" : ""
+              location.pathname === "/classes"
+                ? "text-orange-500 underline"
+                : ""
             }`}
           >
             Clases
@@ -132,14 +145,46 @@ const Header = () => {
             )}
 
             {userData.id_rol === 1 && (
+              <>
+                <li>
+                  <Link
+                    to="/admin/roles"
+                    className={`font-semibold hover:text-orange-500 transition-colors ${
+                      location.pathname === "/admin/roles"
+                        ? "text-orange-500 underline"
+                        : ""
+                    }`}
+                  >
+                    Panel de Roles
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/notifications"
+                    className={`font-semibold hover:text-orange-500 transition-colors ${
+                      location.pathname === "/admin/notifications"
+                        ? "text-orange-500 underline"
+                        : ""
+                    }`}
+                  >
+                    Panel de Notificaciones
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* Notificaciones para clientes y entrenadores */}
+            {userData && (userData.id_rol === 2 || userData.id_rol === 3) && (
               <li>
                 <Link
-                  to="/admin/roles"
+                  to="/notifications"
                   className={`font-semibold hover:text-orange-500 transition-colors ${
-                    location.pathname === "/admin/roles" ? "text-orange-500 underline" : ""
+                    location.pathname === "/notifications"
+                      ? "text-orange-500 underline"
+                      : ""
                   }`}
                 >
-                  Panel de Roles
+                  Notificaciones
                 </Link>
               </li>
             )}
@@ -174,7 +219,9 @@ const Header = () => {
               <Link
                 to="/login"
                 className={`font-medium hover:text-orange-500 transition-colors ${
-                  location.pathname === "/login" ? "text-orange-500 underline" : ""
+                  location.pathname === "/login"
+                    ? "text-orange-500 underline"
+                    : ""
                 }`}
               >
                 Ingresar
@@ -184,7 +231,9 @@ const Header = () => {
               <Link
                 to="/signup"
                 className={`font-medium hover:text-orange-500 transition-colors ${
-                  location.pathname === "/signup" ? "text-orange-500 underline" : ""
+                  location.pathname === "/signup"
+                    ? "text-orange-500 underline"
+                    : ""
                 }`}
               >
                 Registrarse

@@ -31,10 +31,33 @@ const ProtectedRoute = ({ children, rolPermitido }) => {
       // Si rolPermitido está definido, verificar que el usuario tenga el rol correcto
       if (authenticated && rolPermitido) {
         const userRol = userData?.userData?.rol || userData?.userData?.id_rol;
-        // Asegurate de que el rol de tu backend coincida con este valor
-        if (rolPermitido === "admin" && userData.userData.id_rol !== 1) {
-  setIsAuthenticated(false);
-}
+
+        // Soportar array de roles o rol único
+        const rolesPermitidos = Array.isArray(rolPermitido)
+          ? rolPermitido
+          : [rolPermitido];
+
+        // Verificar si el usuario tiene alguno de los roles permitidos
+        let tienePermiso = false;
+
+        for (const rol of rolesPermitidos) {
+          if (rol === "admin" && userData.userData.id_rol === 1) {
+            tienePermiso = true;
+            break;
+          }
+          if (rol === "cliente" && userData.userData.id_rol === 2) {
+            tienePermiso = true;
+            break;
+          }
+          if (rol === "entrenador" && userData.userData.id_rol === 3) {
+            tienePermiso = true;
+            break;
+          }
+        }
+
+        if (!tienePermiso) {
+          setIsAuthenticated(false);
+        }
       }
     } catch (error) {
       console.error("ProtectedRoute - Error al verificar auth:", error);

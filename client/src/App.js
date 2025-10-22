@@ -14,6 +14,7 @@ import Feedback from "./pages/Feedback";
 import Trainer from "./pages/Trainer";
 import Classes from "./pages/Classes";
 import Routine from "./pages/Routine";
+import Notifications from "./pages/Notifications";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -40,7 +41,7 @@ const App = () => {
               <Route
                 path="/trainers"
                 element={
-                  <ProtectedRoute rolPermitido="cliente">
+                  <ProtectedRoute rolPermitido={["cliente", "entrenador"]}>
                     <Trainer />
                   </ProtectedRoute>
                 }
@@ -63,7 +64,22 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
+              <Route
+                path="/admin/notifications"
+                element={
+                  <ProtectedRoute rolPermitido="admin">
+                    <Notifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute rolPermitido={["cliente", "entrenador"]}>
+                    <Notifications />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -93,7 +93,8 @@ const progressTableQuery = `CREATE TABLE IF NOT EXISTS Progreso (id_ejercicio IN
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
 const notificationTableQuery = `CREATE TABLE IF NOT EXISTS Notificacion (id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT(11) NOT NULL,
+id_usuario INT(11) NOT NULL,
+titulo VARCHAR(100) NOT NULL,
     mensaje VARCHAR(255) NOT NULL,
     fecha DATETIME NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id)

@@ -13,6 +13,7 @@ import classRoutes from "./routes/classRoutes.js";
 import routineRoutes from "./routes/routineRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 // import { MercadoPagoConfig, Preference } from "mercadopago";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -69,7 +70,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/trainers", trainerRoutes);
 app.use("/api", classRoutes);
 app.use("/api/routine",routineRoutes);
-
+app.use("/api/notifications", notificationRoutes);
 
 app.use(express.urlencoded({ extended: true }));
 
