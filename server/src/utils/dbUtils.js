@@ -24,6 +24,23 @@ const userTableQuery = `CREATE TABLE IF NOT EXISTS Usuario (
     FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
+
+const trainerTableQuery = `CREATE TABLE IF NOT EXISTS Entrenador (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    especialidad VARCHAR(100),
+    turno ENUM('mañana', 'tarde', 'noche') DEFAULT 'mañana' NOT NULL,
+    cupos INT(50) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+
+const addTrainerFkQuery = `
+  ALTER TABLE Usuario
+  ADD CONSTRAINT fk_usuario_id_trainer
+  FOREIGN KEY (id_trainer) REFERENCES Entrenador(id)
+  ON DELETE SET NULL;
+`;
+
 const paymentTableQuery = `CREATE TABLE IF NOT EXISTS Pago (
   id_pago INT(11) AUTO_INCREMENT PRIMARY KEY,
   id_usuario INT NOT NULL,
@@ -68,26 +85,38 @@ const classTableQuery = `CREATE TABLE IF NOT EXISTS Clase(
     FOREIGN KEY (id_entrenador) REFERENCES Usuario(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
-const exerciseTableQuery = `CREATE TABLE IF NOT EXISTS Ejercicio (id INT(11) AUTO_INCREMENT PRIMARY KEY,
+const exerciseTableQuery = `CREATE TABLE IF NOT EXISTS Ejercicio (
+   id INT(11) AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     url_media VARCHAR(255),
-    descripcion TEXT
+    descripcion TEXT,
+    musculo_principal ENUM('Pecho', 'Espalda', 'Hombros', 'Biceps', 'Triceps', 'Cuadriceps', 'Gemelos', 'Isquiotibiales', 'Gluteos', 'Trapecio', 'Antebrazo', 'Aductores', 'Abductores', 'Abdominales') DEFAULT NULL,
+    musculo_secundario ENUM('Pecho', 'Espalda', 'Hombros', 'Biceps', 'Triceps', 'Cuadriceps', 'Gemelos', 'Isquiotibiales', 'Gluteos', 'Trapecio', 'Antebrazo', 'Aductores', 'Abductores', 'Abdominales') DEFAULT NULL,
+    equipamiento VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
-const routineTableQuery = `CREATE TABLE IF NOT EXISTS Rutina (id INT(11) AUTO_INCREMENT PRIMARY KEY,
+const routineTableQuery = `CREATE TABLE IF NOT EXISTS Rutina (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT(11) NOT NULL,
+    id_entrenador INT NULL,
     fecha DATE NOT NULL,
+    nombre VARCHAR(100),
     objetivo VARCHAR(255),
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_entrenador) REFERENCES Usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
-const routineExerciseTableQuery = `CREATE TABLE IF NOT EXISTS Rutina_Ejercicio ( id_rutina INT(11) NOT NULL,
+const routineExerciseTableQuery = `CREATE TABLE IF NOT EXISTS Rutina_Ejercicio ( 
+    id_rutina INT(11) NOT NULL,
     id_ejercicio INT(11) NOT NULL,
+    series INT(11) DEFAULT 3,
+    repeticiones INT(11) DEFAULT 12,
     PRIMARY KEY (id_rutina, id_ejercicio),
-    FOREIGN KEY (id_rutina) REFERENCES Rutina(id),
+    FOREIGN KEY (id_rutina) REFERENCES Rutina(id) ON DELETE CASCADE,
     FOREIGN KEY (id_ejercicio) REFERENCES Ejercicio(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 `;
+
 
 const progressTableQuery = `CREATE TABLE IF NOT EXISTS Progreso (id_ejercicio INT(11),
     id_usuario INT(11),
@@ -201,6 +230,8 @@ const createAllTable = async () => {
     await createTable("Usuario", userTableQuery);
     await createTable("Planes", plansTableQuery); // ⬅️ mover arriba
     await insertDefaultPlans(); // ⬅️ cargar planes antes
+    await createTable("Entrenador",trainerTableQuery);
+    await pool.query(addTrainerFkQuery)
     await createTable("Pago", paymentTableQuery);
     await createTable("Membresia", membershipTableQuery);
     await createTable("Clase", classTableQuery);

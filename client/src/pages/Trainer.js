@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
 
 export default function Trainer() {
   const userSession = JSON.parse(sessionStorage.getItem("userData"));
@@ -10,16 +11,23 @@ export default function Trainer() {
   const [students, setStudents] = useState([]);
   const [activeTrainerId, setActiveTrainerId] = useState(null);
 
-  useEffect(() => {
-    if (!user) return;
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
-    if (user.id_rol === 2) {
-      fetchTrainers();
-      setActiveTrainerId(user.id_trainer);
-    } else if (user.id_rol === 3) {
-      fetchStudents();
-    }
-  }, [/* user */]);
+  useEffect(
+    () => {
+      if (!user) return;
+
+      if (user.id_rol === 2) {
+        fetchTrainers();
+        setActiveTrainerId(user.id_trainer);
+      } else if (user.id_rol === 3) {
+        fetchStudents();
+      }
+    },
+    [
+      /* user */
+    ]
+  );
 
   const fetchTrainers = async () => {
     try {
@@ -88,9 +96,11 @@ export default function Trainer() {
         <tbody>
           {trainers.map((t) => (
             <tr
-              key={t.id}
+              key={t.id_entrenador}
               className={`${
-                t.id === activeTrainerId ? "bg-green-100 font-semibold" : ""
+                t.id_entrenador === activeTrainerId
+                  ? "bg-green-100 font-semibold"
+                  : ""
               }`}
             >
               <td className="border p-2">{t.nombre}</td>
@@ -101,7 +111,7 @@ export default function Trainer() {
                   <span className="text-green-600 font-bold">Asignado</span>
                 ) : (
                   <button
-                    onClick={() => handleAssign(t.id)}
+                    onClick={() => handleAssign(t.id_entrenador)}
                     className="bg-purple-500 hover:bg-purple-800 text-white px-3 py-1 rounded"
                   >
                     Asignar
@@ -140,12 +150,24 @@ export default function Trainer() {
                 <td className="border p-2">{s.apellido}</td>
                 <td className="border p-2">{s.email}</td>
                 <td className="border p-2 text-center">
-                  <button className="bg-purple-500 hover:bg-purple-800 text-white px-3 py-1 rounded">Asignar</button>
+                  <button
+                    onClick={() => setSelectedStudent(s.id)}
+                    className="bg-purple-500 hover:bg-purple-800 text-white px-3 py-1 rounded"
+                  >
+                    Asignar rutina
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+      {selectedStudent && (
+        <CreateRoutineModal
+          studentId={selectedStudent}
+          trainerId={user.id}
+          onClose={() => setSelectedStudent(null)}
+        />
       )}
     </div>
   );

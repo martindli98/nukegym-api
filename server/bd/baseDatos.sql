@@ -29,6 +29,17 @@ CREATE TABLE Usuario (
     FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+CREATE TABLE Entrenador (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    especialidad VARCHAR(100),
+    turno VARCHAR(100),
+    cupos INT(50) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- TABLA DE PAGOS
 
 CREATE TABLE Pago (
@@ -76,7 +87,10 @@ CREATE TABLE Ejercicio (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     url_media VARCHAR(255),
-    descripcion TEXT
+    descripcion TEXT,
+    musculo_principal VARCHAR(100),
+    musculo_secundario VARCHAR(100),
+    equipamiento VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -86,16 +100,21 @@ CREATE TABLE Ejercicio (
 CREATE TABLE Rutina (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT(11) NOT NULL,
+    id_entrenador INT,
     fecha DATE NOT NULL,
+    nombre VARCHAR(100),
     objetivo VARCHAR(255),
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
+    FOREIGN KEY (id_entrenador) REFERENCES Entrenador(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE Rutina_Ejercicio (
     id_rutina INT(11) NOT NULL,
     id_ejercicio INT(11) NOT NULL,
+    series INT(11) DEFAULT 3,
+    repeticiones INT(11) DEFAULT 12,
     PRIMARY KEY (id_rutina, id_ejercicio),
-    FOREIGN KEY (id_rutina) REFERENCES Rutina(id),
+    FOREIGN KEY (id_rutina) REFERENCES Rutina(id) ON DELETE CASCADE,
     FOREIGN KEY (id_ejercicio) REFERENCES Ejercicio(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
