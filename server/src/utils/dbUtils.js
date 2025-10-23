@@ -42,11 +42,19 @@ const membershipTableQuery = `CREATE TABLE IF NOT EXISTS Membresia (
     id_pago INT(11) NOT NULL,
     fechaInicio DATE NOT NULL,
     fechaFin DATE NOT NULL,
-    tipo VARCHAR(50) NOT NULL,
+    tipo INT(11) NOT NULL,
     estado ENUM('activo','baja','expirado') NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
-    FOREIGN KEY (id_pago) REFERENCES Pago(id_pago)
+    FOREIGN KEY (id_pago) REFERENCES Pago(id_pago),
+    FOREIGN KEY (tipo) REFERENCES Planes(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
+const plansTableQuery= `CREATE TABLE IF NOT EXISTS Planes ( 
+id INT AUTO_INCREMENT PRIMARY KEY, 
+nombre VARCHAR(100) NOT NULL, 
+descripcion VARCHAR(255), 
+precio DECIMAL(10,2) NOT NULL 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`;
 
 const classTableQuery = `CREATE TABLE IF NOT EXISTS Clase(
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -165,11 +173,34 @@ const insertDefaultRoles = async () => {
   }
 };
 
+
+  const insertDefaultPlans = async () => { 
+    try { 
+      const [rows] = await pool.query("SELECT COUNT(*) as count FROM Planes"); 
+      if (rows[0].count === 0) { 
+        await pool.query(`
+          INSERT INTO Planes (nombre, descripcion, precio) VALUES 
+          ('Basico', 'Acceso total por 9 dias al mes (2 dias a la semana)', 15000.00), 
+          ('Medio', 'Acceso total por 13 dias al mes (3 dias a la semana)', 40000.00), 
+          ('Libre', 'Acceso total libre por todo el mes', 75000.00);
+        `); 
+        console.log("Default plans inserted successfully!"); 
+      } else { 
+        console.log("Plans already exist, skipping insertion"); 
+      } 
+    } catch (error) { 
+      console.log("Error inserting default plans:", error); 
+    } 
+  };
+
+
 const createAllTable = async () => {
   try {
     await createTable("Rol", roleTableQuery);
     await insertDefaultRoles();
     await createTable("Usuario", userTableQuery);
+    await createTable("Planes", plansTableQuery); // ⬅️ mover arriba
+    await insertDefaultPlans(); // ⬅️ cargar planes antes
     await createTable("Pago", paymentTableQuery);
     await createTable("Membresia", membershipTableQuery);
     await createTable("Clase", classTableQuery);
@@ -182,6 +213,7 @@ const createAllTable = async () => {
     await createTable("Historial", historyTableQuery);
     await createTable("Reserva", reservationTableQuery);
     await createTable("Encuesta", surveyTableQuery);
+    await insertDefaultPlans();
     console.log("All tables created successfully!!");
   } catch (error) {
     console.log("Error creating tables", error);

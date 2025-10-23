@@ -196,7 +196,8 @@ async function processPayment(paymentData) {
         console.log("ℹ️ Membresía ya existente para este pago:", pago[0].id_pago);
         return;
       }
-
+      console.log('------------------------------------------------------')
+      console.log(tipoPlan);
       // 🔹 Creamos una nueva membresía por 1 mes
       await pool.query(
         `INSERT INTO membresia (id_usuario, id_pago, fechaInicio, fechaFin, tipo, estado)
