@@ -49,6 +49,7 @@ const Routine = () => {
   if (loading) return <p className="text-center p-4">Cargando rutinas...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
 
+ 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md m-10">
       <div className="flex justify-between items-center mb-6">

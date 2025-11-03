@@ -144,57 +144,6 @@ function Membership() {
   }, []);
 
 
-  
-
-  // let cardToRender;
-  // if (error) {
-  //   cardToRender = <RenderCard title={error} color="red" />;
-  // } else if (membershipStatus === null) {
-  //   cardToRender = <RenderCard title="Cargando estado de la membresía..." />;
-  // } else if (membershipStatus === true) {
-  //   cardToRender = <RenderCard title="✅ Tu membresía está activa" color="green" />;
-  // } else if (membership?.data?.estado === "baja") {
-  //   cardToRender = <RenderCard title="⚠️ Tu membresía está dada de baja" color="yellow" />;
-  // } else {
-  //   cardToRender = (
-  //     <div className="flex flex-col items-center bg-white bg-opacity-90 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-fadeIn">
-  //       <RenderCard
-  //         title="❌ Tu membresía expiró"
-  //         subtitle="Adquirí un plan para acceder al gimnasio 🏋️‍♂️"
-  //         color="white"
-  //       />
-  //       <div className="mt-4 w-full">
-  //         <label className="block mb-2 font-medium text-gray-700">Seleccioná un plan:</label>
-  //         <select
-  //             value={selectedPlan?.id || ""}
-  //             onChange={(e) => {
-  //               const plan = plansList.find(p => p.id === Number(e.target.value));
-  //               setSelectedPlan(plan);
-  //             }}
-  //             className="w-full border border-gray-300 rounded-lg p-2"
-  //           >
-  //             <option value="">Seleccioná un plan</option>
-  //             {plansList.map(plan => (
-  //               <option key={plan.id} value={plan.id}>
-  //                 {plan.nombre} - ${plan.precio}
-  //               </option>
-  //             ))}
-  //           </select>
-
-
-  //       </div>
-
-  //       <button
-  //         onClick={handleBuy}
-  //         className="mt-6 w-full bg-gradient-to-r from-[#fa7808] to-[#ff9f1a] hover:from-[#ff9f1a] hover:to-[#fa7808] text-white font-bold py-3 rounded-xl shadow-lg transition-transform transform hover:scale-105 duration-300"
-
-  //       >
-  //         Renovar Membresía
-  //       </button>
-  //       {preferenceId && <div className="mt-4 w-full"><Wallet initialization={{ preferenceId }} /></div>}
-  //     </div>
-  //   );
-  // }
 
 
   let membershipCardRender;
@@ -301,39 +250,81 @@ if (error) {
 
 
   return (
-    <div
-  className="relative w-full h-screen flex flex-row items-center justify-center bg-cover bg-center gap-6"
-  style={{ backgroundImage: `url(${require("../img/fondo2.jpg")})` }}
->
+  <div
+    className="relative w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center gap-6 py-10"
+    style={{ backgroundImage: `url(${require("../img/fondo2.jpg")})` }}
+  >
+ 
+    <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
+  
+    <div className="relative z-10 w-full flex flex-col items-center justify-center gap-10 px-10">
 
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div className="w-full relative flex flex-row items-center justify-center px-4">
-        
-       {user?.rol === "admin" ? (
-          <PDFDownloadLink
-            document={<PDF memberships={membershipList} />}
-            fileName="Membresias.pdf"
-          >
-            <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-              <svg className="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-              </svg>
-              <span>Download</span>
-            </button>
-          </PDFDownloadLink>
-        ) : (
-          <div className="w-full flex flex-row gap-6">
+          <div className="flex flex-row gap-6 justify-center w-full">
             {membershipCardRender}
             {infoCardRender}
           </div>
 
-        )}
+          {user?.rol === "admin" && (
+            <div
+                  className="bg-white dark:bg-[oklch(12.9%_0.042_264.695)]
+                            text-gray-800 dark:text-white
+                            shadow-lg rounded-2xl p-6 w-full 
+                            transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <svg
+                      className="w-5 h-5 text-orange-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    <h3 className="text-base font-semibold text-orange-500">
+                      Descargar listado de membresías
+                    </h3>
+                  </div>
 
-       
-      </div> 
+
+                  <p className="text-sm text-gray-700 dark:text-purple-200 mb-4">
+                    Descargá un archivo PDF con todas las membresías registradas en el sistema.
+                  </p>
+
+                  {/* Botón de descarga */}
+                  <PDFDownloadLink
+                    document={<PDF memberships={membershipList} />}
+                    fileName="Membresias.pdf"
+                  >
+                    <button
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors duration-200"
+                    >
+                      <svg
+                        className="fill-current w-5 h-5 mr-2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                      </svg>
+                      <span>Descargar PDF</span>
+                    </button>
+                  </PDFDownloadLink>
+
+                  
+                  <div className="mt-5 text-gray-500 dark:text-purple-300 text-xs border-t border-purple-700/50 pt-3">
+                    Última actualización automática al generar el archivo.
+                  </div>
+        </div>
+          )}
     </div>
-  );
+  </div>
+);
+;
 }
 
 export default Membership;
