@@ -43,14 +43,14 @@ function InfoCard({ estado, inicio, fin, tipo }) {
           <span className="font-semibold text-black dark:text-white">Fin:</span> {fin}
         </p>
 
-        <p>
+        {/* <p>
           <span className="font-semibold text-black dark:text-white">Tipo:</span>{" "}
           {tipo || "—"}
-        </p>
+        </p> */}
       </div>
 
       <div className="mt-5 text-gray-500 dark:text-purple-300 text-xs border-t border-purple-700/50 pt-3">
-        No se q mas poner
+        Espacio informativo
       </div>
     </div>
   );

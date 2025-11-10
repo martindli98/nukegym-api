@@ -252,10 +252,10 @@ if (error) {
   return (
   <div
     className="relative w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center gap-6 py-10"
-    style={{ backgroundImage: `url(${require("../img/fondo2.jpg")})` }}
+    // style={{ backgroundImage: `url(${require("../img/fondo2.jpg")})` }}
   >
  
-    <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+    {/* <div className="absolute inset-0 bg-black bg-opacity-50"></div> */}
 
   
     <div className="relative z-10 w-full flex flex-col items-center justify-center gap-10 px-10">

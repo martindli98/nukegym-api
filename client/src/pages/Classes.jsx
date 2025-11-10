@@ -101,6 +101,7 @@ const Classes = () => {
 
       // Cliente ve clases disponibles, admin/entrenador ve todas
       const endpoint = user?.id_rol === 2 ? "/classes/available" : "/classes";
+      console.log("@@@@@@@@@@@aca entra@@@@@@@@@");
       const data = await api(endpoint);
       setClasses(data);
     } catch (error) {

@@ -11,7 +11,7 @@ export const getMembership = async (req, res) => {
       `SELECT id, fechaInicio, fechaFin, tipo, estado
        FROM Membresia
        WHERE id_usuario = ?
-       ORDER BY fechaFin DESC
+       ORDER BY id DESC
        LIMIT 1`,
       [userId]
     );
@@ -79,7 +79,7 @@ export const getMembershipList = async (req, res) => {
             u.email AS emailUsuario
         FROM Membresia AS m
         JOIN Usuario AS u ON m.id_usuario = u.id
-        ORDER BY m.fechaFin DESC`
+        ORDER BY id DESC`
       );
 
 

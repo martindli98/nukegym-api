@@ -90,7 +90,7 @@ function PDF({ memberships = [] }) {
         <View style={styles.table}>
         
           <View style={styles.tableRowHeader}>
-            <Text style={styles.tableColHeader}>Usuario</Text>
+            <Text style={styles.tableColHeader}>Nombre y Apellido</Text>
             <Text style={styles.tableColHeader}>Email</Text>
             <Text style={styles.tableColHeader}>Tipo</Text>
             <Text style={styles.tableColHeader}>Estado</Text>
