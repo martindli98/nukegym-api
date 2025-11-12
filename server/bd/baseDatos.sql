@@ -122,6 +122,7 @@ CREATE TABLE Rutina_Ejercicio (
 -- TABLA DE PROGRESO
 
 CREATE TABLE Progreso (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_ejercicio INT(11),
     id_usuario INT(11),
     peso INT(11) UNSIGNED,

@@ -53,6 +53,7 @@ export const RoutineModel = {
   },
 
   async getRutine(id_rutina) {
+   
     const [rutina] = await pool.query("SELECT * FROM rutina WHERE id = ?", [
       id_rutina,
     ]);

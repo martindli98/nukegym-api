@@ -118,16 +118,26 @@ const routineExerciseTableQuery = `CREATE TABLE IF NOT EXISTS Rutina_Ejercicio (
 `;
 
 
-const progressTableQuery = `CREATE TABLE IF NOT EXISTS Progreso (id_ejercicio INT(11),
-    id_usuario INT(11),
-    peso INT(11) UNSIGNED,
-    repeticiones INT(11) UNSIGNED,
-    fecha_uno DATE NOT NULL,
-    fecha_dos DATE NOT NULL,
-    PRIMARY KEY (id_ejercicio, id_usuario, fecha_uno, fecha_dos),
-    FOREIGN KEY (id_ejercicio) REFERENCES Ejercicio(id),
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+const progressTableQuery = `CREATE TABLE Progreso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_rutina INT NOT NULL,
+    fecha_uno DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
+    FOREIGN KEY (id_rutina) REFERENCES Rutina(id)
+);
+`;
+
+const progressDetailsTableQuery = `CREATE TABLE Progreso_detalle (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_progreso INT NOT NULL,
+    id_ejercicio INT NOT NULL,
+    peso INT UNSIGNED,
+    repeticiones INT UNSIGNED,
+    FOREIGN KEY (id_progreso) REFERENCES Progreso(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_ejercicio) REFERENCES Ejercicio(id)
+);
+`
 
 const notificationTableQuery = `CREATE TABLE IF NOT EXISTS Notificacion (id INT(11) AUTO_INCREMENT PRIMARY KEY,
 id_usuario INT(11) NOT NULL,
@@ -222,34 +232,51 @@ const insertDefaultRoles = async () => {
     } 
   };
 
-
 const createAllTable = async () => {
   try {
+    // 1️⃣ Tablas base
     await createTable("Rol", roleTableQuery);
     await insertDefaultRoles();
+
     await createTable("Usuario", userTableQuery);
-    await createTable("Planes", plansTableQuery); // ⬅️ mover arriba
-    await insertDefaultPlans(); // ⬅️ cargar planes antes
-    await createTable("Entrenador",trainerTableQuery);
-    await pool.query(addTrainerFkQuery)
+
+    // 2️⃣ Tablas sin dependencias o de configuración
+    await createTable("Planes", plansTableQuery);
+    await insertDefaultPlans();
+
+    // 3️⃣ Tablas relacionadas con usuarios
+    await createTable("Entrenador", trainerTableQuery);
+    await pool.query(addTrainerFkQuery); // se ejecuta después de crear Entrenador
+
+    // 4️⃣ Tablas de pagos y membresías
     await createTable("Pago", paymentTableQuery);
     await createTable("Membresia", membershipTableQuery);
-    await createTable("Clase", classTableQuery);
+
+    // 5️⃣ Tablas de ejercicios y rutinas
     await createTable("Ejercicio", exerciseTableQuery);
     await createTable("Rutina", routineTableQuery);
     await createTable("Rutina_Ejercicio", routineExerciseTableQuery);
+
+    // 6️⃣ Tablas de progreso (primero Progreso, luego detalle)
     await createTable("Progreso", progressTableQuery);
-    await createTable("Notificacion", notificationTableQuery);
+    await createTable("Progreso_detalle", progressDetailsTableQuery);
+
+    // 7️⃣ Tablas de clases, asistencia y reservas
+    await createTable("Clase", classTableQuery);
     await createTable("Asistencia", asistanceTableQuery);
-    await createTable("Historial", historyTableQuery);
     await createTable("Reserva", reservationTableQuery);
+
+    // 8️⃣ Tablas complementarias
+    await createTable("Historial", historyTableQuery);
+    await createTable("Notificacion", notificationTableQuery);
     await createTable("Encuesta", surveyTableQuery);
-    await insertDefaultPlans();
-    console.log("All tables created successfully!!");
+
+    console.log("✅ All tables created successfully!");
   } catch (error) {
-    console.log("Error creating tables", error);
+    console.log("❌ Error creating tables", error);
     throw error;
   }
 };
+
 
 export default createAllTable;

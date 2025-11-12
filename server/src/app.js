@@ -15,6 +15,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 // import { MercadoPagoConfig, Preference } from "mercadopago";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import exerciseRoutes from "./routes/exerciseRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js"
 
 
 const app = express();
@@ -74,6 +75,7 @@ app.use("/api", classRoutes);
 app.use("/api/routine",routineRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/exercises", exerciseRoutes);
+app.use("/api/progress", progressRoutes)
 
 
 app.use(express.urlencoded({ extended: true }));

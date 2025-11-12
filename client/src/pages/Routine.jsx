@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RoutineCard from "../components/Routine/RoutineCard";
 import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
+import { useNavigate } from "react-router-dom";
 
 const Routine = () => {
+
+  const navigate = useNavigate();
   const [routines, setRoutines] = useState([]);
   const [selectedRoutine, setSelectedRoutine] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,17 +55,27 @@ const Routine = () => {
  
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md m-10">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
-          Tus Rutinas
-        </h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-1 bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
-        >
-          Armar rutina
-        </button>
-      </div>
+     <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Tus Rutinas
+          </h2>
+          <div className="flex gap-3">
+            <button
+                onClick={() => navigate(`/progress`)}
+                className="bg-orange-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
+              >
+                Ver progreso
+              </button>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
+            >
+              Armar rutina
+            </button>
+          </div>
+        </div>
+
 
       {showModal && (
         <CreateRoutineModal

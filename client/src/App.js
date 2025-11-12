@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Membership from "./pages/Membership";
 import Footer from "./components/Footer";
 import Feedback from "./pages/Feedback";
+import Progress from "./pages/Progress";
+import ProgressComplete from "./pages/ProgressComplete";
 
 import Trainer from "./pages/Trainer";
 import Classes from "./pages/Classes";
@@ -38,6 +40,9 @@ const App = () => {
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/routine" element={<Routine />} />
               <Route path="/classes" element={<Classes />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/progresscomplete/:idRutina" element={<ProgressComplete />} />
+
               <Route
                 path="/trainers"
                 element={
