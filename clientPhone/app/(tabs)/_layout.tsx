@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -15,19 +15,50 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          borderRadius: 15,
+          padding: 5,
+          backgroundColor: '#fff',
+        }
       }}>
       <Tabs.Screen
-        name="index"
+        name="membership"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Membresia',
+          tabBarIcon: ({ color, size }) => 
+          <Ionicons size={size} name="card-outline" color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="classes"
+        options={{
+          title: 'Clases',
+          tabBarIcon: ({ color, size }) => 
+          <MaterialCommunityIcons size={size} name="calendar-check" color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="qr"
+        options={{
+          title: 'QR',
+          tabBarIcon: ({ color, size }) => 
+          <MaterialCommunityIcons size={size} name="qrcode-scan" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="rutine"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Rutina',
+          tabBarIcon: ({ color, size }) => 
+          <MaterialCommunityIcons size={size} name="dumbbell" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) =>
+          <Ionicons size={size} name="person-circle-outline" color={color} />,
         }}
       />
     </Tabs>
