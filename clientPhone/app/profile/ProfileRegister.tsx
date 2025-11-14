@@ -19,12 +19,14 @@ export default function ProfileRegister({ onBack }: Props) {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
+    console.log('handleeeeeeeeeereigsteeeeeeeeeeeeeeeer')
     if (!email || !dni || !password) {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
 
     try {
+      console.log("tryyyyyyyyyyyyyyyyyyyyyy")
       const res = await api('/auth/register-user', {
         method: 'POST',
         body: JSON.stringify({
@@ -33,15 +35,18 @@ export default function ProfileRegister({ onBack }: Props) {
           password,
         }),
       });
-
+      
+      console.log(res)
       if (res.success) {
         Alert.alert(
           "Éxito",
           "Usuario registrado correctamente. Ahora podés iniciar sesión."
         );
         onBack();
+        console.log("anduvoo")
       } else {
         Alert.alert("Error", res.data.message || "No se pudo registrar");
+         console.log("nooooo anduvoo")
       }
     } catch {
       Alert.alert("Error", "No se pudo conectar con el servidor");

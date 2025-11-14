@@ -147,13 +147,14 @@ titulo VARCHAR(100) NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
-const asistanceTableQuery = `CREATE TABLE IF NOT EXISTS Asistencia ( id INT(11) AUTO_INCREMENT PRIMARY KEY,
+const asistanceTableQuery = `CREATE TABLE IF NOT EXISTS Asistencia ( 
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT(11) NOT NULL,
-    id_clase INT(11) NOT NULL,
+    
     fecha DATE NOT NULL,
     estado ENUM('presente','ausente','justificado') NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
-    FOREIGN KEY (id_clase) REFERENCES Clase(id)
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
+   
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
 const historyTableQuery = `CREATE TABLE IF NOT EXISTS Historial (id INT(11) AUTO_INCREMENT PRIMARY KEY,
