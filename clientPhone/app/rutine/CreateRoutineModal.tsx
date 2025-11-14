@@ -11,8 +11,8 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "@/src/utils/api";
 
 interface Exercise {
   id: number;
@@ -78,13 +78,11 @@ export default function CreateRoutineModal({
         return;
       }
 
-      const res = await axios.get("http://192.168.100.11:3000/api/exercises", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api('/exercises');
 
-      if (Array.isArray(res.data)) {
-        setExercises(res.data);
-        setFiltered(res.data);
+      if (Array.isArray(res)) {
+        setExercises(res);
+        setFiltered(res);
       } else {
         Alert.alert("Error", "Los datos recibidos no son válidos.");
       }
@@ -156,9 +154,9 @@ export default function CreateRoutineModal({
         return;
       }
 
-      await axios.post(
-        "http://192.168.100.11:3000/api/routine",
-        {
+      await api('/routine', {
+        method: 'POST',
+        body: JSON.stringify({
           id_usuario: studentId,
           id_entrenador: trainerId || null,
           fecha: new Date(),
@@ -168,9 +166,8 @@ export default function CreateRoutineModal({
             series: ex.series,
             repeticiones: ex.repeticiones,
           })),
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        }),
+      });
 
       Alert.alert("✅ Éxito", "Rutina creada correctamente");
       onCreated();

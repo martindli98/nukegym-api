@@ -11,7 +11,7 @@ import {
   KeyboardTypeOptions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import { api } from "@/src/utils/api";
 
 interface Props {
   onCancel: () => void;
@@ -60,15 +60,10 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
 
       let user = storedUser ? JSON.parse(storedUser) : null;
 
-      const res = await axios.get(
-        "http://192.168.100.11:3000/api/users/profile",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api('/users/profile');
 
-      if (res.data?.success && (res.data.user || res.data.data)) {
-        user = res.data.user || res.data.data;
+      if (res?.success && (res.user || res.data)) {
+        user = res.user || res.data;
         await AsyncStorage.setItem("userData", JSON.stringify(user));
       }
 
@@ -167,28 +162,22 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
         return;
       }
 
-      const res = await axios.put(
-        "http://192.168.100.11:3000/api/users/profile",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await api('/users/profile', {
+        method: 'PUT',
+        body: JSON.stringify(formData),
+      });
 
-      if (res.data.success) {
+      if (res.success) {
         Alert.alert("Éxito", "Perfil actualizado correctamente");
 
-        const updatedUser = res.data.user || formData;
+        const updatedUser = res.user || formData;
         await AsyncStorage.setItem("userData", JSON.stringify(updatedUser));
 
         onSave();
       } else {
         Alert.alert(
           "Error",
-          res.data.message || "No se pudo actualizar el perfil"
+          res.message || "No se pudo actualizar el perfil"
         );
       }
     } catch (err: any) {

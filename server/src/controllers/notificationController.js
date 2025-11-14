@@ -28,7 +28,7 @@ const validateNotificationData = (titulo, mensaje, fecha_envio) => {
 
 // Función helper para verificar permisos de admin
 const checkAdminPermission = (req, res) => {
-  if (req.user.id_rol === 1) {
+  if (req.user.id_rol !== 1) {
     res.status(403).json({
       message: "No tienes permiso de administrador",
     });

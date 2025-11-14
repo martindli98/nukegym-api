@@ -7,9 +7,9 @@ const NotificationForm = ({
   onCancel,
   isEditing = false,
 }) => {
-  // Obtener fecha y hora mínima (ahora)
+  // Obtener fecha y hora mínima (ahora) en formato local YYYY-MM-DD
   const now = new Date();
-  const minDateTime = now.toISOString().slice(0, 8);
+  const minDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <form

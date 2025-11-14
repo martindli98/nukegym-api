@@ -1,10 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.100.11:3000/api";
+const API_URL = process.env.API_URL || "http://192.168.1.3:3000/api";
 
 export const api = async (path: string, options: any = {}) => {
   const token = await getToken();
   try {
+    // Axios usa 'data' en lugar de 'body'
+    const { body, ...restOptions } = options;
     const response = await axios({
       url: `${API_URL}${path}`,
       headers: {
@@ -12,7 +14,8 @@ export const api = async (path: string, options: any = {}) => {
         Authorization: token ? `Bearer ${token}` : "",
         ...options.headers,
       },
-      ...options,
+      data: body, // Convertir 'body' a 'data' para axios
+      ...restOptions,
     });
     return response.data;
   } catch (error: any) {

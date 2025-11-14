@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import axios from "axios";
+import { api } from "@/src/utils/api";
 
 interface Props {
   onBack: () => void;
@@ -25,16 +25,16 @@ export default function ProfileRegister({ onBack }: Props) {
     }
 
     try {
-      const res = await axios.post(
-        "http://192.168.100.11:3000/api/auth/register-user",
-        {
+      const res = await api('/auth/register-user', {
+        method: 'POST',
+        body: JSON.stringify({
           email,
           nro_documento: dni,
           password,
-        }
-      );
+        }),
+      });
 
-      if (res.data.success) {
+      if (res.success) {
         Alert.alert(
           "Éxito",
           "Usuario registrado correctamente. Ahora podés iniciar sesión."
@@ -43,7 +43,7 @@ export default function ProfileRegister({ onBack }: Props) {
       } else {
         Alert.alert("Error", res.data.message || "No se pudo registrar");
       }
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "No se pudo conectar con el servidor");
     }
   };

@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import axios from "axios";
+import { api } from "@/src/utils/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Props {
@@ -24,17 +24,17 @@ export default function ProfileLogin({
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post(
-        "http://192.168.100.11:3000/api/auth/login",
-        {
+      const res = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
           email,
           password,
-        }
-      );
+        }),
+      });
 
-      if (res.data.success && res.data.token) {
-        await AsyncStorage.setItem("authToken", res.data.token);
-        await AsyncStorage.setItem("userData", JSON.stringify(res.data.user));
+      if (res.success && res.token) {
+        await AsyncStorage.setItem("authToken", res.token);
+        await AsyncStorage.setItem("userData", JSON.stringify(res.user));
         Alert.alert("Éxito", "Has iniciado sesión correctamente");
         onLoginSuccess();
       } else {

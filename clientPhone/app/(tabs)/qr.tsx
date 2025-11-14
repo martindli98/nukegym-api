@@ -1,3 +1,1 @@
-export default function QrTab() {
-    
-}
+export { default } from "../qr/QrScannerScreen";

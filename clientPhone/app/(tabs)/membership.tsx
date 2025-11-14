@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import { api } from "@/src/utils/api";
 import { Picker } from "@react-native-picker/picker";
 import * as WebBrowser from "expo-web-browser";
 import { useFocusEffect } from "@react-navigation/native";
@@ -61,17 +61,13 @@ export default function Membership() {
 
         try {
           const [membershipRes, plansRes] = await Promise.all([
-            axios.get("http://192.168.100.11:3000/api/membership/status", {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get("http://192.168.100.11:3000/api/membership/plans", {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
+            api('/membership/status'),
+            api('/membership/plans'),
           ]);
 
-          if (membershipRes.data.success) {
-            setMembership(membershipRes.data.data);
-            setMembershipStatus(membershipRes.data.membershipActive);
+          if (membershipRes.success) {
+            setMembership(membershipRes.data);
+            setMembershipStatus(membershipRes.membershipActive);
             setError("");
           } else {
             setMembership(null);
@@ -79,8 +75,8 @@ export default function Membership() {
             setError("No tienes una membresía activa.");
           }
 
-          if (plansRes.data.success) {
-            setPlans(plansRes.data.plansList);
+          if (plansRes.success) {
+            setPlans(plansRes.plansList);
           }
         } catch (err: any) {
           console.error("Error al obtener membresía o planes", err);
@@ -119,19 +115,18 @@ export default function Membership() {
     }
 
     try {
-      const res = await axios.post(
-        "http://192.168.100.11:3000/api/payments/create_preference",
-        {
+      const res = await api('/payments/create_preference', {
+        method: 'POST',
+        body: JSON.stringify({
           title: "Renovación de Membresía",
           quantity: 1,
           price: selectedPlan.precio,
           userId: user.id,
           tipo_plan: selectedPlan.id,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        }),
+      });
 
-      const preferenceId = res.data.preferenceId;
+      const preferenceId = res.preferenceId;
       if (!preferenceId) {
         Alert.alert("Error", "No se pudo obtener la preferencia de pago.");
         return;
@@ -151,20 +146,12 @@ export default function Membership() {
   };
 
   const refreshMembership = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-    if (!token) return;
-
     try {
-      const res = await axios.get(
-        "http://192.168.100.11:3000/api/membership/status",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api('/membership/status');
 
-      if (res.data.success) {
-        setMembership(res.data.data);
-        setMembershipStatus(res.data.membershipActive);
+      if (res.success) {
+        setMembership(res.data);
+        setMembershipStatus(res.membershipActive);
       }
     } catch (err) {
       console.error("Error al refrescar membresía", err);

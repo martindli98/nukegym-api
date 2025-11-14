@@ -9,10 +9,10 @@ import {
   Alert,
   Image,
 } from "react-native";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
+import { api } from "@/src/utils/api";
 import CreateRoutineModal from "../rutine/CreateRoutineModal";
 
 interface Ejercicio {
@@ -73,18 +73,13 @@ export default function RoutineScreen() {
       const parsedUser: User = JSON.parse(userDataStr);
       setUser(parsedUser);
 
-      const res = await axios.get(
-        "http://192.168.100.11:3000/api/routine/user",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api('/routine/user');
 
-      if (res.data?.success) {
-        setRoutines(res.data.routines ?? []);
+      if (res?.success) {
+        setRoutines(res.routines ?? []);
       } else {
         setRoutines([]);
-        setError(res.data?.message ?? "No tienes rutinas asignadas.");
+        setError(res?.message ?? "No tienes rutinas asignadas.");
       }
     } catch (err: any) {
       console.error("Error fetching routines:", err.message);
@@ -115,16 +110,11 @@ export default function RoutineScreen() {
             try {
               const token = await AsyncStorage.getItem("authToken");
               if (!token) return;
-              await axios.delete(
-                `http://192.168.100.11:3000/api/routine/${id}`,
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
+              await api(`/routine/${id}`, { method: 'DELETE' });
               Alert.alert("Rutina eliminada correctamente");
               setSelectedRoutine(null);
               loadUserAndRoutines();
-            } catch (err) {
+            } catch {
               Alert.alert("Error al eliminar la rutina");
             }
           },

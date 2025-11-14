@@ -151,11 +151,9 @@ CREATE TABLE Notificacion (
 CREATE TABLE Asistencia (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT(11) NOT NULL,
-    id_clase INT(11) NOT NULL,
     fecha DATE NOT NULL,
     estado ENUM('presente','ausente','justificado') NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id),
-    FOREIGN KEY (id_clase) REFERENCES Clase(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

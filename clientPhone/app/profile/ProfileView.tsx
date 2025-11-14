@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import { api } from "@/src/utils/api";
 import { useFocusEffect } from "@react-navigation/native";
 
 interface User {
@@ -33,16 +33,11 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) return;
 
-      const res = await axios.get(
-        "http://192.168.100.11:3000/api/users/profile",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api('/users/profile');
 
-      if (res.data.success) {
-        setUserData(res.data.user);
-        await AsyncStorage.setItem("userData", JSON.stringify(res.data.user));
+      if (res.success) {
+        setUserData(res.user);
+        await AsyncStorage.setItem("userData", JSON.stringify(res.user));
       } else {
         Alert.alert("Error", "No se pudo obtener el perfil");
       }
