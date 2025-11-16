@@ -30,42 +30,87 @@ export const getAllTrainers = async (req, res) => {
     res.status(500).json({ message: "Error al obtener los entrenadores" })
   }
 };
-
 export const assignTrainer = async (req, res) => {
-  const { id } = req.params
-  const { id_trainer } = req.body
+  const { id } = req.params;               // ID del usuario (cliente)
+  const { id_trainer: newTrainerId } = req.body;
 
   try {
+    // 1) Determinar columna correcta (id_entrenador o id_trainer)
+    const usuarioTrainerCol = await getUsuarioTrainerColumn();
+    if (!usuarioTrainerCol) {
+      return res.status(500).json({ message: "Columna de entrenador no encontrada en Usuario" });
+    }
+
+    // 2) Obtener el entrenador actual del usuario
+    const [userRows] = await pool.query(
+      `SELECT ${usuarioTrainerCol} AS currentTrainer FROM Usuario WHERE id = ?`,
+      [id]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const oldTrainerId = userRows[0].currentTrainer || null;
+
+    // 3) Evitar reasignar al mismo entrenador
+    if (oldTrainerId === newTrainerId) {
+      return res.status(400).json({ message: "Este entrenador ya está asignado" });
+    }
+
+    // 4) Verificar que el nuevo entrenador exista
     const [trainerRows] = await pool.query(
-      "SELECT id, id_usuario FROM Entrenador WHERE id = ?",
-      [id_trainer]
+      "SELECT cupos FROM Entrenador WHERE id = ?",
+      [newTrainerId]
     );
 
     if (trainerRows.length === 0) {
       return res.status(404).json({ message: "El entrenador no existe" });
     }
 
-    const usuarioTrainerCol = await getUsuarioTrainerColumn();
-    if (!usuarioTrainerCol) {
-      console.error("No se encontró columna id_entrenador ni id_trainer en Usuario");
-      return res.status(500).json({ message: "Configuración de base de datos incorrecta" });
+    const newTrainerCupos = trainerRows[0].cupos;
+
+    // 5) Validar cupo disponible
+    if (newTrainerCupos <= 0) {
+      return res.status(400).json({ message: "Este entrenador no tiene cupos disponibles" });
     }
 
+    // 6) SUMAR cupo al entrenador anterior (si tenía)
+    if (oldTrainerId) {
+      await pool.query(
+        "UPDATE Entrenador SET cupos = cupos + 1 WHERE id = ?",
+        [oldTrainerId]
+      );
+    }
+
+    // 7) RESTAR cupo al nuevo entrenador
+    await pool.query(
+      "UPDATE Entrenador SET cupos = cupos - 1 WHERE id = ?",
+      [newTrainerId]
+    );
+
+    // 8) Actualizar usuario → asignar entrenador nuevo
     const [result] = await pool.query(
       `UPDATE Usuario SET \`${usuarioTrainerCol}\` = ? WHERE id = ? AND id_rol = 2`,
-      [id_trainer, id]
+      [newTrainerId, id]
     );
 
     if (result.affectedRows === 0) {
       return res.status(400).json({ message: "No se pudo asignar: usuario no existe o no es cliente (rol 2)" });
     }
 
-    res.json({ message: "Entrenador asignado correctamente" });
+    return res.json({ 
+      message: "Entrenador asignado correctamente",
+      oldTrainerId,
+      newTrainerId
+    });
+
   } catch (error) {
     console.error("assignTrainer error:", error);
-    res.status(500).json({ message: "Error al asignar el entrenador" });
+    return res.status(500).json({ message: "Error al asignar el entrenador" });
   }
 };
+
 
 export const getStudentsByTrainer = async (req, res) => {
   const { id } = req.params

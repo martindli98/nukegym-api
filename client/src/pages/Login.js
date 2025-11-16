@@ -90,52 +90,71 @@ sessionStorage.setItem("userData", JSON.stringify(userData));
   };
 
   return (
-    <div className="login-container">
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email</label>
+  <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300 px-4">
+    <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+
+      {/* Título */}
+      <h2 className="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">
+        Iniciar sesión
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        
+        {/* Email */}
+        <div className="flex flex-col">
+          <label className="mb-1 font-medium text-gray-700 dark:text-gray-300">Email</label>
           <input
             type="email"
             name="email"
             placeholder="Ingrese su email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
           />
           {errors.email && (
-            <span className="error-message">{errors.email}</span>
+            <span className="text-red-500 text-sm mt-1">{errors.email}</span>
           )}
         </div>
-        <div className="form-group">
-          <label>Contraseña</label>
+
+        {/* Contraseña */}
+        <div className="flex flex-col">
+          <label className="mb-1 font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
           <input
             type="password"
             name="password"
             placeholder="Ingrese su contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
           />
           {errors.password && (
-            <span className="error-message">{errors.password}</span>
+            <span className="text-red-500 text-sm mt-1">{errors.password}</span>
           )}
         </div>
-        <button type="submit" className="login-btn">
+
+        {/* Botón */}
+        <button
+          type="submit"
+          className="w-full py-2 font-semibold rounded-lg bg-gradient-to-r from-orange-500 to-purple-600 text-white hover:opacity-90 transition-transform hover:scale-[1.02] shadow-md"
+        >
           Entrar
         </button>
       </form>
 
-      <p style={{ textAlign: "center" }}>
+      {/* Registro */}
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
         ¿No tienes una cuenta?{" "}
         <Link
           to="/signUp"
-          className="toggle-link"
-          style={{ color: "#007BFF", textDecoration: "underline" }}
+          className="text-orange-500 dark:text-purple-300 font-semibold hover:underline"
         >
           Registrarse
         </Link>
       </p>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Login;

@@ -25,7 +25,6 @@ export default function Trainer() {
       }
     },
     [
-      /* user */
     ]
   );
 
@@ -33,6 +32,7 @@ export default function Trainer() {
     try {
       const res = await axios.get("http://localhost:3000/api/trainers");
       setTrainers(res.data);
+      console.log(res.data)
     } catch (error) {
       toast.error("Error al cargar entrenadores");
       console.error(error);
@@ -80,116 +80,176 @@ export default function Trainer() {
   };
 
   const renderTrainerTable = () => (
-    <div className="container mx-auto mt-10 flex-grow">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Entrenadores Disponibles
-      </h2>
-      <table className="table-auto w-full border-collapse border border-gray-300">
-        <thead className="bg-orange-500 text-white">
-          <tr>
-            <th className="border p-2">Nombre</th>
-            <th className="border p-2">Apellido</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trainers.map((t) => (
-            <tr
+  <div className="mt-6 overflow-x-auto">
+    <table className="w-full border-collapse">
+      <thead className="bg-orange-500 text-white">
+        <tr>
+          <th className="p-3 text-left">Nombre</th>
+          <th className="p-3 text-left">Apellido</th>
+          <th className="p-3 text-left">Email</th>
+          <th className="p-3 text-left">Cupos</th>
+          <th className="p-3 text-left">Turno</th>
+          <th className="p-3 text-center">Acción</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-300 dark:divide-gray-700">
+        {trainers.map((t) => (
+          <tr
               key={t.id_entrenador}
-              className={`${
+              className={`transition-colors text-gray-900 dark:text-gray-100 ${
                 t.id_entrenador === activeTrainerId
-                  ? "bg-green-100 font-semibold"
-                  : ""
+                  ? "bg-green-100 dark:bg-green-900/30 font-semibold"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
-              <td className="border p-2">{t.nombre}</td>
-              <td className="border p-2">{t.apellido}</td>
-              <td className="border p-2">{t.email}</td>
-              <td className="border p-2 text-center">
-                {t.id === activeTrainerId ? (
-                  <span className="text-green-600 font-bold">Asignado</span>
-                ) : (
-                  <button
-                    onClick={() => handleAssign(t.id_entrenador)}
-                    className="bg-purple-500 hover:bg-purple-800 text-white px-3 py-1 rounded"
-                  >
-                    Asignar
-                  </button>
-                )}
+
+            <td className="p-3">{t.nombre}</td>
+            <td className="p-3">{t.apellido}</td>
+            <td className="p-3">{t.email}</td>
+            <td className="p-3">{t.cupos}</td>
+            <td className="p-3">{t.turno}</td>
+            <td className="p-3 text-center">
+              {t.id_entrenador === activeTrainerId ? (
+                <span className="text-green-600 dark:text-green-400 font-bold">
+                  Asignado
+                </span>
+              ) : (
+                <button
+                  onClick={() => handleAssign(t.id_entrenador)}
+                  className="
+                    bg-purple-600 hover:bg-purple-800 
+                    text-white px-4 py-2 rounded-lg 
+                    transition-all shadow-md
+                  "
+                >
+                  Asignar
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+
+  const renderStudentsTable = () => (
+  <div className="mt-6 overflow-x-auto">
+    {students.length === 0 ? (
+      <p className="text-center text-gray-500 dark:text-gray-400">
+        No tienes alumnos asignados aún.
+      </p>
+    ) : (
+      <table className="w-full border-collapse">
+        <thead className="bg-orange-500 text-white">
+          <tr>
+            <th className="p-3 text-left">Nombre</th>
+            <th className="p-3 text-left">Apellido</th>
+            <th className="p-3 text-left">Email</th>
+            <th className="p-3 text-center">Rutina</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-gray-300 dark:divide-gray-700">
+          {students.map((s) => (
+            <tr
+              key={s.id}
+              className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+
+              <td className="p-3">{s.nombre}</td>
+              <td className="p-3">{s.apellido}</td>
+              <td className="p-3">{s.email}</td>
+              <td className="p-3 text-center">
+                <button
+                  onClick={() => setSelectedStudent(s.id)}
+                  className="
+                    bg-purple-600 hover:bg-purple-800 
+                    text-white px-4 py-2 rounded-lg 
+                    transition-all shadow-md
+                  "
+                >
+                  Asignar rutina
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
-  );
+    )}
 
-  const renderStudentsTable = () => (
-    <div className="container mx-auto mt-10 flex-grow">
-      <h2 className="text-2xl font-bold mb-6 text-center">Alumnos Asignados</h2>
+    {selectedStudent && (
+      <CreateRoutineModal
+        studentId={selectedStudent}
+        trainerId={user.id}
+        onClose={() => setSelectedStudent(null)}
+      />
+    )}
+  </div>
+);
 
-      {students.length === 0 ? (
-        <p className="text-center text-gray-500">
-          No tienes alumnos asignados aún.
+return (
+  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors duration-300">
+
+    {/* CONTENIDO */}
+    <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-10">
+
+      {/* LOADING */}
+      {!user && (
+        <p className="text-center text-gray-600 dark:text-gray-300 text-lg">
+          Cargando...
         </p>
-      ) : (
-        <table className="table-auto w-full border-collapse border border-gray-300">
-          <thead className="bg-orange-500 text-white">
-            <tr>
-              <th className="border p-2">Nombre</th>
-              <th className="border p-2">Apellido</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Rutina</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((s) => (
-              <tr key={s.id} className="hover:bg-gray-50">
-                <td className="border p-2">{s.nombre}</td>
-                <td className="border p-2">{s.apellido}</td>
-                <td className="border p-2">{s.email}</td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() => setSelectedStudent(s.id)}
-                    className="bg-purple-500 hover:bg-purple-800 text-white px-3 py-1 rounded"
-                  >
-                    Asignar rutina
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       )}
-      {selectedStudent && (
-        <CreateRoutineModal
-          studentId={selectedStudent}
-          trainerId={user.id}
-          onClose={() => setSelectedStudent(null)}
-        />
+
+      {/* ENTRENADORES */}
+      {user?.id_rol === 2 && (
+        <div
+          className="
+            bg-white dark:bg-gray-800
+            border border-gray-200 dark:border-gray-700 
+            rounded-2xl shadow-lg p-8
+          "
+        >
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-orange-500 pb-3">
+            Lista de Entrenadores
+          </h2>
+
+          {renderTrainerTable()}
+        </div>
       )}
-    </div>
-  );
 
-  return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <div>
-        {!user && <p className="text-center mt-10">Cargando...</p>}
-        {user?.id_rol === 2 && renderTrainerTable()}
-        {user?.id_rol === 3 && renderStudentsTable()}
-        {user && ![2, 3].includes(user.id_rol) && (
-          <p className="text-center mt-10 text-gray-500">
-            Esta sección no está disponible para tu rol.
-          </p>
-        )}
-      </div>
+      {/* ALUMNOS */}
+      {user?.id_rol === 3 && (
+        <div
+          className="
+            bg-white dark:bg-gray-800
+            border border-gray-200 dark:border-gray-700 
+            rounded-2xl shadow-lg p-8
+          "
+        >
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-orange-500 pb-3">
+            Lista de Alumnos
+          </h2>
 
-      <footer className="bg-gray-800 text-white text-center py-4 mt-8">
-        <p className="text-sm">
-          © 2025 NukeGym. Todos los derechos reservados.
+          {renderStudentsTable()}
+        </div>
+      )}
+
+      {/* SIN PERMISOS */}
+      {user && ![2, 3].includes(user.id_rol) && (
+        <p className="text-center mt-12 text-gray-500 dark:text-gray-400 text-lg">
+          Esta sección no está disponible para tu rol.
         </p>
-      </footer>
-    </div>
-  );
+      )}
+    </main>
+
+    {/* FOOTER */}
+    <footer className="bg-gray-900 text-gray-300 text-center py-4 border-t border-gray-700">
+      <p className="text-sm">© 2025 NukeGym. Todos los derechos reservados.</p>
+    </footer>
+  </div>
+);
+
+
 }

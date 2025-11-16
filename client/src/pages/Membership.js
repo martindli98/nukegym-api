@@ -7,7 +7,8 @@ import fotoActiva from "../img/membership/activa.png"
 import fotoBaja from "../img/membership/baja.png"
 import fotoExpirada from "../img/membership/expiro.png"
 import MembershipCard from "../components/Membership/membershipCard";
-import InfoCard from "../components/Membership/infoCard";;
+import InfoCard from "../components/Membership/infoCard";
+import MembershipType from "../components/Membership/membershipType";
 
 
 initMercadoPago("APP_USR-8bacf5ea-5022-42bb-91dd-4b92f2b04d7b", {
@@ -51,7 +52,7 @@ function Membership() {
       const { preferenceId } = response.data;
       return preferenceId || null;
     } catch (error) {
-      console.error(error.response?.data || error);
+      console.error(error.response?.data || error); 
       alert("Error al crear la preferencia de pago.");
       return null;
     }
@@ -128,6 +129,7 @@ function Membership() {
 
         if (response.data.success) {
           setMembershipStatus(response.data.membershipActive);
+          console.log(response.data)
           setMembership(response.data);
         } else {
           setError(response.data.message || "No se pudo obtener la membresía.");
@@ -243,87 +245,87 @@ if (error) {
       estado={membership.data.estado}
       inicio={membership.data.fechaInicio}
       fin={membership.data.fechaFin}
-      tipo={membership.tipo}
+      tipo={membership.data.tipo}
     />
   );
 }
+return (
+  <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 py-10 px-6 flex justify-center transition-colors duration-300">
+    <div className="w-full max-w-6xl flex flex-col gap-10">
+
+      {/* HEADER */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+          Tu membresía
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide">
+          Gestión y estado actual de tu plan en NUKEGYM
+        </p>
+      </div>
+
+      {/* CARDS PRINCIPALES */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {membershipCardRender}
+        {infoCardRender}
+      </div>
+
+      <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
 
 
-  return (
-  <div
-    className="relative w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center gap-6 py-10"
-    // style={{ backgroundImage: `url(${require("../img/fondo2.jpg")})` }}
-  >
- 
-    {/* <div className="absolute inset-0 bg-black bg-opacity-50"></div> */}
+     {/* TIPOS DE MEMBRESÍA */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <MembershipType
+          title="Plan Básico"
+          img="/img/basic.png"
+          descripcion="Acceso al gimnasio en horario estándar. Ideal para quienes comienzan."
+          color="purple"
+        />
 
-  
-    <div className="relative z-10 w-full flex flex-col items-center justify-center gap-10 px-10">
+        <MembershipType
+          title="Plan Intermedio"
+          img="/img/intermedio.png"
+          descripcion="Incluye rutinas personalizadas y asesoramiento mensual."
+          color="blue"
+        />
 
-          <div className="flex flex-row gap-6 justify-center w-full">
-            {membershipCardRender}
-            {infoCardRender}
-          </div>
-
-          {user?.rol === "admin" && (
-            <div
-                  className="bg-white dark:bg-[oklch(12.9%_0.042_264.695)]
-                            text-gray-800 dark:text-white
-                            shadow-lg rounded-2xl p-6 w-full 
-                            transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <svg
-                      className="w-5 h-5 text-orange-500"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <h3 className="text-base font-semibold text-orange-500">
-                      Descargar listado de membresías
-                    </h3>
-                  </div>
+        <MembershipType
+          title="Plan Premium"
+          img="/img/premium.png"
+          descripcion="Acceso completo, entrenador personal y seguimiento avanzado."
+          color="yellow"
+        />
+      </div>
 
 
-                  <p className="text-sm text-gray-700 dark:text-purple-200 mb-4">
-                    Descargá un archivo PDF con todas las membresías registradas en el sistema.
-                  </p>
 
-                  {/* Botón de descarga */}
-                  <PDFDownloadLink
-                    document={<PDF memberships={membershipList} />}
-                    fileName="Membresias.pdf"
-                  >
-                    <button
-                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors duration-200"
-                    >
-                      <svg
-                        className="fill-current w-5 h-5 mr-2"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-                      </svg>
-                      <span>Descargar PDF</span>
-                    </button>
-                  </PDFDownloadLink>
+      {/* ADMIN SECTION */}
+      {user?.rol === "admin" && (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-2xl p-6 transition-colors duration-300">
+          <h3 className="text-lg font-semibold text-orange-500 dark:text-orange-400 flex items-center gap-2 mb-3">
+            ⬇ Descargar listado de membresías
+          </h3>
 
-                  
-                  <div className="mt-5 text-gray-500 dark:text-purple-300 text-xs border-t border-purple-700/50 pt-3">
-                    Última actualización automática al generar el archivo.
-                  </div>
+          <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
+            Exportá un archivo con todas las membresías del sistema.
+          </p>
+
+          <PDFDownloadLink
+            document={<PDF memberships={membershipList} />}
+            fileName="Membresias.pdf"
+          >
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition">
+              Descargar PDF
+            </button>
+          </PDFDownloadLink>
         </div>
-          )}
+      )}
+
     </div>
   </div>
 );
+
+
+
 ;
 }
 

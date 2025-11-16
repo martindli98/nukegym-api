@@ -1,34 +1,30 @@
-
-function MembershipCard({ title, img, descripcion}) {
+function MembershipCard({ title, img, descripcion }) {
   return (
     <div
-      className="bg-white dark:bg-[oklch(12.9%_0.042_264.695)]
-                 text-gray-800 dark:text-white
-                 shadow-lg rounded-2xl p-6
-                 flex flex-col items-center text-center
-                 w-full transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className="
+        flex flex-col items-center text-center p-8 
+        bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-2xl shadow-lg
+        hover:-translate-y-1 transition-all duration-300
+      "
     >
-      <div className="flex items-center gap-2 mb-3">
-        <h3 className="text-base font-semibold text-black uppercase tracking-wide dark:text-white">
-          {title}
-        </h3>
-      </div>
+      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-wide">
+        {title}
+      </h3>
 
       <img
         src={img}
-        alt="Membresía"
-        className="w-28 h-28 object-cover shadow-inner my-4"
+        alt="estado"
+        className="w-28 h-28 mt-4 mb-4 drop-shadow-[0_0_10px_rgba(0,255,120,0.4)]"
       />
 
-      <p className="text-gray-600 dark:text-purple-200 text-sm mt-2">
+      <p className="text-gray-700 dark:text-gray-300 text-sm">
         {descripcion}
       </p>
 
-      {/* Línea decorativa */}
-      <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-purple-600 rounded-full mt-4"></div>
-  
+      <div className="w-24 h-1 mt-6 bg-gradient-to-r from-green-500 to-purple-500 rounded-full"></div>
     </div>
-
   );
 }
 

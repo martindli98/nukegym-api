@@ -260,39 +260,45 @@ const Classes = () => {
   };
 
   // Verificar permisos (ya declarados arriba)
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="text-xl text-gray-600 mb-4">
-            Debes iniciar sesión para acceder a las clases.
-          </div>
-          <a
-            href="/login"
-            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition duration-200"
-          >
-            Ir a inicio de sesión
-          </a>
+/* ---------------------- ESTADO: CARGANDO / SIN PERMISOS ---------------------- */
+if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+      <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+        <div className="text-xl text-gray-700 dark:text-gray-300 mb-4">
+          Debes iniciar sesión para acceder a las clases.
         </div>
+        <a
+          href="/login"
+          className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-lg transition-all active:scale-95"
+        >
+          Ir a inicio de sesión
+        </a>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  if (isEditing && canManage) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-gray-800">
+/* ---------------------- MODO EDICIÓN DE CLASES ---------------------- */
+if (isEditing && canManage) {
+  return (
+    <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto px-4">
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+
+          {/* Header edición */}
+          <div className="flex items-center justify-between mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
               {editingClass ? "Editar Clase" : "Nueva Clase"}
             </h2>
+
             <button
               onClick={handleCancelEdit}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
             >
               <svg
-                className="w-6 h-6"
+                className="w-7 h-7"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -306,6 +312,7 @@ const Classes = () => {
               </svg>
             </button>
           </div>
+
           <ClassForm
             formData={formData}
             setFormData={setFormData}
@@ -315,140 +322,141 @@ const Classes = () => {
           />
         </div>
       </div>
-    );
-  }
+    </section>
+  );
+}
 
-  // Vista principal de clases (estilo ProfileCard)
-  return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">
-                  {isClient ? "Clases Disponibles" : "Gestión de Clases"}
-                </h1>
-                <p className="text-orange-100">
-                  {isClient
-                    ? "Reserva tu lugar en las clases que más te gusten"
-                    : "Administra las clases del gimnasio"}
-                </p>
-              </div>
+/* ---------------------- VISTA PRINCIPAL (LISTA DE CLASES) ---------------------- */
+return (
+  <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300">
+    <div className="max-w-6xl mx-auto px-4">
 
-              {canManage && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-white text-orange-600 hover:bg-gray-100 font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Nueva Clase
-                </button>
-              )}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+
+        {/* Header con gradiente */}
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-1">
+                {isClient ? "Clases Disponibles" : "Gestión de Clases"}
+              </h1>
+              <p className="text-orange-100">
+                {isClient
+                  ? "Reserva tu lugar en las clases que más te gusten"
+                  : "Administra las clases del gimnasio"}
+              </p>
             </div>
-          </div>
 
-          {/* Lista de clases */}
-          <div className="p-6">
-            {classes.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg
-                    className="w-16 h-16 mx-auto"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  {isClient
-                    ? "No hay clases disponibles"
-                    : "No hay clases registradas"}
-                </h3>
-                <p className="text-gray-500">
-                  {isClient
-                    ? "Las nuevas clases aparecerán aquí cuando estén programadas"
-                    : "Comienza creando tu primera clase"}
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classes.map((classItem) => (
-                  <ClassCard
-                    key={classItem.id_clase}
-                    classItem={classItem}
-                    isClient={isClient}
-                    userReservations={userReservations}
-                    onReserve={reserveClass}
-                    onCancelReservation={cancelReservation}
-                    onEdit={editClass}
-                    onDelete={deleteClass}
-                    formatDate={formatDate}
+            {canManage && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-white text-orange-600 hover:bg-gray-100 font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 active:scale-95"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
                   />
-                ))}
-              </div>
+                </svg>
+                Nueva Clase
+              </button>
             )}
           </div>
         </div>
 
-        {isClient && (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-8">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">
-                    Mis Reservas
-                  </h2>
-                  <p className="text-orange-100">Tus turnos reservados</p>
-                </div>
+        {/* LISTA DE CLASES */}
+        <div className="p-6">
+          {classes.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 dark:text-gray-500 mb-4">
+                <svg
+                  className="w-16 h-16 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
               </div>
+
+              <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {isClient
+                  ? "No hay clases disponibles"
+                  : "No hay clases registradas"}
+              </h3>
+
+              <p className="text-gray-600 dark:text-gray-400">
+                {isClient
+                  ? "Las nuevas clases aparecerán aquí cuando estén programadas"
+                  : "Comienza creando tu primera clase"}
+              </p>
             </div>
-            <div className="p-6">
-              {userReservations.filter((r) => r.estado === "reservado")
-                .length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">No tienes reservas activas.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {userReservations
-                    .filter((r) => r.estado === "reservado")
-                    .map((res) => (
-                      <ReservationCard
-                        key={res.id}
-                        reservation={res}
-                        formatDate={formatDate}
-                        onCancelReservation={cancelReservation}
-                      />
-                    ))}
-                </div>
-              )}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {classes.map((classItem) => (
+                <ClassCard
+                  key={classItem.id_clase}
+                  classItem={classItem}
+                  isClient={isClient}
+                  userReservations={userReservations}
+                  onReserve={reserveClass}
+                  onCancelReservation={cancelReservation}
+                  onEdit={editClass}
+                  onDelete={deleteClass}
+                  formatDate={formatDate}
+                />
+              ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* ---------------------- RESERVAS DEL CLIENTE ---------------------- */}
+      {isClient && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mt-8">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6">
+            <h2 className="text-2xl font-bold text-white mb-1">Mis Reservas</h2>
+            <p className="text-orange-100">Tus turnos reservados</p>
+          </div>
+
+          <div className="p-6">
+            {userReservations.filter((r) => r.estado === "reservado").length === 0 ? (
+              <p className="text-center py-8 text-gray-600 dark:text-gray-400">
+                No tienes reservas activas.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {userReservations
+                  .filter((r) => r.estado === "reservado")
+                  .map((res) => (
+                    <ReservationCard
+                      key={res.id}
+                      reservation={res}
+                      formatDate={formatDate}
+                      onCancelReservation={cancelReservation}
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </section>
+);
+
 };
 
 export default Classes;
