@@ -2,30 +2,26 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { HapticTab } from "@/components/haptic-tab";
-import { useNotifications } from "@/hooks/use-notifications";
+import CustomHeader from "@/components/notifications/CustomHeader";
 
 export default function TabLayout() {
-  // Activar el polling de notificaciones desde el inicio de la app
-  useNotifications();
 
   return (
     <Tabs
       screenOptions={{
+        headerShown: true,
+        header: () => <CustomHeader />,
         tabBarActiveTintColor: "#f97316",
         tabBarInactiveTintColor: "#9ca3af",
-        headerShown: false,
         tabBarButton: HapticTab,
+
         tabBarStyle: {
           backgroundColor: "#fff",
           borderTopWidth: 0,
           elevation: 8,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 3,
           height: 60,
           paddingBottom: 5,
-          paddingTop: 5,
+          paddingTop: 2,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -55,6 +51,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="qr"
         options={{
@@ -68,15 +65,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: "Notificaciones",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons size={size} name="notifications-outline" color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="rutine"
         options={{

@@ -5,10 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  // Alert,
 } from "react-native";
 import { api } from "@/src/utils/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { showSuccess, showError } from "@/src/utils/toast";
 
 interface Props {
   onRegisterPress: () => void;
@@ -24,8 +25,8 @@ export default function ProfileLogin({
 
   const handleLogin = async () => {
     try {
-      const res = await api('/auth/login', {
-        method: 'POST',
+      const res = await api("/auth/login", {
+        method: "POST",
         body: JSON.stringify({
           email,
           password,
@@ -35,16 +36,21 @@ export default function ProfileLogin({
       if (res.success && res.token) {
         await AsyncStorage.setItem("authToken", res.token);
         await AsyncStorage.setItem("userData", JSON.stringify(res.user));
-        Alert.alert("Éxito", "Has iniciado sesión correctamente");
+        showSuccess("Has iniciado sesión correctamente", "Éxito");
         onLoginSuccess();
       } else {
-        Alert.alert("Error", res.data.message || "Error al iniciar sesión");
+        showError("Error", res.data.message || "Error al iniciar sesión");
+        // Alert.alert("Error", res.data.message || "Error al iniciar sesión");
       }
     } catch (err: any) {
       console.error("Login error:", err.response?.data || err.message);
-      Alert.alert(
-        "Error",
-        "No se pudo iniciar sesión. Verifica tus datos o conexión."
+      // Alert.alert(
+      //   "Error",
+      //   "No se pudo iniciar sesión. Verifica tus datos o conexión."
+      // );
+      showError(
+        "No se pudo iniciar sesión. Verifica tus datos o conexión.",
+        "Error"
       );
     }
   };

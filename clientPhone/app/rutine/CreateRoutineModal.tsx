@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
+import { showError, showSuccess } from "@/src/utils/toast";
 
 interface Exercise {
   id: number;
@@ -73,18 +74,20 @@ export default function CreateRoutineModal({
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Alert.alert("Sesión expirada", "Por favor inicia sesión nuevamente.");
+        showError("Por favor inicia sesión nuevamente.", "Sesión expirada");
+        // Alert.alert("Sesión expirada", "Por favor inicia sesión nuevamente.");
         onClose();
         return;
       }
 
-      const res = await api('/exercises');
+      const res = await api("/exercises");
 
       if (Array.isArray(res)) {
         setExercises(res);
         setFiltered(res);
       } else {
-        Alert.alert("Error", "Los datos recibidos no son válidos.");
+        showError("Los datos recibidos no son válidos.", "Error");
+        // Alert.alert("Error", "Los datos recibidos no son válidos.");
       }
     } catch (err: any) {
       console.error(
@@ -92,12 +95,14 @@ export default function CreateRoutineModal({
         err.response?.data || err.message
       );
       if (err.response?.status === 401) {
-        Alert.alert("Sesión expirada", "Por favor inicia sesión nuevamente.");
+        showError("Por favor inicia sesión nuevamente.", "Sesión expirada");
+        // Alert.alert("Sesión expirada", "Por favor inicia sesión nuevamente.");
         await AsyncStorage.removeItem("authToken");
         await AsyncStorage.removeItem("userData");
         onClose();
       } else {
-        Alert.alert("Error", "No se pudieron cargar los ejercicios");
+        showError("No se pudieron cargar los ejercicios", "Error");
+        // Alert.alert("Error", "No se pudieron cargar los ejercicios");
       }
     } finally {
       setLoading(false);
@@ -138,6 +143,7 @@ export default function CreateRoutineModal({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
+      // showError("Debes ingresar un nombre para la rutina", "Error")
       Alert.alert("Error", "Debes ingresar un nombre para la rutina");
       return;
     }
@@ -154,8 +160,8 @@ export default function CreateRoutineModal({
         return;
       }
 
-      await api('/routine', {
-        method: 'POST',
+      await api("/routine", {
+        method: "POST",
         body: JSON.stringify({
           id_usuario: studentId,
           id_entrenador: trainerId || null,
@@ -168,8 +174,8 @@ export default function CreateRoutineModal({
           })),
         }),
       });
-
-      Alert.alert("✅ Éxito", "Rutina creada correctamente");
+      showSuccess("Rutina creada correctamente", "Éxito");
+      // Alert.alert("✅ Éxito", "Rutina creada correctamente");
       onCreated();
       onClose();
       resetState();
@@ -232,31 +238,37 @@ export default function CreateRoutineModal({
                   <Text style={styles.muscle}>{ex.musculo_principal}</Text>
 
                   {selected && (
-                    <View>
-                      <TextInput
-                        keyboardType="numeric"
-                        placeholder="Series"
-                        style={styles.smallInput}
-                        value={
-                          selectedExercises
-                            .find((e) => e.id_ejercicio === ex.id)
-                            ?.series.toString() || "3"
-                        }
-                        onChangeText={(v) => updateField(ex.id, "series", v)}
-                      />
-                      <TextInput
-                        keyboardType="numeric"
-                        placeholder="Repeticiones"
-                        style={styles.smallInput}
-                        value={
-                          selectedExercises
-                            .find((e) => e.id_ejercicio === ex.id)
-                            ?.repeticiones.toString() || "12"
-                        }
-                        onChangeText={(v) =>
-                          updateField(ex.id, "repeticiones", v)
-                        }
-                      />
+                    <View style={{flexDirection: "row", justifyContent: "space-around" }}>
+                      <View>
+                        <Text>Series</Text>
+                        <TextInput
+                          keyboardType="numeric"
+                          placeholder="Series"
+                          style={styles.smallInput}
+                          value={
+                            selectedExercises
+                              .find((e) => e.id_ejercicio === ex.id)
+                              ?.series.toString() || "3"
+                          }
+                          onChangeText={(v) => updateField(ex.id, "series", v)}
+                        />
+                      </View>
+                      <View>
+                        <Text>Repeticiones</Text>
+                        <TextInput
+                          keyboardType="numeric"
+                          placeholder="Repeticiones"
+                          style={styles.smallInput}
+                          value={
+                            selectedExercises
+                              .find((e) => e.id_ejercicio === ex.id)
+                              ?.repeticiones.toString() || "12"
+                          }
+                          onChangeText={(v) =>
+                            updateField(ex.id, "repeticiones", v)
+                          }
+                        />
+                      </View>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -279,7 +291,7 @@ export default function CreateRoutineModal({
             onPress={handleSubmit}
             style={[styles.button, styles.save]}
           >
-            <Text style={styles.buttonText}>Guardar Rutina</Text>
+            <Text style={styles.buttonText}>Guardar rutina</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -299,7 +311,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
+    borderRadius: 5,
     padding: 10,
     marginBottom: 10,
   },
@@ -316,11 +328,11 @@ const styles = StyleSheet.create({
   },
   exerciseName: { fontWeight: "bold", fontSize: 16, color: "#333" },
   muscle: { color: "gray", marginBottom: 6 },
-  image: { width: "100%", height: 150, borderRadius: 8, marginBottom: 5 },
+  image: { width: "100%", height: 150, borderRadius: 5, marginBottom: 5 },
   smallInput: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 6,
+    borderRadius: 5,
     padding: 6,
     width: 100,
     marginVertical: 4,
@@ -333,11 +345,11 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 5,
     marginHorizontal: 5,
     alignItems: "center",
   },
-  cancel: { backgroundColor: "#aaa" },
+  cancel: { backgroundColor: "#f97316" },
   save: { backgroundColor: "#6D28D9" },
   buttonText: { color: "#fff", fontWeight: "bold" },
 });

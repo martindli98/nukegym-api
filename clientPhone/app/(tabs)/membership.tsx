@@ -15,6 +15,7 @@ import { Picker } from "@react-native-picker/picker";
 import * as WebBrowser from "expo-web-browser";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { requireAuth } from "@/src/utils/authGuard";
 
 const activaImg = require("../../assets/membership/activa.png");
 const bajaImg = require("../../assets/membership/baja.png");
@@ -45,6 +46,12 @@ export default function Membership() {
   const [error, setError] = useState<string>("");
 
   useFocusEffect(
+    React.useCallback(() => {
+      requireAuth();
+    }, [])
+  );
+
+  useFocusEffect(
     useCallback(() => {
       const fetchMembership = async () => {
         setLoading(true);
@@ -61,8 +68,8 @@ export default function Membership() {
 
         try {
           const [membershipRes, plansRes] = await Promise.all([
-            api('/membership/status'),
-            api('/membership/plans'),
+            api("/membership/status"),
+            api("/membership/plans"),
           ]);
 
           if (membershipRes.success) {
@@ -115,8 +122,8 @@ export default function Membership() {
     }
 
     try {
-      const res = await api('/payments/create_preference', {
-        method: 'POST',
+      const res = await api("/payments/create_preference", {
+        method: "POST",
         body: JSON.stringify({
           title: "Renovación de Membresía",
           quantity: 1,
@@ -147,7 +154,7 @@ export default function Membership() {
 
   const refreshMembership = async () => {
     try {
-      const res = await api('/membership/status');
+      const res = await api("/membership/status");
 
       if (res.success) {
         setMembership(res.data);
@@ -210,7 +217,7 @@ export default function Membership() {
           img={expiradaImg}
         />
 
-        <View style={{ width: "80%", marginTop: 15 }}>
+        <View style={{ width: "100%", marginTop: 15 }}>
           <Text style={styles.label}>Seleccioná un plan:</Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -386,7 +393,7 @@ const styles = StyleSheet.create({
   cardContainer: { alignItems: "center", width: "100%" },
   card: {
     backgroundColor: "white",
-    borderRadius: 16,
+    borderRadius: 5,
     padding: 20,
     alignItems: "center",
     shadowColor: "#000",
@@ -408,14 +415,14 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 10,
+    borderRadius: 5,
     backgroundColor: "#fff",
     marginBottom: 10,
   },
   button: {
     backgroundColor: "#fa7808",
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 5,
     alignItems: "center",
     width: "100%",
   },
@@ -429,7 +436,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 5,
     padding: 20,
     width: "100%",
     marginTop: 15,
@@ -446,16 +453,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   infoText: { fontSize: 15, color: "#444", marginBottom: 5 },
-  pdfButton: {
-    marginTop: 20,
-    backgroundColor: "#ff9f1a",
-    padding: 14,
-    borderRadius: 12,
-  },
-  pdfButtonText: {
-    color: "white",
-    fontWeight: "600",
-  },
+  // pdfButton: {
+  //   marginTop: 20,
+  //   backgroundColor: "#ff9f1a",
+  //   padding: 14,
+  //   borderRadius: 12,
+  // },
+  // pdfButtonText: {
+  //   color: "white",
+  //   fontWeight: "600",
+  // },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",

@@ -7,11 +7,12 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
-  Alert,
+  // Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
 import { useFocusEffect } from "@react-navigation/native";
+import { showSuccess, showError } from '@/src/utils/toast';
 
 interface User {
   id: number;
@@ -39,11 +40,13 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
         setUserData(res.user);
         await AsyncStorage.setItem("userData", JSON.stringify(res.user));
       } else {
-        Alert.alert("Error", "No se pudo obtener el perfil");
+        // Alert.alert("Error", "No se pudo obtener el perfil");
+        showError("No se pudo obtener el perfil","Error")
       }
     } catch (err) {
       console.error("Error al cargar el perfil", err);
-      Alert.alert("Error", "No se pudo conectar con el servidor");
+      // Alert.alert("Error", "No se pudo conectar con el servidor");
+      showError("No se pudo conectar con el servidor","Error")
     } finally {
       setLoading(false);
     }
@@ -52,7 +55,8 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("authToken");
     await AsyncStorage.removeItem("userData");
-    Alert.alert("Sesión cerrada", "Has cerrado sesión correctamente");
+    // Alert.alert("Sesión cerrada", "Has cerrado sesión correctamente");
+    showSuccess("Has cerrado sesión correctamente","Sesión cerrada")
     onLogout();
   };
 

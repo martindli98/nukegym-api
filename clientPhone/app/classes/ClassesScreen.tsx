@@ -13,6 +13,8 @@ import ClassCard from "./ClassCard";
 import ReservationCard from "./ReservationCard";
 import ClassForm from "./ClassForm";
 import { api } from "../../src/utils/api";
+import { requireAuth } from "@/src/utils/authGuard";
+import { showError, showSuccess } from "@/src/utils/toast";
 
 const ClassesScreen: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
@@ -23,6 +25,12 @@ const ClassesScreen: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      requireAuth();
+    }, [])
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -56,7 +64,8 @@ const ClassesScreen: React.FC = () => {
       });
       setClasses(response);
     } catch (error) {
-      Alert.alert("Error", "No se pudieron cargar las clases.");
+      showError("No se pudieron cargar las clases.", "Error");
+      // Alert.alert("Error", "No se pudieron cargar las clases.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -85,35 +94,63 @@ const ClassesScreen: React.FC = () => {
 
   const reserveClass = async (id: number) => {
     if (!authToken) return;
-    try {
-      await api("/reservations", {
-        method: "POST",
-        data: { id_clase: id },
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      Alert.alert("Éxito", "Reserva realizada correctamente");
-      fetchClasses(authToken);
-      fetchReservations(authToken);
-    } catch (error) {
-      Alert.alert("Error", "No se pudo reservar la clase");
-      console.error(error);
-    }
+
+    Alert.alert("Confirmar reserva", "¿Deseas reservar esta clase?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Reservar",
+        onPress: async () => {
+          try {
+            await api("/reservations", {
+              method: "POST",
+              data: { id_clase: id },
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
+
+            showSuccess("Reserva realizada correctamente", "Éxito");
+
+            fetchClasses(authToken);
+            fetchReservations(authToken);
+          } catch (error) {
+            showError("No se pudo reservar la clase", "Error");
+            console.error(error);
+          }
+        },
+      },
+    ]);
   };
 
   const cancelReservation = async (id: number) => {
-    if (!authToken) return;
-    try {
-      await api(`/reservations/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      Alert.alert("Cancelado", "Reserva cancelada");
-      fetchReservations(authToken);
-    } catch (error) {
-      Alert.alert("Error", "No se pudo cancelar la reserva");
-      console.error(error);
-    }
-  };
+  if (!authToken) return;
+
+  Alert.alert(
+    "Cancelar reserva",
+    "¿Estás seguro que deseas cancelar esta reserva?",
+    [
+      { text: "No", style: "cancel" },
+      {
+        text: "Sí, cancelar",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api(`/reservations/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
+
+            showSuccess("Reserva cancelada", "Cancelada");
+
+            fetchReservations(authToken);
+          } catch (error) {
+            showError("No se pudo cancelar la reserva", "Error");
+            console.error(error);
+          }
+        },
+      },
+    ]
+  );
+};
+
 
   const handleCreateClass = async (data: any) => {
     try {
@@ -122,11 +159,13 @@ const ClassesScreen: React.FC = () => {
         data,
         headers: { Authorization: `Bearer ${authToken}` },
       });
-      Alert.alert("Éxito", "Clase creada correctamente");
+      showSuccess("Clase creada correctamente", "Éxito");
+      // Alert.alert("Éxito", "Clase creada correctamente");
       fetchClasses(authToken!);
       setShowForm(false);
     } catch (error) {
-      Alert.alert("Error", "No se pudo crear la clase");
+      showError("No se pudo crear la clase", "Error");
+      // Alert.alert("Error", "No se pudo crear la clase");
       console.error(error);
     }
   };
@@ -138,12 +177,14 @@ const ClassesScreen: React.FC = () => {
         data,
         headers: { Authorization: `Bearer ${authToken}` },
       });
-      Alert.alert("Éxito", "Clase actualizada");
+      showSuccess("Clase actualizada", "Éxito");
+      // Alert.alert("Éxito", "Clase actualizada");
       fetchClasses(authToken!);
       setEditingClass(null);
       setShowForm(false);
     } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar la clase");
+      showError("No se pudo actualizar la clase", "Error");
+      // Alert.alert("Error", "No se pudo actualizar la clase");
       console.error(error);
     }
   };
@@ -160,10 +201,12 @@ const ClassesScreen: React.FC = () => {
               method: "DELETE",
               headers: { Authorization: `Bearer ${authToken}` },
             });
-            Alert.alert("Eliminada", "Clase eliminada correctamente");
+            showSuccess("Clase eliminada correctamente", "Eliminada");
+            // Alert.alert("Eliminada", "Clase eliminada correctamente");
             fetchClasses(authToken!);
           } catch {
-            Alert.alert("Error", "No se pudo eliminar la clase");
+            showError("No se pudo eliminar la clase", "Error");
+            // Alert.alert("Error", "No se pudo eliminar la clase");
           }
         },
       },
@@ -191,21 +234,21 @@ const ClassesScreen: React.FC = () => {
       </View>
     );
 
-  if (!userData || !authToken)
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 20,
-        }}
-      >
-        <Text style={{ fontSize: 18, textAlign: "center", color: "#444" }}>
-          Debes iniciar sesión para ver las clases disponibles.
-        </Text>
-      </View>
-    );
+  // if (!userData || !authToken)
+  //   return (
+  //     <View
+  //       style={{
+  //         flex: 1,
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //         padding: 20,
+  //       }}
+  //     >
+  //       <Text style={{ fontSize: 18, textAlign: "center", color: "#444" }}>
+  //         Debes iniciar sesión para ver las clases disponibles.
+  //       </Text>
+  //     </View>
+  //   );
 
   const tipoRol = userData.tipo_rol?.toLowerCase();
   const isClient = tipoRol === "cliente";
@@ -216,7 +259,10 @@ const ClassesScreen: React.FC = () => {
 
   if (showForm) {
     return (
-      <ScrollView style={{ padding: 18, backgroundColor: "#f3f4f6" }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 40 }}
+        style={{ padding: 18, backgroundColor: "#f3f4f6" }}
+      >
         <Text
           style={{
             fontSize: 22,
@@ -225,7 +271,7 @@ const ClassesScreen: React.FC = () => {
             marginBottom: 16,
           }}
         >
-          {editingClass ? "Editar Clase" : "Crear Nueva Clase"}
+          {editingClass ? "Editar clase" : "Crear nueva clase"}
         </Text>
         <ClassForm
           initialData={editingClass}
@@ -240,31 +286,36 @@ const ClassesScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={{ padding: 18, backgroundColor: "#f3f4f6" }}>
+    <ScrollView
+      style={{ paddingHorizontal: 10, backgroundColor: "#f3f4f6", padding: 10 }}
+    >
       <View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: 2,
+          marginVertical: 2,
+          // paddingVertical: 8,
         }}
       >
         <Text
           style={{
-            marginVertical: 20,
             fontSize: 22,
             fontWeight: "bold",
             color: "#6D28D9",
+            paddingVertical: 5,
           }}
         >
-          {isClient ? "Clases Disponibles" : "Gestión de Clases"}
+          {isClient ? "Clases disponibles" : "Gestión de clases"}
         </Text>
 
         {canManage && (
           <TouchableOpacity
-            style={{
-              marginVertical: 16,
-            }}
+            style={
+              {
+                // marginVertical: 2,
+              }
+            }
             onPress={() => setShowForm(true)}
           >
             <Text

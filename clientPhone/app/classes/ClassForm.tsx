@@ -1,3 +1,4 @@
+import { showError } from "@/src/utils/toast";
 import React, { useState } from "react";
 import {
   View,
@@ -5,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  // Alert,
 } from "react-native";
 
 interface Props {
@@ -26,7 +27,8 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
 
   const handleSubmit = () => {
     if (!formData.nombre || !formData.cupo_maximo || !formData.fecha) {
-      Alert.alert("Error", "Completa todos los campos requeridos.");
+      showError("Completa todos los campos requeridos.","Error")
+      // Alert.alert("Error", "Completa todos los campos requeridos.");
       return;
     }
     onSubmit({
@@ -37,7 +39,7 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Nombre de la Clase</Text>
+      <Text style={styles.label}>Nombre de la clase</Text>
       <TextInput
         style={styles.input}
         value={formData.nombre}
@@ -45,7 +47,7 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
         placeholder="Ej: Yoga, CrossFit..."
       />
 
-      <Text style={styles.label}>Cupo Máximo</Text>
+      <Text style={styles.label}>Cupo máximo</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -88,17 +90,17 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#f97316" }]}
+          onPress={onCancel}
+        >
+          <Text style={styles.buttonText}>Cancelar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#6D28D9" }]}
           onPress={handleSubmit}
         >
           <Text style={styles.buttonText}>
             {initialData ? "Actualizar" : "Crear"}
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#6b7280" }]}
-          onPress={onCancel}
-        >
-          <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -106,7 +108,7 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", padding: 20, borderRadius: 12 },
+  container: { backgroundColor: "#fff", paddingHorizontal: 10, borderRadius: 6 },
   label: { fontWeight: "bold", color: "#444", marginTop: 10 },
   input: {
     borderWidth: 1,
@@ -118,7 +120,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginVertical: 15,
   },
   button: {
     flex: 1,

@@ -5,9 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  // Alert,
 } from "react-native";
 import { api } from "@/src/utils/api";
+import { showSuccess, showError } from "@/src/utils/toast";
 
 interface Props {
   onBack: () => void;
@@ -19,37 +20,40 @@ export default function ProfileRegister({ onBack }: Props) {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-    console.log('handleeeeeeeeeereigsteeeeeeeeeeeeeeeer')
+    console.log("handleeeeeeeeeereigsteeeeeeeeeeeeeeeer");
     if (!email || !dni || !password) {
-      Alert.alert("Error", "Todos los campos son obligatorios");
+      showError("Error", "Todos los campos son obligatorios");
+      // Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
 
     try {
-      console.log("tryyyyyyyyyyyyyyyyyyyyyy")
-      const res = await api('/auth/register-user', {
-        method: 'POST',
+      console.log("tryyyyyyyyyyyyyyyyyyyyyy");
+      const res = await api("/auth/register-user", {
+        method: "POST",
         body: JSON.stringify({
           email,
           nro_documento: dni,
           password,
         }),
       });
-      
-      console.log(res)
+
+      console.log(res);
       if (res.success) {
-        Alert.alert(
-          "Éxito",
-          "Usuario registrado correctamente. Ahora podés iniciar sesión."
-        );
+        // Alert.alert(
+        //   "Éxito",
+        //   "Usuario registrado correctamente. Ahora podés iniciar sesión."
+        // );
+        showSuccess("Usuario registrado correctamente.", "Éxito");
         onBack();
-        console.log("anduvoo")
+        console.log("anduvoo");
       } else {
-        Alert.alert("Error", res.data.message || "No se pudo registrar");
-         console.log("nooooo anduvoo")
+        // Alert.alert("Error", res.data.message || "No se pudo registrar");
+        showError(res.data.message || "No se pudo registrar","Error");
       }
     } catch {
-      Alert.alert("Error", "No se pudo conectar con el servidor");
+      // Alert.alert("Error", "No se pudo conectar con el servidor");
+      showError("No se pudo conectar con el servidor","Error");
     }
   };
 

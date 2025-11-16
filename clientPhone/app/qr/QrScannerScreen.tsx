@@ -11,13 +11,21 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/src/utils/api";
+import { requireAuth } from "@/src/utils/authGuard";
+import { useFocusEffect } from "expo-router";
 
 export default function QrScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
-
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      requireAuth();
+    }, [])
+  );
+  
   const handleBarCodeScanned = async ({
     data,
   }: {

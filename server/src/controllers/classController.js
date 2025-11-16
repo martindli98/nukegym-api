@@ -278,7 +278,7 @@ export const createReservation = async (req, res) => {
     const userId = req.user.id;
 
     // Solo clientes pueden reservar
-    if (req.user.id_rol === 2) {
+    if (req.user.id_rol !== 2) {
       return res
         .status(403)
         .json({ message: "Solo los clientes pueden reservar clases" });

@@ -14,6 +14,8 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { api } from "@/src/utils/api";
 import CreateRoutineModal from "../rutine/CreateRoutineModal";
+import { requireAuth } from "@/src/utils/authGuard";
+import { showError, showSuccess } from "@/src/utils/toast";
 
 interface Ejercicio {
   id: number;
@@ -50,6 +52,12 @@ export default function RoutineScreen() {
   const router = useRouter();
 
   useFocusEffect(
+    React.useCallback(() => {
+      requireAuth();
+    }, [])
+  );
+
+  useFocusEffect(
     useCallback(() => {
       loadUserAndRoutines();
     }, [])
@@ -73,7 +81,7 @@ export default function RoutineScreen() {
       const parsedUser: User = JSON.parse(userDataStr);
       setUser(parsedUser);
 
-      const res = await api('/routine/user');
+      const res = await api("/routine/user");
 
       if (res?.success) {
         setRoutines(res.routines ?? []);
@@ -110,12 +118,14 @@ export default function RoutineScreen() {
             try {
               const token = await AsyncStorage.getItem("authToken");
               if (!token) return;
-              await api(`/routine/${id}`, { method: 'DELETE' });
-              Alert.alert("Rutina eliminada correctamente");
+              await api(`/routine/${id}`, { method: "DELETE" });
+              showSuccess("Rutina eliminada correctamente")
+              // Alert.alert("Rutina eliminada correctamente");
               setSelectedRoutine(null);
               loadUserAndRoutines();
             } catch {
-              Alert.alert("Error al eliminar la rutina");
+              showError("Error al eliminar la rutina")
+              // Alert.alert("Error al eliminar la rutina");
             }
           },
         },
@@ -140,7 +150,7 @@ export default function RoutineScreen() {
       <View style={styles.container}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => setSelectedRoutine(null)}>
-            <Text style={styles.backText}>← Volver</Text>
+            <Text style={styles.backText}>Volver</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => deleteRoutine(selectedRoutine.id)}
@@ -224,25 +234,25 @@ export default function RoutineScreen() {
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
 
-  if (error)
-    return (
-      <View style={styles.containerError}>
-        <Text style={styles.error}>{error}</Text>
-        <TouchableOpacity>
-          <Text
-            style={styles.buttonError}
-            onPress={() => router.replace("/(tabs)/profile")}
-          >
-            Iniciar sesión
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
+  // if (error)
+  //   return (
+  //     <View style={styles.containerError}>
+  //       <Text style={styles.error}>{error}</Text>
+  //       <TouchableOpacity>
+  //         <Text
+  //           style={styles.buttonError}
+  //           onPress={() => router.replace("/(tabs)/profile")}
+  //         >
+  //           Iniciar sesión
+  //         </Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //   );
 
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Mis Rutinas</Text>
+        <Text style={styles.title}>Mis rutinas</Text>
         <TouchableOpacity onPress={() => setShowModal(true)}>
           <Text style={styles.addButton}>＋</Text>
         </TouchableOpacity>
@@ -282,37 +292,39 @@ export default function RoutineScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 20 },
+  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 10 },
   containerError: { flex: 1, justifyContent: "center", alignItems: "center" },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 15,
+    marginVertical: 1,
   },
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 15,
+    marginVertical: 1,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#6D28D9",
+    paddingVertical: 5
   },
   addButton: {
     fontSize: 26,
     color: "#6D28D9",
     fontWeight: "bold",
+    marginRight: 2,
   },
   deleteButton: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    backgroundColor: "#dc2626",
-    borderRadius: 5,
+    backgroundColor: "#ef4444",
+    borderRadius: 4,
   },
-  deleteText: { fontSize: 15 },
+  deleteText: { fontSize: 20 },
   subtitle: {
     fontSize: 16,
     color: "gray",
@@ -323,60 +335,60 @@ const styles = StyleSheet.create({
   error: { fontSize: 16, color: "red", padding: 20 },
   card: {
     backgroundColor: "#e8e8e8",
-    padding: 15,
-    borderRadius: 12,
-    marginVertical: 8,
+    // padding: 15,
+    borderRadius: 5,
+    marginVertical: 12,
   },
-  objetivo: { fontSize: 18, fontWeight: "bold", color: "#6D28D9" },
-  fecha: { color: "gray", marginTop: 4 },
-  subtext: { color: "gray", fontSize: 14, marginBottom: 8 },
-  subtextBox: { flex: 1, color: "gray", fontSize: 14 },
+  objetivo: { fontSize: 18, fontWeight: "bold", color: "#6D28D9", padding: 3},
+  fecha: { color: "gray", marginVertical: 2, paddingHorizontal: 3 },
+  subtext: { color: "gray", fontSize: 13, marginBottom: 8, paddingHorizontal: 3 },
+  subtextBox: { flex: 1, color: "gray", fontSize: 14, marginBottom: 2},
   imageContainer: {
     alignItems: "center",
     backgroundColor: "#fff",
-    paddingHorizontal: 35,
-    borderRadius: 12,
-    marginVertical: 10,
+    paddingHorizontal: 0,
+    width: "100%"
+    // borderRadius: 12,
+    // marginVertical: 10,
   },
   exerciseImage: {
-    width: "90%",
+    width: "70%",
     height: 180,
-    borderRadius: 8,
+    // borderRadius: 8,
   },
   infoRow: {
+    // backgroundColor: "#000",
     flexDirection: "row",
     justifyContent: "space-evenly",
-    marginVertical: 10,
+    // marginVertical: 10,
   },
   infoBox: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    // backgroundColor: "#fff",
+    // borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 20,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    // shadowColor: "#000",
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 2,
   },
-
   infoTitle: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#6D28D9",
   },
-
   infoValue: {
     fontSize: 16,
     color: "#333",
     marginTop: 4,
   },
   expandButton: {
-    marginTop: 10,
+    // marginTop: 10,
     alignSelf: "center",
-    width: "90%",
+    width: "100%",
     backgroundColor: "#E0D7FF",
-    borderRadius: 8,
+    borderRadius: 5,
     padding: 10,
   },
   expandText: {
@@ -393,18 +405,22 @@ const styles = StyleSheet.create({
     color: "#444",
     marginBottom: 4,
   },
-  buttonError: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "600",
-    backgroundColor: "#f97316",
-    padding: 12,
-    borderRadius: 8,
-  },
+  // buttonError: {
+  //   color: "#fff",
+  //   fontSize: 18,
+  //   textAlign: "center",
+  //   fontWeight: "600",
+  //   backgroundColor: "#f97316",
+  //   padding: 12,
+  //   borderRadius: 8,
+  // },
   backText: {
     color: "#6D28D9",
     fontWeight: "bold",
     fontSize: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    backgroundColor: "#E0D7FF",
+    borderRadius: 4,
   },
 });

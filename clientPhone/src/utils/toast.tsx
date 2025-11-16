@@ -8,6 +8,8 @@ export const showSuccess = (message: string, title?: string) => {
     position: 'top',
     visibilityTime: 3000,
     topOffset: 60,
+     text1Style: { fontSize: 14 }, // Aumentado 10% aproximadamente
+    text2Style: { fontSize: 12 }, // Aumentado 10% aproximadamente
   });
 };
 
@@ -18,7 +20,9 @@ export const showError = (message: string, title?: string) => {
     text2: message,
     position: 'top',
     visibilityTime: 4000,
-    topOffset: 60,
+    topOffset: 70,
+    text1Style: { fontSize: 14 }, // Aumentado 10% aproximadamente
+    text2Style: { fontSize: 12 }, // Aumentado 10% aproximadamente
   });
 };
 
