@@ -13,19 +13,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/src/utils/api";
 import { requireAuth } from "@/src/utils/authGuard";
 import { useFocusEffect } from "expo-router";
+import { showError, showSuccess } from "@/src/utils/toast";
 
 export default function QrScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
-  
+
   useFocusEffect(
     React.useCallback(() => {
       requireAuth();
     }, [])
   );
-  
+
   const handleBarCodeScanned = async ({
     data,
   }: {
@@ -44,31 +45,45 @@ export default function QrScannerScreen() {
       });
 
       if (result.success) {
-        Alert.alert(
-          result.already_registered
-            ? "✅ Ya estás Registrado"
-            : "✅ Asistencia Registrada",
-          result.message,
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                setScanned(false);
-                setLoading(false);
-              },
-            },
-          ]
-        );
+        if (result.already_registered) {
+          showSuccess(result.message, "Ya estás registrado");
+        } else {
+          showSuccess(result.message, "Asistencia registrada");
+        }
+        setTimeout(() => {
+          setScanned(false);
+          setLoading(false);
+        }, 1500);
+        // Alert.alert(
+        //   result.already_registered
+        //     ? "✅ Ya estás Registrado"
+        //     : "✅ Asistencia Registrada",
+        //   result.message,
+        //   [
+        //     {
+        //       text: "OK",
+        //       onPress: () => {
+        //         setScanned(false);
+        //         setLoading(false);
+        //       },
+        //     },
+        //   ]
+        // );
       } else {
-        Alert.alert("❌ Error", result.message, [
-          {
-            text: "Reintentar",
-            onPress: () => {
-              setScanned(false);
-              setLoading(false);
-            },
-          },
-        ]);
+        showError(result.message, "Error");
+        setTimeout(() => {
+          setScanned(false);
+          setLoading(false);
+        }, 1500);
+        // Alert.alert("❌ Error", result.message, [
+        //   {
+        //     text: "Reintentar",
+        //     onPress: () => {
+        //       setScanned(false);
+        //       setLoading(false);
+        //     },
+        //   },
+        // ]);
       }
     } catch (error: any) {
       console.error("Error al verificar QR:", error);
@@ -76,15 +91,21 @@ export default function QrScannerScreen() {
       const errorMessage =
         error?.message || error?.error || "No se pudo conectar con el servidor";
 
-      Alert.alert("Error", errorMessage, [
-        {
-          text: "Reintentar",
-          onPress: () => {
-            setScanned(false);
-            setLoading(false);
-          },
-        },
-      ]);
+      showError(errorMessage, "Error");
+      setTimeout(() => {
+        setScanned(false);
+        setLoading(false);
+      }, 1500);
+
+      // Alert.alert("Error", errorMessage, [
+      //   {
+      //     text: "Reintentar",
+      //     onPress: () => {
+      //       setScanned(false);
+      //       setLoading(false);
+      //     },
+      //   },
+      // ]);
     }
   };
 
@@ -218,9 +239,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    padding: 20,
+    //  paddingTop: 20,
+    // paddingBottom: 20,
     backgroundColor: "#1f2937",
   },
   title: {

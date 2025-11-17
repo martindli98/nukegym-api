@@ -12,7 +12,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
 import { useFocusEffect } from "@react-navigation/native";
-import { showSuccess, showError } from '@/src/utils/toast';
+import { showSuccess, showError } from "@/src/utils/toast";
+import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
 interface User {
   id: number;
@@ -28,25 +29,26 @@ interface User {
 export default function ProfileView({ onLogout, onEditPress }: any) {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) return;
 
-      const res = await api('/users/profile');
+      const res = await api("/users/profile");
 
       if (res.success) {
         setUserData(res.user);
         await AsyncStorage.setItem("userData", JSON.stringify(res.user));
       } else {
         // Alert.alert("Error", "No se pudo obtener el perfil");
-        showError("No se pudo obtener el perfil","Error")
+        showError("No se pudo obtener el perfil", "Error");
       }
     } catch (err) {
       console.error("Error al cargar el perfil", err);
       // Alert.alert("Error", "No se pudo conectar con el servidor");
-      showError("No se pudo conectar con el servidor","Error")
+      showError("No se pudo conectar con el servidor", "Error");
     } finally {
       setLoading(false);
     }
@@ -56,8 +58,17 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
     await AsyncStorage.removeItem("authToken");
     await AsyncStorage.removeItem("userData");
     // Alert.alert("Sesión cerrada", "Has cerrado sesión correctamente");
-    showSuccess("Has cerrado sesión correctamente","Sesión cerrada")
+    showSuccess("Has cerrado sesión correctamente", "Sesión cerrada");
     onLogout();
+  };
+
+  const confirmLogout = async () => {
+    setShowLogoutModal(false);
+    await handleLogout();
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   useFocusEffect(
@@ -92,44 +103,56 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          source={{
-            uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-          }}
-          style={styles.avatar}
-        />
-        <Text style={styles.name}>
-          {userData.nombre} {userData.apellido}
-        </Text>
-        <Text style={styles.email}>{userData.email}</Text>
-      </View>
+    <>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            }}
+            style={styles.avatar}
+          />
+          <Text style={styles.name}>
+            {userData.nombre} {userData.apellido}
+          </Text>
+          <Text style={styles.email}>{userData.email}</Text>
+        </View>
 
-      <View style={styles.card}>
-        <Text style={styles.info}>DNI: {userData.nro_documento}</Text>
-        <Text style={styles.info}>
-          Teléfono personal: {userData.telefono_personal || "-"}
-        </Text>
-        <Text style={styles.info}>
-          Teléfono de emergencia: {userData.telefono_emergencia || "-"}
-        </Text>
-        <Text style={styles.info}>
-          Fecha de nacimiento: {userData.fecha_nacimiento || "-"}
-        </Text>
-      </View>
-      <TouchableOpacity style={styles.trainerButton}>
-        <Text style={styles.editText}>Entrenador</Text>
-      </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.info}>DNI: {userData.nro_documento}</Text>
+          <Text style={styles.info}>
+            Teléfono personal: {userData.telefono_personal || "-"}
+          </Text>
+          <Text style={styles.info}>
+            Teléfono de emergencia: {userData.telefono_emergencia || "-"}
+          </Text>
+          <Text style={styles.info}>
+            Fecha de nacimiento: {userData.fecha_nacimiento || "-"}
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.trainerButton}>
+          <Text style={styles.editText}>Entrenador</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.editButton} onPress={onEditPress}>
-        <Text style={styles.editText}>Editar perfil</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.editButton} onPress={onEditPress}>
+          <Text style={styles.editText}>Editar perfil</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Cerrar Sesión</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => setShowLogoutModal(true)}
+        >
+          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <ConfirmModal
+        visible={showLogoutModal}
+        title="Cerrar sesión"
+        message="¿Seguro que desea cerrar la sesión?"
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
+    </>
   );
 }
 

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  Alert,
+  // Alert,
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +16,7 @@ import { api } from "@/src/utils/api";
 import CreateRoutineModal from "../rutine/CreateRoutineModal";
 import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
+import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
 interface Ejercicio {
   id: number;
@@ -49,7 +50,10 @@ export default function RoutineScreen() {
   const [selectedRoutine, setSelectedRoutine] = useState<Rutina | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
-  const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [routineToDelete, setRoutineToDelete] = useState<number | null>(null);
+
+  // const router = useRouter();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -105,32 +109,54 @@ export default function RoutineScreen() {
     }
   };
 
-  const deleteRoutine = async (id: number) => {
-    Alert.alert(
-      "Eliminar rutina",
-      "¿Estás seguro de que deseas eliminar esta rutina?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const token = await AsyncStorage.getItem("authToken");
-              if (!token) return;
-              await api(`/routine/${id}`, { method: "DELETE" });
-              showSuccess("Rutina eliminada correctamente")
-              // Alert.alert("Rutina eliminada correctamente");
-              setSelectedRoutine(null);
-              loadUserAndRoutines();
-            } catch {
-              showError("Error al eliminar la rutina")
-              // Alert.alert("Error al eliminar la rutina");
-            }
-          },
-        },
-      ]
-    );
+  // const deleteRoutine = async (id: number) => {
+  //   Alert.alert(
+  //     "Eliminar rutina",
+  //     "¿Estás seguro de que deseas eliminar esta rutina?",
+  //     [
+  //       { text: "Cancelar", style: "cancel" },
+  //       {
+  //         text: "Eliminar",
+  //         style: "destructive",
+  //         onPress: async () => {
+  //           try {
+  //             const token = await AsyncStorage.getItem("authToken");
+  //             if (!token) return;
+  //             await api(`/routine/${id}`, { method: "DELETE" });
+  //             showSuccess("Rutina eliminada correctamente");
+  //             // Alert.alert("Rutina eliminada correctamente");
+  //             setSelectedRoutine(null);
+  //             loadUserAndRoutines();
+  //           } catch {
+  //             showError("Error al eliminar la rutina");
+  //             // Alert.alert("Error al eliminar la rutina");
+  //           }
+  //         },
+  //       },
+  //     ]
+  //   );
+  // };
+
+  const requestDeleteRoutine = (id: number) => {
+    setRoutineToDelete(id);
+    setShowConfirm(true);
+  };
+
+  const confirmDeleteRoutine = async () => {
+    if (!routineToDelete) return;
+
+    try {
+      await api(`/routine/${routineToDelete}`, { method: "DELETE" });
+      showSuccess("Rutina eliminada correctamente");
+      setSelectedRoutine(null);
+
+      await loadUserAndRoutines();
+    } catch {
+      showError("Error al eliminar la rutina");
+    } finally {
+      setShowConfirm(false);
+      setRoutineToDelete(null);
+    }
   };
 
   const formatDescription = (descripcion?: string): string[] => {
@@ -147,88 +173,100 @@ export default function RoutineScreen() {
 
   if (selectedRoutine) {
     return (
-      <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => setSelectedRoutine(null)}>
-            <Text style={styles.backText}>Volver</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => deleteRoutine(selectedRoutine.id)}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteText}>🗑️</Text>
-          </TouchableOpacity>
-        </View>
+      <>
+        <View style={styles.container}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={() => setSelectedRoutine(null)}>
+              <Text style={styles.backText}>Volver</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => requestDeleteRoutine(selectedRoutine.id)}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteText}>🗑️</Text>
+            </TouchableOpacity>
+          </View>
 
-        <Text style={styles.title}>{selectedRoutine.objetivo}</Text>
-        <Text style={styles.fecha}>
-          Fecha: {new Date(selectedRoutine.fecha).toLocaleDateString()}
-        </Text>
+          <Text style={styles.title}>{selectedRoutine.objetivo}</Text>
+          <Text style={styles.fecha}>
+            Fecha: {new Date(selectedRoutine.fecha).toLocaleDateString()}
+          </Text>
 
-        <FlatList
-          data={selectedRoutine.ejercicios}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
-            const isExpanded = expanded[item.id];
-            const steps = formatDescription(item.descripcion);
+          <FlatList
+            data={selectedRoutine.ejercicios}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => {
+              const isExpanded = expanded[item.id];
+              const steps = formatDescription(item.descripcion);
 
-            return (
-              <View style={styles.card}>
-                <Text style={styles.objetivo}>{item.nombre}</Text>
-                <Text style={styles.subtext}>
-                  Musculo principal: {item.musculo_principal}
-                </Text>
-                {item.url_media && (
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={{ uri: item.url_media }}
-                      style={styles.exerciseImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-                )}
-                <View style={styles.infoRow}>
-                  <View style={styles.infoBox}>
-                    <Text style={styles.infoValue}>{item.series ?? "-"}</Text>
-                    <Text style={styles.infoTitle}>SETS</Text>
-                  </View>
-                  <View style={styles.infoBox}>
-                    <Text style={styles.infoValue}>
-                      {item.repeticiones ?? "-"}
-                    </Text>
-                    <Text style={styles.infoTitle}>REPS</Text>
-                  </View>
-                </View>
-
-                {item.descripcion && (
-                  <>
-                    <TouchableOpacity
-                      style={styles.expandButton}
-                      onPress={() => toggleExpand(item.id)}
-                    >
-                      <Text style={styles.expandText}>
-                        {isExpanded
-                          ? "Ocultar instrucciones"
-                          : "Ver instrucciones"}
+              return (
+                <View style={styles.card}>
+                  <Text style={styles.objetivo}>{item.nombre}</Text>
+                  <Text style={styles.subtext}>
+                    Musculo principal: {item.musculo_principal}
+                  </Text>
+                  {item.url_media && (
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={{ uri: item.url_media }}
+                        style={styles.exerciseImage}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  )}
+                  <View style={styles.infoRow}>
+                    <View style={styles.infoBox}>
+                      <Text style={styles.infoValue}>{item.series ?? "-"}</Text>
+                      <Text style={styles.infoTitle}>SETS</Text>
+                    </View>
+                    <View style={styles.infoBox}>
+                      <Text style={styles.infoValue}>
+                        {item.repeticiones ?? "-"}
                       </Text>
-                    </TouchableOpacity>
+                      <Text style={styles.infoTitle}>REPS</Text>
+                    </View>
+                  </View>
 
-                    {isExpanded && (
-                      <View style={styles.descriptionContainer}>
-                        {steps.map((step, index) => (
-                          <Text key={index} style={styles.descriptionText}>
-                            • {step}.
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
-            );
+                  {item.descripcion && (
+                    <>
+                      <TouchableOpacity
+                        style={styles.expandButton}
+                        onPress={() => toggleExpand(item.id)}
+                      >
+                        <Text style={styles.expandText}>
+                          {isExpanded
+                            ? "Ocultar instrucciones"
+                            : "Ver instrucciones"}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {isExpanded && (
+                        <View style={styles.descriptionContainer}>
+                          {steps.map((step, index) => (
+                            <Text key={index} style={styles.descriptionText}>
+                              • {step}.
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+                    </>
+                  )}
+                </View>
+              );
+            }}
+          />
+        </View>
+        <ConfirmModal
+          visible={showConfirm}
+          title="Eliminar rutina"
+          message="¿Seguro que deseas eliminar esta rutina?"
+          onCancel={() => {
+            setShowConfirm(false);
+            setRoutineToDelete(null);
           }}
+          onConfirm={confirmDeleteRoutine}
         />
-      </View>
+      </>
     );
   }
 
@@ -310,7 +348,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     color: "#6D28D9",
-    paddingVertical: 5
+    paddingVertical: 5,
   },
   addButton: {
     fontSize: 26,
@@ -339,15 +377,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 12,
   },
-  objetivo: { fontSize: 18, fontWeight: "bold", color: "#6D28D9", padding: 3},
+  objetivo: { fontSize: 18, fontWeight: "bold", color: "#6D28D9", padding: 3 },
   fecha: { color: "gray", marginVertical: 2, paddingHorizontal: 3 },
-  subtext: { color: "gray", fontSize: 13, marginBottom: 8, paddingHorizontal: 3 },
-  subtextBox: { flex: 1, color: "gray", fontSize: 14, marginBottom: 2},
+  subtext: {
+    color: "gray",
+    fontSize: 13,
+    marginBottom: 8,
+    paddingHorizontal: 3,
+  },
+  subtextBox: { flex: 1, color: "gray", fontSize: 14, marginBottom: 2 },
   imageContainer: {
     alignItems: "center",
     backgroundColor: "#fff",
     paddingHorizontal: 0,
-    width: "100%"
+    width: "100%",
     // borderRadius: 12,
     // marginVertical: 10,
   },

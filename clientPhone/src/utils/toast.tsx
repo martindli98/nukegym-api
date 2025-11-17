@@ -47,5 +47,7 @@ export const showWarning = (message: string, title?: string) => {
     position: 'top',
     visibilityTime: 3500,
     topOffset: 60,
+    text1Style: { fontSize: 14 }, // Aumentado 10% aproximadamente
+    text2Style: { fontSize: 12 }, // A
   });
 };

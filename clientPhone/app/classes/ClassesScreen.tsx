@@ -15,6 +15,7 @@ import ClassForm from "./ClassForm";
 import { api } from "../../src/utils/api";
 import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
+import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
 const ClassesScreen: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
@@ -22,6 +23,12 @@ const ClassesScreen: React.FC = () => {
   const [classes, setClasses] = useState<any[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmConfig, setConfirmConfig] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
@@ -92,65 +99,61 @@ const ClassesScreen: React.FC = () => {
     }
   }, [userData, authToken]);
 
-  const reserveClass = async (id: number) => {
+  const reserveClass = (id: number) => {
     if (!authToken) return;
 
-    Alert.alert("Confirmar reserva", "¿Deseas reservar esta clase?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Reservar",
-        onPress: async () => {
-          try {
-            await api("/reservations", {
-              method: "POST",
-              data: { id_clase: id },
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
+    setConfirmConfig({
+      visible: true,
+      title: "Reservar clase",
+      message: "¿Deseas reservar esta clase?",
+      onConfirm: async () => {
+        try {
+          await api("/reservations", {
+            method: "POST",
+            data: { id_clase: id },
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
 
-            showSuccess("Reserva realizada correctamente", "Éxito");
+          showSuccess("Reserva realizada correctamente", "Éxito");
 
-            fetchClasses(authToken);
-            fetchReservations(authToken);
-          } catch (error) {
-            showError("No se pudo reservar la clase", "Error");
-            console.error(error);
-          }
-        },
+          fetchClasses(authToken);
+          fetchReservations(authToken);
+        } catch (error) {
+          showError("No se pudo reservar la clase", "Error");
+          console.error(error);
+        } finally {
+          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+        }
       },
-    ]);
+    });
   };
 
-  const cancelReservation = async (id: number) => {
-  if (!authToken) return;
+  const cancelReservation = (id: number) => {
+    if (!authToken) return;
 
-  Alert.alert(
-    "Cancelar reserva",
-    "¿Estás seguro que deseas cancelar esta reserva?",
-    [
-      { text: "No", style: "cancel" },
-      {
-        text: "Sí, cancelar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api(`/reservations/${id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
+    setConfirmConfig({
+      visible: true,
+      title: "Cancelar reserva",
+      message: "¿Estás seguro que deseas cancelar esta reserva?",
+      onConfirm: async () => {
+        try {
+          await api(`/reservations/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
 
-            showSuccess("Reserva cancelada", "Cancelada");
+          showSuccess("Reserva cancelada", "Cancelada");
 
-            fetchReservations(authToken);
-          } catch (error) {
-            showError("No se pudo cancelar la reserva", "Error");
-            console.error(error);
-          }
-        },
+          fetchReservations(authToken);
+        } catch (error) {
+          showError("No se pudo cancelar la reserva", "Error");
+          console.error(error);
+        } finally {
+          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+        }
       },
-    ]
-  );
-};
-
+    });
+  };
 
   const handleCreateClass = async (data: any) => {
     try {
@@ -189,28 +192,27 @@ const ClassesScreen: React.FC = () => {
     }
   };
 
-  const handleDeleteClass = async (id: number) => {
-    Alert.alert("Confirmar", "¿Eliminar esta clase?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Eliminar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api(`/classes/${id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            showSuccess("Clase eliminada correctamente", "Eliminada");
-            // Alert.alert("Eliminada", "Clase eliminada correctamente");
-            fetchClasses(authToken!);
-          } catch {
-            showError("No se pudo eliminar la clase", "Error");
-            // Alert.alert("Error", "No se pudo eliminar la clase");
-          }
-        },
+  const handleDeleteClass = (id: number) => {
+    setConfirmConfig({
+      visible: true,
+      title: "Eliminar clase",
+      message: "¿Seguro que deseas eliminar esta clase?",
+      onConfirm: async () => {
+        try {
+          await api(`/classes/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+
+          showSuccess("Clase eliminada correctamente", "Eliminada");
+          fetchClasses(authToken!);
+        } catch (error) {
+          showError("No se pudo eliminar la clase", "Error");
+        } finally {
+          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+        }
       },
-    ]);
+    });
   };
 
   const formatDate = (date: string) => {
@@ -250,7 +252,7 @@ const ClassesScreen: React.FC = () => {
   //     </View>
   //   );
 
-  const tipoRol = userData.tipo_rol?.toLowerCase();
+  const tipoRol = userData?.tipo_rol?.toLowerCase() || "";
   const isClient = tipoRol === "cliente";
   const canManage =
     tipoRol === "entrenador" ||
@@ -286,106 +288,121 @@ const ClassesScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView
-      style={{ paddingHorizontal: 10, backgroundColor: "#f3f4f6", padding: 10 }}
-    >
-      <View
+    <>
+      <ScrollView
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginVertical: 2,
-          // paddingVertical: 8,
+          paddingHorizontal: 10,
+          backgroundColor: "#f3f4f6",
+          padding: 10,
         }}
       >
-        <Text
+        <View
           style={{
-            fontSize: 22,
-            fontWeight: "bold",
-            color: "#6D28D9",
-            paddingVertical: 5,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginVertical: 2,
+            // paddingVertical: 8,
           }}
         >
-          {isClient ? "Clases disponibles" : "Gestión de clases"}
-        </Text>
-
-        {canManage && (
-          <TouchableOpacity
-            style={
-              {
-                // marginVertical: 2,
-              }
-            }
-            onPress={() => setShowForm(true)}
-          >
-            <Text
-              style={{
-                color: "#6D28D9",
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: 26,
-                marginRight: 2,
-              }}
-            >
-              ＋
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {classes
-        .filter((c) => {
-          if (isClient) {
-            return !reservations.some(
-              (r) => r.id_clase === c.id_clase && r.estado === "reservado"
-            );
-          }
-          return true;
-        })
-        .map((c) => (
-          <ClassCard
-            key={c.id_clase}
-            classItem={c}
-            isClient={isClient}
-            canManage={canManage}
-            userReservations={reservations}
-            onReserve={reserveClass}
-            onCancelReservation={cancelReservation}
-            onEdit={(cls) => {
-              setEditingClass(cls);
-              setShowForm(true);
-            }}
-            onDelete={handleDeleteClass}
-            formatDate={formatDate}
-          />
-        ))}
-
-      {isClient && (
-        <>
           <Text
             style={{
               fontSize: 22,
               fontWeight: "bold",
-              marginTop: 24,
-              marginBottom: 8,
               color: "#6D28D9",
+              paddingVertical: 5,
             }}
           >
-            Mis Reservas
+            {isClient ? "Clases disponibles" : "Gestión de clases"}
           </Text>
-          {reservations
-            .filter((r) => r.estado === "reservado")
-            .map((r) => (
-              <ReservationCard
-                key={r.id}
-                reservation={r}
-                formatDate={formatDate}
-                onCancelReservation={cancelReservation}
-              />
-            ))}
-        </>
-      )}
-    </ScrollView>
+
+          {canManage && (
+            <TouchableOpacity
+              style={
+                {
+                  // marginVertical: 2,
+                }
+              }
+              onPress={() => setShowForm(true)}
+            >
+              <Text
+                style={{
+                  color: "#6D28D9",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: 26,
+                  marginRight: 2,
+                }}
+              >
+                ＋
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {classes
+          .filter((c) => {
+            if (isClient) {
+              return !reservations.some(
+                (r) => r.id_clase === c.id_clase && r.estado === "reservado"
+              );
+            }
+            return true;
+          })
+          .map((c) => (
+            <ClassCard
+              key={c.id_clase}
+              classItem={c}
+              isClient={isClient}
+              canManage={canManage}
+              userReservations={reservations}
+              onReserve={reserveClass}
+              onCancelReservation={cancelReservation}
+              onEdit={(cls) => {
+                setEditingClass(cls);
+                setShowForm(true);
+              }}
+              onDelete={handleDeleteClass}
+              formatDate={formatDate}
+            />
+          ))}
+
+        {isClient && (
+          <>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "bold",
+                marginTop: 24,
+                marginBottom: 8,
+                color: "#6D28D9",
+              }}
+            >
+              Mis Reservas
+            </Text>
+            {reservations
+              .filter((r) => r.estado === "reservado")
+              .map((r) => (
+                <ReservationCard
+                  key={r.id}
+                  reservation={r}
+                  formatDate={formatDate}
+                  onCancelReservation={cancelReservation}
+                />
+              ))}
+          </>
+        )}
+      </ScrollView>
+      <ConfirmModal
+        visible={confirmConfig.visible}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() =>
+          setConfirmConfig((prev) => ({ ...prev, visible: false }))
+        }
+      />
+    </>
   );
 };
 
