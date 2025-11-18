@@ -1,4 +1,3 @@
-// controllers/authController.js
 import UserModel from '../models/userModel.js';
 import { registerUser, loginUser, getUserFromToken } from '../services/authService.js';
 

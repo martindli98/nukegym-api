@@ -109,34 +109,6 @@ export default function RoutineScreen() {
     }
   };
 
-  // const deleteRoutine = async (id: number) => {
-  //   Alert.alert(
-  //     "Eliminar rutina",
-  //     "¿Estás seguro de que deseas eliminar esta rutina?",
-  //     [
-  //       { text: "Cancelar", style: "cancel" },
-  //       {
-  //         text: "Eliminar",
-  //         style: "destructive",
-  //         onPress: async () => {
-  //           try {
-  //             const token = await AsyncStorage.getItem("authToken");
-  //             if (!token) return;
-  //             await api(`/routine/${id}`, { method: "DELETE" });
-  //             showSuccess("Rutina eliminada correctamente");
-  //             // Alert.alert("Rutina eliminada correctamente");
-  //             setSelectedRoutine(null);
-  //             loadUserAndRoutines();
-  //           } catch {
-  //             showError("Error al eliminar la rutina");
-  //             // Alert.alert("Error al eliminar la rutina");
-  //           }
-  //         },
-  //       },
-  //     ]
-  //   );
-  // };
-
   const requestDeleteRoutine = (id: number) => {
     setRoutineToDelete(id);
     setShowConfirm(true);
@@ -272,21 +244,6 @@ export default function RoutineScreen() {
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
 
-  // if (error)
-  //   return (
-  //     <View style={styles.containerError}>
-  //       <Text style={styles.error}>{error}</Text>
-  //       <TouchableOpacity>
-  //         <Text
-  //           style={styles.buttonError}
-  //           onPress={() => router.replace("/(tabs)/profile")}
-  //         >
-  //           Iniciar sesión
-  //         </Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
@@ -373,7 +330,6 @@ const styles = StyleSheet.create({
   error: { fontSize: 16, color: "red", padding: 20 },
   card: {
     backgroundColor: "#e8e8e8",
-    // padding: 15,
     borderRadius: 5,
     marginVertical: 12,
   },
@@ -391,23 +347,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 0,
     width: "100%",
-    // borderRadius: 12,
-    // marginVertical: 10,
   },
   exerciseImage: {
     width: "70%",
     height: 180,
-    // borderRadius: 8,
   },
   infoRow: {
-    // backgroundColor: "#000",
     flexDirection: "row",
     justifyContent: "space-evenly",
-    // marginVertical: 10,
   },
   infoBox: {
-    // backgroundColor: "#fff",
-    // borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 20,
     alignItems: "center",
@@ -448,15 +397,6 @@ const styles = StyleSheet.create({
     color: "#444",
     marginBottom: 4,
   },
-  // buttonError: {
-  //   color: "#fff",
-  //   fontSize: 18,
-  //   textAlign: "center",
-  //   fontWeight: "600",
-  //   backgroundColor: "#f97316",
-  //   padding: 12,
-  //   borderRadius: 8,
-  // },
   backText: {
     color: "#6D28D9",
     fontWeight: "bold",

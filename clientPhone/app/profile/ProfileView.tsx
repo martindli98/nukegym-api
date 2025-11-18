@@ -21,12 +21,14 @@ interface User {
   apellido?: string;
   email: string;
   nro_documento?: string;
+  turno: string;
   telefono_personal?: string;
   telefono_emergencia?: string;
   fecha_nacimiento?: string;
+  patologias?: string;
 }
 
-export default function ProfileView({ onLogout, onEditPress }: any) {
+export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }: any) {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -42,12 +44,10 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
         setUserData(res.user);
         await AsyncStorage.setItem("userData", JSON.stringify(res.user));
       } else {
-        // Alert.alert("Error", "No se pudo obtener el perfil");
         showError("No se pudo obtener el perfil", "Error");
       }
     } catch (err) {
       console.error("Error al cargar el perfil", err);
-      // Alert.alert("Error", "No se pudo conectar con el servidor");
       showError("No se pudo conectar con el servidor", "Error");
     } finally {
       setLoading(false);
@@ -57,7 +57,6 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("authToken");
     await AsyncStorage.removeItem("userData");
-    // Alert.alert("Sesión cerrada", "Has cerrado sesión correctamente");
     showSuccess("Has cerrado sesión correctamente", "Sesión cerrada");
     onLogout();
   };
@@ -121,7 +120,7 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
         <View style={styles.card}>
           <Text style={styles.info}>DNI: {userData.nro_documento}</Text>
           <Text style={styles.info}>
-            Teléfono personal: {userData.telefono_personal || "-"}
+            Teléfono personal: {userData.telefono_personal}
           </Text>
           <Text style={styles.info}>
             Teléfono de emergencia: {userData.telefono_emergencia || "-"}
@@ -129,8 +128,11 @@ export default function ProfileView({ onLogout, onEditPress }: any) {
           <Text style={styles.info}>
             Fecha de nacimiento: {userData.fecha_nacimiento || "-"}
           </Text>
+          <Text style={styles.info}>
+            Turno: {userData.turno}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.trainerButton}>
+        <TouchableOpacity style={styles.trainerButton} onPress={onProfileTrainer}>
           <Text style={styles.editText}>Entrenador</Text>
         </TouchableOpacity>
 
@@ -174,7 +176,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
-  info: { fontSize: 16, color: "#374151", marginBottom: 8 },
+  info: { fontSize: 16, color: "#374151", marginBottom: 8, textTransform: 'capitalize' },
   editButton: {
     backgroundColor: "#f97316",
     padding: 12,

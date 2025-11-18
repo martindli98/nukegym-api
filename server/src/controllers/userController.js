@@ -1,4 +1,3 @@
-// controllers/userController.js
 import { pool } from "../config/db.js";
 
 const users = []; // Array to store user data
@@ -53,7 +52,6 @@ export const getUserProfile = async (req, res) => {
 };
 
 // Function to update user profile
-
 export const updateUserProfile = async (req, res) => {
   let connection;
   try {

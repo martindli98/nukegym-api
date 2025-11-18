@@ -9,51 +9,55 @@ import {
 } from "react-native";
 import { api } from "@/src/utils/api";
 import { showSuccess, showError } from "@/src/utils/toast";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 
 interface Props {
   onBack: () => void;
+  onLoginSuccess?: () => void;
 }
 
 export default function ProfileRegister({ onBack }: Props) {
   const [email, setEmail] = useState("");
   const [dni, setDni] = useState("");
   const [password, setPassword] = useState("");
+  const [turno, setTurno] = useState("");
 
   const handleRegister = async () => {
-    console.log("handleeeeeeeeeereigsteeeeeeeeeeeeeeeer");
-    if (!email || !dni || !password) {
-      showError("Error", "Todos los campos son obligatorios");
-      // Alert.alert("Error", "Todos los campos son obligatorios");
+    if (!email || !dni || !password || !turno) {
+      showError("Todos los campos son obligatorios", "Error");
       return;
     }
 
     try {
-      console.log("tryyyyyyyyyyyyyyyyyyyyyy");
       const res = await api("/auth/register-user", {
         method: "POST",
         body: JSON.stringify({
           email,
           nro_documento: dni,
           password,
+          turno,
         }),
       });
 
-      console.log(res);
+      // console.log(res);
       if (res.success) {
-        // Alert.alert(
-        //   "Éxito",
-        //   "Usuario registrado correctamente. Ahora podés iniciar sesión."
-        // );
+        await AsyncStorage.setItem(
+          "userData",
+          JSON.stringify({
+            token: res.token,
+            userData: res.user,
+          })
+        );
         showSuccess("Usuario registrado correctamente.", "Éxito");
         onBack();
-        console.log("anduvoo");
+
+        // if (onLoginSuccess) onLoginSuccess();
       } else {
-        // Alert.alert("Error", res.data.message || "No se pudo registrar");
-        showError(res.data.message || "No se pudo registrar","Error");
+        showError(res.data.message || "No se pudo registrar", "Error");
       }
     } catch {
-      // Alert.alert("Error", "No se pudo conectar con el servidor");
-      showError("No se pudo conectar con el servidor","Error");
+      showError("No se pudo conectar con el servidor", "Error");
     }
   };
 
@@ -74,6 +78,19 @@ export default function ProfileRegister({ onBack }: Props) {
         style={styles.input}
         keyboardType="numeric"
       />
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={turno}
+          onValueChange={setTurno}
+          style={styles.picker}
+        >
+          <Picker.Item style={styles.selectPicker} label="Seleccione un turno..." value="" />
+          <Picker.Item label="Mañana" value="mañana" />
+          <Picker.Item label="Tarde" value="tarde" />
+          <Picker.Item label="Noche" value="noche" />
+        </Picker>
+      </View>
       <TextInput
         placeholder="Contraseña"
         value={password}
@@ -114,7 +131,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 8,
-    padding: 12,
+    paddingVertical: 14,
+    paddingLeft: 8,
+    height: 50,
     marginBottom: 16,
   },
   button: { backgroundColor: "#f97316", paddingVertical: 12, borderRadius: 8 },
@@ -126,4 +145,35 @@ const styles = StyleSheet.create({
   },
   registerText: { textAlign: "center", marginTop: 16, color: "#374151" },
   link: { color: "#f97316", fontWeight: "bold" },
+  turnoBtn: {
+    padding: 12,
+    marginVertical: 5,
+    backgroundColor: "#EEE",
+    borderRadius: 8,
+  },
+  turnoBtnActive: {
+    backgroundColor: "#ff9800",
+  },
+  turnoText: {
+    textAlign: "center",
+    color: "#000",
+    fontWeight: "600",
+  },
+  pickerContainer: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+
+  picker: {
+    height: 50,
+    width: "100%",
+    color: "gray"
+  },
+  selectPicker: {
+    color: "gray",
+    
+  }
 });
