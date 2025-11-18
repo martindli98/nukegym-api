@@ -33,6 +33,10 @@ export default function RootLayout() {
             options={{ presentation: "modal", title: "Modal" }}
           />
           <Stack.Screen
+            name="progress/progressView"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+          <Stack.Screen
             name="notifications/NotificationsScreen"
             options={{
               title: "Notificaciones",

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, use } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import CreateRoutineModal from "../rutine/CreateRoutineModal";
 import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
 import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
+
 
 interface Ejercicio {
   id: number;
@@ -52,6 +53,8 @@ export default function RoutineScreen() {
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState<number | null>(null);
+  const router = useRouter();
+
 
   // const router = useRouter();
 
@@ -294,6 +297,12 @@ export default function RoutineScreen() {
         <TouchableOpacity onPress={() => setShowModal(true)}>
           <Text style={styles.addButton}>＋</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleRow}>
+        <TouchableOpacity onPress={() => router.push("/progress/progressView")}>
+        <Text>Ir a Progreso</Text>
+      </TouchableOpacity>
+
       </View>
 
       {routines.length === 0 ? (
