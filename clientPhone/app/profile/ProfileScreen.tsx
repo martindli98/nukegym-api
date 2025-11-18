@@ -5,12 +5,14 @@ import ProfileLogin from "./ProfileLogin";
 import ProfileView from "./ProfileView";
 import ProfileRegister from "./ProfileRegister";
 import ProfileEdit from "./ProfileEdit";
+import ProfileTrainer from "./ProfileTrainer";
 
 export default function ProfileScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showTrainer, setShowTrainer] = useState(false);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -54,10 +56,14 @@ export default function ProfileScreen() {
     );
   }
 
+  if (showTrainer) {
+    return <ProfileTrainer onBack={() => setShowTrainer(false)} />;
+  }
   return (
     <ProfileView
       onLogout={() => setToken(null)}
       onEditPress={() => setShowEdit(true)}
+      onProfileTrainer={() => setShowTrainer(true)}
     />
   );
 }

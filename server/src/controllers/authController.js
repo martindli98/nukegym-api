@@ -1,19 +1,18 @@
-// controllers/authController.js
 import UserModel from '../models/userModel.js';
 import { registerUser, loginUser, getUserFromToken } from '../services/authService.js';
 
 export const register = async (req, res) => {
-    const { /* nombre, */ email, nro_documento, password} = req.body;
+    const { /* nombre, */ email, nro_documento, password, turno} = req.body;
 
     // Validate required fields
-    if ((/* !nombre || */ !email || !nro_documento || !password)) {
+    if ((/* !nombre || */ !email || !nro_documento || !password || !turno)) {
       return res
         .status(400)
         .json({ success: false, message: "Debe rellenar todos los campos." });
     }
 
     // Create user instance
-    const user = new UserModel({ /* nombre, */ email, nro_documento, password });
+    const user = new UserModel({ /* nombre, */ email, nro_documento, password, turno });
 
     try {
         // Register user using auth service

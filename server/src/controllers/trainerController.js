@@ -30,6 +30,26 @@ export const getAllTrainers = async (req, res) => {
     res.status(500).json({ message: "Error al obtener los entrenadores" })
   }
 };
+
+export const getTrainersByTurn = async (req, res) => {
+  try {
+    const { turno } = req.query;
+    // Unir Entrenador con Usuario para traer nombre/apellido
+    const [rows] = await pool.query(
+      `SELECT e.id AS id, u.nombre, u.apellido, e.turno, e.cupos
+       FROM Entrenador e
+       INNER JOIN Usuario u ON e.id_usuario = u.id
+       WHERE e.turno = ?`,
+      [turno]
+    );
+
+    res.json({ success: true, entrenadores: rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error al obtener entrenadores en ese horario" });
+  }
+};
+
 export const assignTrainer = async (req, res) => {
   const { id } = req.params;               // ID del usuario (cliente)
   const { id_trainer: newTrainerId } = req.body;
@@ -108,6 +128,62 @@ export const assignTrainer = async (req, res) => {
   } catch (error) {
     console.error("assignTrainer error:", error);
     return res.status(500).json({ message: "Error al asignar el entrenador" });
+  }
+};
+
+export const updateTrainerTurn = async (req, res) => {
+  const trainerUserId = req.user.id; 
+  const { turno } = req.body;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT id FROM Entrenador WHERE id_usuario = ?",
+      [trainerUserId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No sos entrenador" });
+    }
+
+    const idEntrenador = rows[0].id;
+
+    await pool.query(
+      "UPDATE Entrenador SET turno = ? WHERE id = ?",
+      [turno, idEntrenador]
+    );
+
+    return res.json({ success: true, message: "Turno actualizado" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Error al actualizar turno" });
+  }
+};
+
+export const updateTrainerAdmin = async (req, res) => {
+  const { id } = req.params; 
+  const { turno, cupos } = req.body;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT id FROM Entrenador WHERE id_usuario = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Este usuario no es entrenador" });
+    }
+
+    const idEntrenador = rows[0].id;
+
+    await pool.query(
+      "UPDATE Entrenador SET turno = ?, cupos = ? WHERE id = ?",
+      [turno, cupos, idEntrenador]
+    );
+
+    return res.json({ success: true, message: "Entrenador actualizado correctamente" });
+  } catch (error) {
+    console.error("updateTrainerAdmin error:", error);
+    return res.status(500).json({ message: "Error al actualizar entrenador" });
   }
 };
 

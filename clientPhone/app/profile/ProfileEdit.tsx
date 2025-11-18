@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   ActivityIndicator,
   KeyboardTypeOptions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
+import { Picker } from "@react-native-picker/picker";
+import { showError, showSuccess } from "@/src/utils/toast";
 
 interface Props {
   onCancel: () => void;
@@ -23,6 +24,7 @@ interface UserData {
   apellido: string;
   email: string;
   nro_documento: string;
+  turno?: string;
   num_personal?: string;
   num_emergencia?: string;
   fechaNac?: string;
@@ -37,6 +39,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
     nro_documento: "",
     num_personal: "",
     num_emergencia: "",
+    turno: "",
     fechaNac: "",
     patologias: "",
   });
@@ -54,13 +57,13 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
       const storedUser = await AsyncStorage.getItem("userData");
 
       if (!token) {
-        Alert.alert("Sesión inválida", "Por favor iniciá sesión nuevamente.");
+        showError("Por favor iniciá sesión nuevamente.", "Sesión inválida")
         return;
       }
 
       let user = storedUser ? JSON.parse(storedUser) : null;
 
-      const res = await api('/users/profile');
+      const res = await api("/users/profile");
 
       if (res?.success && (res.user || res.data)) {
         user = res.user || res.data;
@@ -75,13 +78,14 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
           nro_documento: user.nro_documento || "",
           num_personal: user.num_personal || "",
           num_emergencia: user.num_emergencia || "",
+          turno: user.turno,
           fechaNac: user.fechaNac ? user.fechaNac.split("T")[0] : "",
           patologias: user.patologias || "",
         });
       }
     } catch (error: any) {
       console.log("Error loading profile:", error.message);
-      Alert.alert("Error", "No se pudo cargar el perfil.");
+      showError("No se pudo cargar el perfil.", "Error")
     } finally {
       setLoading(false);
     }
@@ -150,7 +154,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
   const handleSave = async () => {
     const error = validateForm();
     if (error) {
-      Alert.alert("Error de validación", error);
+      showError(error, "Error de validación")
       return;
     }
 
@@ -158,31 +162,28 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
       setLoading(true);
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Alert.alert("Error", "No se encontró token de autenticación.");
+        showError("No se encontró token de autenticación.", "Error")
         return;
       }
 
-      const res = await api('/users/profile', {
-        method: 'PUT',
+      const res = await api("/users/profile", {
+        method: "PUT",
         body: JSON.stringify(formData),
       });
 
       if (res.success) {
-        Alert.alert("Éxito", "Perfil actualizado correctamente");
+        showSuccess("Perfil actualizado correctamente", "Éxito")
 
         const updatedUser = res.user || formData;
         await AsyncStorage.setItem("userData", JSON.stringify(updatedUser));
 
         onSave();
       } else {
-        Alert.alert(
-          "Error",
-          res.message || "No se pudo actualizar el perfil"
-        );
+        showError("No se pudo actualizar el perfil", res.message)
       }
     } catch (err: any) {
       console.log("Error saving profile:", err.message);
-      Alert.alert("Error", "Error al guardar los cambios");
+      showError("Error al guardar los cambios", "Error")
     } finally {
       setLoading(false);
     }
@@ -218,9 +219,11 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Editar Perfil</Text>
 
+      {/* Campos normales */}
       {fields.map((f) => (
         <View key={f.key} style={styles.field}>
           <Text style={styles.label}>{f.label}</Text>
+
           <TextInput
             style={styles.input}
             value={(formData as any)[f.key] ?? ""}
@@ -230,6 +233,23 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
         </View>
       ))}
 
+      {/* Turno */}
+      <View style={styles.field}>
+        <Text style={styles.label}>Turno</Text>
+
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={formData.turno}
+            onValueChange={(value) => handleChange("turno", value)}
+          >
+            <Picker.Item label="Mañana" value="mañana" />
+            <Picker.Item label="Tarde" value="tarde" />
+            <Picker.Item label="Noche" value="noche" />
+          </Picker>
+        </View>
+      </View>
+
+      {/* Fecha de nacimiento */}
       <View style={styles.field}>
         <Text style={styles.label}>Fecha de Nacimiento</Text>
         <TextInput
@@ -240,6 +260,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
         />
       </View>
 
+      {/* Patologías */}
       <View style={styles.field}>
         <Text style={styles.label}>Patologías</Text>
         <TextInput
@@ -250,6 +271,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
         />
       </View>
 
+      {/* Botones */}
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.button, styles.saveButton]}
@@ -334,5 +356,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    backgroundColor: "#fafafa",
   },
 });

@@ -29,7 +29,7 @@ const handleSubmit = async (e, routineId) => {
 
     const progresos = routine.ejercicios.map((ej) => {
       const peso = e.target[`peso_${ej.id}`]?.value || null;
-      const repeticiones = e.target[`repeticiones_${ej.id}`]?.value || ej.repeticiones || null;
+      const repeticiones = e.ta rget[`repeticiones_${ej.id}`]?.value || ej.repeticiones || null;
       return {
         id_ejercicio: ej.id,
         peso: Number(peso),
