@@ -3,6 +3,7 @@ class UserModel {
     /* this.nombre = user.nombre; */
     this.email = user.email;
     this.nro_documento = user.nro_documento;
+    this.turno = user.turno;
     this.password = user.password;
   }
 }

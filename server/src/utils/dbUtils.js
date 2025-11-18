@@ -20,6 +20,7 @@ const userTableQuery = `CREATE TABLE IF NOT EXISTS Usuario (
     baja_usuario BOOLEAN DEFAULT FALSE,
     patologias VARCHAR(255),
     foto_avatar VARCHAR(255),
+    turno ENUM('mañana', 'tarde', 'noche') DEFAULT NULL,
     FOREIGN KEY (id_rol) REFERENCES Rol(id),
     FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;

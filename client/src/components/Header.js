@@ -122,7 +122,7 @@ const Header = () => {
         {/* Conditional Rendering */}
         {userData ? (
           <>
-            {userData.id_rol === 2 && (
+            {/* {userData.id_rol === 2 && (
               <li>
                 <Link
                   to="/trainers"
@@ -131,7 +131,7 @@ const Header = () => {
                   Entrenadores
                 </Link>
               </li>
-            )}
+            )} */}
 
             {userData.id_rol === 3 && (
               <li>
