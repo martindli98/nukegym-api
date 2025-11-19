@@ -56,6 +56,11 @@ export default function RoutineScreen() {
   const router = useRouter();
 
 
+  const [students, setStudents] = useState([]);
+  const [showStudents, setShowStudents] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+
+
   // const router = useRouter();
 
   useFocusEffect(
@@ -73,6 +78,7 @@ export default function RoutineScreen() {
   const loadUserAndRoutines = async () => {
     setLoading(true);
     setError("");
+    console.log(user)
     try {
       const token = await AsyncStorage.getItem("authToken");
       const userDataStr = await AsyncStorage.getItem("userData");
@@ -145,6 +151,22 @@ export default function RoutineScreen() {
   const toggleExpand = (id: number) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const loadStudents = async () => {
+  try {
+    const res = await api(`/trainers/${user.id}/alumnos`);
+    console.log(res)
+    if (Array.isArray(res)) {
+      setStudents(res);
+    } else {
+      setStudents([]);
+    }
+
+  } catch (error) {
+    showError("Error al cargar alumnos");
+  }
+};
+
 
   if (selectedRoutine) {
     return (
@@ -247,14 +269,75 @@ export default function RoutineScreen() {
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
 
+  if (showStudents) {
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity onPress={() => setShowStudents(false)}>
+        <Text style={styles.backText}>Volver</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.title}>Mis alumnos</Text>
+
+      {students.length === 0 ? (
+        <Text style={styles.text}>No tienes alumnos asignados aún.</Text>
+      ) : (
+        <FlatList
+          data={students}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.objetivo}>{item.nombre} {item.apellido}</Text>
+              <Text style={styles.subtext}>{item.email}</Text>
+
+              <TouchableOpacity
+                style={{ backgroundColor: "#6D28D9", padding: 10, borderRadius: 5, marginTop: 10 }}
+                onPress={() => setSelectedStudent(item.id)}
+              >
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  Asignar rutina
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+      )}
+
+      <CreateRoutineModal
+        visible={!!selectedStudent}
+        studentId={selectedStudent}
+        onClose={() => setSelectedStudent(null)}
+        onCreated={() => {
+          loadStudents();
+          setSelectedStudent(null);
+        }}
+      />
+    </View>
+  );
+}
+
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>Mis rutinas</Text>
-        <TouchableOpacity onPress={() => setShowModal(true)}>
-          <Text style={styles.addButton}>＋</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+            <TouchableOpacity onPress={() => setShowModal(true)}>
+              <Text style={styles.addButton}>＋</Text>
+            </TouchableOpacity>
+
+            {user?.tipo_rol === "entrenador" && (       // 👈 SOLO muestra si es entrenador
+              <TouchableOpacity
+                onPress={() => {
+                  loadStudents();
+                  setShowStudents(true);
+                }}
+              >
+                <Text style={styles.addButton}>👥</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
       </View>
+
       <View style={styles.titleRow}>
         <TouchableOpacity onPress={() => router.push("/progress/progressView")}>
         <Text>Ir a Progreso</Text>
