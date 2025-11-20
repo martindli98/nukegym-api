@@ -45,7 +45,7 @@ const Login = () => {
       );
 
       if (response.data.success) {
-        console.log(" Login exitoso:", response.data);
+        /* console.log(" Login exitoso:", response.data); */
 
         const token = response.data.token;
         const user = response.data.user; // Asumimos que el backend devuelve datos del usuario
@@ -67,10 +67,10 @@ const Login = () => {
 };
 sessionStorage.setItem("userData", JSON.stringify(userData));
 
-        console.log(" Datos guardados:", {
+       /*  console.log(" Datos guardados:", {
           token: !!token,
           userData: userData,
-        });
+        }); */
 
         toast.success("¡Login exitoso! Redirigiendo...");
 
@@ -82,7 +82,7 @@ sessionStorage.setItem("userData", JSON.stringify(userData));
         toast.error(response.data.message || "Login fallido");
       }
     } catch (error) {
-      console.error("Error during login:", error);
+      /* console.error("Error during login:", error); */
       toast.error(
         error.response.data.message || "Algo salio mal. Intenta de nuevo"
       );
