@@ -154,20 +154,21 @@ function Membership() {
   } else if (membershipStatus === null) {
     membershipCardRender = <MembershipCard title="Cargando estado de la membresía..." />;
   } else if (membershipStatus === true) {
-    membershipCardRender = <MembershipCard title="✅ Tu membresía está activa" img={fotoActiva} descripcion="Disfruta antes q se termine"/>;
+    membershipCardRender = <MembershipCard title="Tu membresía está activa" img={fotoActiva} descripcion="Disfruta antes q se termine"/>;
   } else if (membership?.data?.estado === "baja") {
-    membershipCardRender = <MembershipCard title="⚠️ Tu membresía está dada de baja" img={fotoBaja} />;
+    membershipCardRender = <MembershipCard title="Tu membresía está dada de baja" img={fotoBaja} />;
   } else {
   membershipCardRender = (
     <div
-      className="bg-white dark:bg-[oklch(12.9%_0.042_264.695)]
+      className="bg-white dark:bg-gray-800
                  text-gray-800 dark:text-white
                  flex flex-col items-center
                  rounded-2xl shadow-2xl max-w-md w-full text-center p-6
-                 animate-fadeIn transition-all duration-300"
+                 animate-fadeIn transition-all duration-300
+                 hover:-translate-y-1 transition-all duration-300"
     >
       <MembershipCard
-        title="❌ Tu membresía expiró"
+        title="Tu membresía expiró"
         descripcion="Adquirí un nuevo plan para seguir entrenando 🏋️‍♂️"
         img={fotoExpirada}
         estado={membership?.data?.estado}
@@ -251,28 +252,89 @@ if (error) {
 }
 return (
   <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 py-10 px-6 flex justify-center transition-colors duration-300">
-    <div className="w-full max-w-6xl flex flex-col gap-10">
+    <div className="w-full max-w-6xl flex flex-col gap-10 animate-fadeInUp">
 
-      {/* HEADER */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-          Tu membresía
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide">
-          Gestión y estado actual de tu plan en NUKEGYM
-        </p>
-      </div>
+      {/* SI ES ADMIN */}
+      {user?.rol === "admin" ? (
+        <>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
 
-      {/* CARDS PRINCIPALES */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {membershipCardRender}
-        {infoCardRender}
-      </div>
+            Listado de Membresías
+          </h1>
+
+          <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide mb-6">
+            Administración completa de membresías en NUKEGYM
+          </p>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-bold mb-4 text-orange-500 dark:text-orange-400">📋 Membresías registradas</h2>
+
+            {Array.isArray(membershipList) && membershipList.length === 0 ? (
+              <p className="text-gray-600 dark:text-gray-300">Cargando listado...</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-200 dark:bg-gray-700">
+                      <th className="p-3 text-left text-gray-700 dark:text-gray-300">Usuario</th>
+                      <th className="p-3 text-left text-gray-700 dark:text-gray-300">Tipo</th>
+                      <th className="p-3 text-left text-gray-700 dark:text-gray-300">Estado</th>
+                      <th className="p-3 text-left text-gray-700 dark:text-gray-300">Inicio</th>
+                      <th className="p-3 text-left text-gray-700 dark:text-gray-300">Fin</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {Array.isArray(membershipList) && membershipList.map((m) => (
+                      <tr
+                        key={m.id}
+                        className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[oklch(17%_0.04_270)] transition-colors"
+                      >
+                        <td className="p-3 text-gray-800 dark:text-gray-100">{m.nombre} {m.apellido}</td>
+                        <td className="p-3 text-gray-800 dark:text-gray-100">{m.tipo}</td>
+                        <td className="p-3 text-gray-800 dark:text-gray-100">{m.estado}</td>
+                        <td className="p-3 text-gray-800 dark:text-gray-100">{m.fechaInicio}</td>
+                        <td className="p-3 text-gray-800 dark:text-gray-100">{m.fechaFin}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Botón PDF */}
+            <div className="mt-6">
+              <PDFDownloadLink
+                document={<PDF memberships={membershipList} />}
+                fileName="Membresias.pdf"
+              >
+                <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition">
+                  Descargar PDF
+                </button>
+              </PDFDownloadLink>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              Tu membresía
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide">
+              Gestión y estado actual de tu plan en NUKEGYM
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {membershipCardRender}
+            {infoCardRender}
+          </div>
+
+        </>
+      )}
 
       <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
-
-
-     {/* TIPOS DE MEMBRESÍA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <MembershipType
           title="Plan Básico"
@@ -296,33 +358,11 @@ return (
         />
       </div>
 
-
-
-      {/* ADMIN SECTION */}
-      {user?.rol === "admin" && (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-2xl p-6 transition-colors duration-300">
-          <h3 className="text-lg font-semibold text-orange-500 dark:text-orange-400 flex items-center gap-2 mb-3">
-            ⬇ Descargar listado de membresías
-          </h3>
-
-          <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
-            Exportá un archivo con todas las membresías del sistema.
-          </p>
-
-          <PDFDownloadLink
-            document={<PDF memberships={membershipList} />}
-            fileName="Membresias.pdf"
-          >
-            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition">
-              Descargar PDF
-            </button>
-          </PDFDownloadLink>
-        </div>
-      )}
-
     </div>
   </div>
 );
+
+
 
 
 

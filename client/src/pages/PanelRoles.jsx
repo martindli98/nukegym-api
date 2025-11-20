@@ -86,16 +86,16 @@ export default function PanelRoles() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold mb-6 text-center text-purple-600">
+    <div className="min-h-screen bg-white dark:bg-gray-800  py-10 px-6">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">
           Panel de Roles
         </h2>
 
         <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="py-3 px-4">Nombre</th>
+              <th className="py-3 px-4 ">Nombre</th>
               <th className="py-3 px-4">Email</th>
               <th className="py-3 px-4">Rol</th>
               <th className="py-3 px-4">Cambiar Rol</th>
@@ -112,8 +112,10 @@ export default function PanelRoles() {
                 <tr
                   key={u.id}
                   className={`${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } hover:bg-gray-100`}
+                            index % 2 === 0
+                              ? "text-black bg-gray-50 dark:text-gray-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              : "text-black bg-gray-50 dark:text-gray-300 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
                 >
                   <td className="py-3 px-4">{u.nombre}</td>
                   <td className="py-3 px-4">{u.email}</td>
@@ -125,7 +127,7 @@ export default function PanelRoles() {
                     <select
                       value={u.id_rol}
                       onChange={(e) => cambiarRol(u.id, e.target.value)}
-                      className="border rounded-lg px-2 py-1"
+                      className="bg-white dark:bg-gray-700 rounded-lg px-2 py-1"
                     >
                       <option value={1}>Admin</option>
                       <option value={2}>Cliente</option>
@@ -139,7 +141,7 @@ export default function PanelRoles() {
                         onChange={(e) =>
                           actualizarTrainer(u.id, "turno", e.target.value)
                         }
-                        className="border rounded-lg px-2 py-1"
+                        className="bg-white dark:bg-gray-700 rounded-lg px-2 py-1"
                       >
                         <option value="Mañana">Mañana</option>
                         <option value="Tarde">Tarde</option>
@@ -153,7 +155,7 @@ export default function PanelRoles() {
                     {u.id_rol === 3 ? (
                       <input
                         type="number"
-                        className="border rounded-lg px-2 py-1 w-20"
+                        className="bg-white dark:bg-gray-700 rounded-lg px-2 py-1 w-20"
                         value={trainer?.cupos ?? 0}
                         onChange={(e) =>
                           actualizarTrainer(u.id, "cupos", e.target.value)

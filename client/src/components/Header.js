@@ -58,7 +58,8 @@ const Header = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50 transition-colors duration-300">
       {/* Logo */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 animate-fadeInLeft">
+
         <img
           src={require("../img/LOGO GYM.png")}
           alt="Logo"
@@ -241,20 +242,7 @@ const Header = () => {
             </li>
           </>
         )}
-
-        {/* Botón modo oscuro */}
-        <li>
-          <button
-            onClick={toggleDarkMode}
-            className="text-xl text-gray-700 dark:text-gray-200 hover:text-orange-500 transition-colors"
-          >
-            {darkMode ? (
-              <i className="fas fa-sun"></i> // ☀️ Modo claro
-            ) : (
-              <i className="fas fa-moon"></i> // 🌙 Modo oscuro
-            )}
-          </button>
-        </li>
+        
       </ul>
     </nav>
   );

@@ -263,7 +263,7 @@ const Classes = () => {
 /* ---------------------- ESTADO: CARGANDO / SIN PERMISOS ---------------------- */
 if (loading) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300 animate-fadeInUp">
       <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
         <div className="text-xl text-gray-700 dark:text-gray-300 mb-4">
           Debes iniciar sesión para acceder a las clases.
@@ -282,7 +282,7 @@ if (loading) {
 /* ---------------------- MODO EDICIÓN DE CLASES ---------------------- */
 if (isEditing && canManage) {
   return (
-    <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300">
+    <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-30 animate-fadeInUp">
       <div className="max-w-4xl mx-auto px-4">
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
@@ -328,7 +328,7 @@ if (isEditing && canManage) {
 
 /* ---------------------- VISTA PRINCIPAL (LISTA DE CLASES) ---------------------- */
 return (
-  <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300">
+  <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300 animate-fadeInUp">
     <div className="max-w-6xl mx-auto px-4">
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">

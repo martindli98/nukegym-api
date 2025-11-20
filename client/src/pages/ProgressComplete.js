@@ -1,107 +1,162 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer , ComposedChart, Bar, BarChart} from "recharts";
 import axios from "axios";
 
 function ProgressComplete() {
   const { idRutina} = useParams(); // id de la rutina
   const [data, setData] = useState([]);
   const [error, setError]= useState();
+  const [loading, setLoading] = useState(true);
+  const [noData, setNoData] = useState(false);
 
-    const fetchProgress = async () => {
-       
-      try {
-        const token = sessionStorage.getItem("authToken");
-        const response = await axios.get(`http://localhost:3000/api/progress/routine/${idRutina}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.data.success) {
-            const progresos = response.data.data;
 
-            const agrupado = Object.values(
-              progresos.reduce((acc, item) => {
-                if (!acc[item.id_ejercicio]) {
-                  acc[item.id_ejercicio] = {
-                    id_ejercicio: item.id_ejercicio,
-                    nombre: item.nombre_ejercicio,
-                    progresos: [],
-                  };
-                }
-                acc[item.id_ejercicio].progresos.push({
-                  fecha: item.fecha_uno,
-                  peso: item.peso,
-                });
-                return acc;
-              }, {})
-            );
+   useEffect(() => {
+  const fetchProgress = async () => {
+    setLoading(true);
+    setNoData(false);
 
-            console.log("Agrupado:", agrupado);
-            setData(agrupado);
-          }else {
-          setError(response.data || "No se pudo obtener el listado");
+    try {
+      const token = sessionStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:3000/api/progress/routine/${idRutina}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        const progresos = response.data.data;
+
+        if (progresos.length === 0) {
+          setNoData(true);
+          setData([]);
+          return;
         }
-      } catch (err) {
-        console.error(err);
-        setError("Error al consultar la membresía.");
-      }}
 
-      useEffect(() => {
-        fetchProgress();  // se ejecuta una sola vez
-      }, []);
+        const agrupado = Object.values(
+          progresos.reduce((acc, item) => {
+            if (!acc[item.id_ejercicio]) {
+              acc[item.id_ejercicio] = {
+                id_ejercicio: item.id_ejercicio,
+                nombre: item.nombre_ejercicio,
+                progresos: [],
+              };
+            }
+            acc[item.id_ejercicio].progresos.push({
+              fecha: item.fecha_uno,
+              peso: item.peso,
+            });
+            return acc;
+          }, {})
+        );
+
+        setData(agrupado);
+      } else {
+        setError("No se pudo obtener el listado");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Error al consultar el progreso.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProgress();
+}, []);
+
+      console.log('-----------------------')
+      console.log(data)
       
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-        Progreso completo – Rutina #{idRutina}
-      </h2>
+  <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-white">
+      Progreso completo – Rutina #{idRutina}
+    </h2>
 
-      {error && (
-        <p className="text-center text-red-500 font-semibold mb-4">{error}</p>
-      )}
+    {error && (
+      <p className="text-center text-red-500 font-semibold mb-4">{error}</p>
+    )}
 
-      {data.length > 0 ? (
-        <div className="space-y-12">
-          {data.map((ejercicio) => (
+    {loading && (
+      <p className="text-center text-gray-500 dark:text-gray-400 italic">
+        Cargando progreso...
+      </p>
+    )}
+
+    {noData && !loading && (
+      <p className="text-center text-gray-600 dark:text-gray-300 font-semibold">
+        No hay progresos registrados aún para esta rutina.
+      </p>
+    )}
+
+    {!loading && !noData && data.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        {data.map((ejercicio) => {
+          const chartData = ejercicio.progresos.map((p) => ({
+            fecha: new Date(p.fecha).toLocaleString("es-AR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            peso: Number(p.peso),
+          }));
+
+          return (
             <div
               key={ejercicio.id_ejercicio}
-              className="bg-white p-6 rounded-xl shadow-md border border-gray-200"
+              className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700"
             >
-              <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
                 {ejercicio.nombre}
               </h3>
 
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={ejercicio.progresos.map((p) => ({
-                    fecha: new Date(p.fecha).toLocaleDateString("es-AR"),
-                    peso: p.peso,
-                  }))}
+                <BarChart
+                  data={chartData}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" />
-                  <YAxis label={{ value: "Peso (kg)", angle: -90, position: "insideLeft" }} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="peso"
-                    stroke="#2563eb"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+                  <XAxis
+                    dataKey="fecha"
+                    stroke="#4b5563"
+                    tick={{ fill: "#4b5563" }}
+                    dy={5}
                   />
-                </LineChart>
+                  <YAxis
+                    label={{
+                      value: "Peso (kg)",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#4b5563",
+                      offset: 10,
+                    }}
+                    stroke="#4b5563"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fef3c7",
+                      borderRadius: "8px",
+                      border: "none",
+                    }}
+                    labelStyle={{ color: "#b45309" }}
+                    formatter={(value) => [`${value} kg`, "Peso"]}
+                  />
+                  <Bar dataKey="peso" fill="#f97316" radius={[4, 4, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-gray-500 italic">
-          Cargando datos o no hay progreso registrado aún...
-        </p>
-      )}
-    </div>
-  );
+          );
+        })}
+      </div>
+    ) : null}
+  </div>
+);
+
+
+
 }
 
 export default ProgressComplete;

@@ -91,114 +91,116 @@ useEffect(() => {
 
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-        Progreso de Entrenamiento
-      </h2>
+  <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
+    <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-white animate-fadeInUp">
+      Progreso de Entrenamiento
+    </h2>
 
-      {/* Si existen rutinas */}
-      {routines && routines.length > 0 ? (
-        <div className="space-y-10">
-          {routines.map((routine, index) => (
-            <form
-              key={routine.id}
-              onSubmit={(e) => handleSubmit(e, routine.id)} // guarda los progresos
-              className="bg-white p-6 rounded-xl shadow-md border border-gray-200"
-            >
-              {/* 🔹 Título de cada rutina */}
-              <h3 className="text-2xl font-semibold mb-4 text-gray-700">
-                Rutina {index + 1} – {routine.objetivo || "Sin objetivo"}
-              </h3>
+    {routines && routines.length > 0 ? (
+      <div className="space-y-10 animate-fadeInUp">
+        {routines.map((routine, index) => (
+          <form
+            key={routine.id}
+            onSubmit={(e) => handleSubmit(e, routine.id)}
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700"
+          >
+            {/* Título */}
+            <h3 className="text-orange-500 dark:text-orange-5200 text-2xl font-semibold mb-4">
+              Rutina {index + 1} – {routine.objetivo || "Sin objetivo"}
+            </h3>
 
-              {/* 🔹 Tabla con los ejercicios de la rutina */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg">
-                  <thead className="bg-blue-100 text-blue-800 uppercase text-sm font-semibold">
-                    <tr>
-                      <th className="py-3 px-4 border-b text-left">Ejercicio</th>
-                      <th className="py-3 px-4 border-b text-center">Series</th>
-                      <th className="py-3 px-4 border-b text-center">
-                        Repeticiones
-                      </th>
-                      <th className="py-3 px-4 border-b text-center">
-                        Peso (kg)
-                      </th>
-                    </tr>
-                  </thead>
+            {/* Tabla */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                <thead className="bg-blue-900/20 dark:bg-gray-900/80 text-orange-500 uppercase text-sm font-semibold">
+                  <tr>
+                    <th className="py-3 px-4 border-b dark:border-gray-700 text-left">
+                      Ejercicio
+                    </th>
+                    <th className="py-3 px-4 border-b dark:border-gray-700 text-center">
+                      Series
+                    </th>
+                    <th className="py-3 px-4 border-b dark:border-gray-700 text-center">
+                      Repeticiones
+                    </th>
+                    <th className="py-3 px-4 border-b dark:border-gray-700 text-center">
+                      Peso (kg)
+                    </th>
+                  </tr>
+                </thead>
 
-                  <tbody>
-                    {/* 🔹 Si hay ejercicios, los muestra */}
-                    {routine.ejercicios && routine.ejercicios.length > 0 ? (
-                      routine.ejercicios.map((ej) => (
-                        <tr
-                          key={ej.id}
-                          className="hover:bg-gray-50 transition duration-150"
-                        >
-                          <td className="py-3 px-4 border-b text-gray-700">
-                            {ej.nombre}
-                          </td>
-                          <td className="py-3 px-4 border-b text-center text-gray-700">
-                            {ej.series || "-"}
-                          </td>
-                          <td className="py-3 px-4 border-b text-center text-gray-700">
-                            {ej.repeticiones || "-"}
-                          </td>
-                          <td className="py-3 px-4 border-b text-center">
-                            <input
-                              type="number"
-                              name={`peso_${ej.id}`}
-                              placeholder="Peso"
-                              className="w-24 border border-gray-300 rounded-lg p-1.5 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      // 🔹 Si no hay ejercicios en la rutina
-                      <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center text-gray-500 py-4 italic"
-                        >
-                          No hay ejercicios en esta rutina
+                <tbody>
+                  {routine.ejercicios && routine.ejercicios.length > 0 ? (
+                    routine.ejercicios.map((ej) => (
+                      <tr
+                        key={ej.id}
+                        className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                      >
+                        <td className="py-3 px-4 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                          {ej.nombre}
+                        </td>
+
+                        <td className="py-3 px-4 border-b dark:border-gray-700 text-center text-gray-700 dark:text-gray-300">
+                          {ej.series || "-"}
+                        </td>
+
+                        <td className="py-3 px-4 border-b dark:border-gray-700 text-center text-gray-700 dark:text-gray-300">
+                          {ej.repeticiones || "-"}
+                        </td>
+
+                        <td className="py-3 px-4 border-b dark:border-gray-700 text-center">
+                          <input
+                            type="number"
+                            name={`peso_${ej.id}`}
+                            placeholder="Peso"
+                            className="w-24 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg p-1.5 text-center text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                          />
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center text-gray-500 dark:text-gray-400 py-4 italic"
+                      >
+                        No hay ejercicios en esta rutina
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-              {/* 🔹 Botones de acción */}
-              <div className="flex justify-between mt-6">
-                
-                <button
-                  type="button"
-                  onClick={() => handleVerProgreso(routine.id)}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition shadow-sm"
-                >
-                  Ver progreso completo
-                </button>
-                {/* Guardar cambios */}
-                <button
-                  type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
-                >
-                  Guardar cambios
-                </button>
+            {/* Botones */}
+            <div className="flex justify-between mt-6">
+              <button
+                type="button"
+                onClick={() => handleVerProgreso(routine.id)}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg transition shadow-sm"
+              >
+                Ver progreso completo
+              </button>
 
-                {/* Ver progreso completo */}
-              </div>
-            </form>
-          ))}
-        </div>
-      ) : (
-        // 🔹 Si no hay rutinas cargadas
-        <p className="text-center text-gray-500 italic mt-4">
-          Cargando rutinas o no hay ninguna disponible...
-        </p>
-      )}
-    </div>
-  );
+              <button
+                type="submit"
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition shadow-sm"
+              >
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+        ))}
+      </div>
+    ) : (
+      <p className="text-center text-gray-500 italic mt-4">
+        Cargando rutinas o no hay ninguna disponible...
+      </p>
+    )}
+  </div>
+);
+
+
 };
 
 

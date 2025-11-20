@@ -34,8 +34,8 @@ const NotificationCard = ({ notification, onEdit, onDelete }) => {
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md p-5 mb-4 border-l-4 transition-all duration-300 hover:shadow-lg ${
-        isProgrammed ? "border-yellow-500" : "border-blue-500"
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 mb-4 border-l-4 transition-all duration-300 hover:shadow-lg ${
+        isProgrammed ? "border-yellow-500" : "border-orange-500"
       }`}
     >
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
@@ -47,14 +47,14 @@ const NotificationCard = ({ notification, onEdit, onDelete }) => {
             </span>
             <div className="flex-1 min-w-0">
               <h3
-                className={`font-semibold text-gray-800 break-words ${
+                className={`font-semibold text-gray-800 dark:text-white break-words ${
                   isLongTitle ? "text-base" : "text-lg"
                 }`}
               >
                 {notification.titulo}
               </h3>
               <p
-                className={`text-gray-600 mt-2 break-words whitespace-pre-wrap ${
+                className={`text-gray-400 mt-2 break-words whitespace-pre-wrap ${
                   isLongMessage ? "text-sm" : "text-base"
                 }`}
               >
@@ -83,15 +83,15 @@ const NotificationCard = ({ notification, onEdit, onDelete }) => {
 
         {/* Fecha y hora */}
         <div className="text-right flex-shrink-0 md:ml-4">
-          <div className="bg-gray-50 rounded-lg px-3 py-2 mb-2">
-            <small className="text-gray-700 font-medium block">
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 mb-2">
+            <small className="text-gray-700 dark:text-white font-medium block">
               {notifDate.toLocaleDateString("es-ES", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
               })}
             </small>
-            <small className="text-gray-500 block mt-1">
+            <small className="text-gray-500 dark:text-white block mt-1">
               {notifDate.toLocaleTimeString("es-ES", {
                 hour: "2-digit",
                 minute: "2-digit",

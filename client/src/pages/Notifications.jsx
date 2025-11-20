@@ -178,19 +178,19 @@ const Notifications = () => {
   const isClientOrTrainer = user?.id_rol === 2 || user?.id_rol === 3;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="bg-white dark:bg-gray-900 p-6 bg-gray-100 min-h-screen animate-fadeInUp">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">
+        <h1 className="text-black dark:text-white text-3xl font-bold mb-6">
           {isAdmin ? "Panel de Notificaciones" : "Mis Notificaciones"}
         </h1>
 
         {isClientOrTrainer && (
           <div
-            className="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 mb-6"
+            className="bg-gray-100 dark:bg-gray-700 border-l-4 border-orange-500 text-blue-700 p-4 mb-6 "
             role="alert"
           >
-            <p className="font-bold">📬 Notificaciones del Gimnasio</p>
-            <p className="text-sm">
+            <p className="text-black dark:text-white font-bold">📬 Notificaciones del Gimnasio</p>
+            <p className="text-black dark:text-white text-sm">
               Aquí encontrarás todos los anuncios e información importante.
             </p>
           </div>
@@ -227,7 +227,7 @@ const Notifications = () => {
 
             {showForm && isAdmin && (
               <>
-                <h3 className="text-xl font-semibold mb-4">
+                <h3 className="text-gray-500 dark:text-white text-xl font-semibold mb-4">
                   {editingNotification
                     ? "Editar Notificación"
                     : "Nueva Notificación"}
@@ -257,8 +257,8 @@ const Notifications = () => {
                   />
                 ))
               ) : (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
-                  <p className="text-gray-500 text-lg">
+                <div className="text-gray-500 dark:text-white text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+                  <p className="text-lg">
                     {isClientOrTrainer
                       ? "No tienes notificaciones en este momento"
                       : "No hay notificaciones disponibles"}

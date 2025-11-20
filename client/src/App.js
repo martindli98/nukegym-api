@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import default CSS for toastify
+import "react-toastify/dist/ReactToastify.css";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Membership from "./pages/Membership";
@@ -12,7 +12,6 @@ import Footer from "./components/Footer";
 import Feedback from "./pages/Feedback";
 import Progress from "./pages/Progress";
 import ProgressComplete from "./pages/ProgressComplete";
-
 import Trainer from "./pages/Trainer";
 import Classes from "./pages/Classes";
 import Routine from "./pages/Routine";
@@ -25,12 +24,11 @@ const PanelRoles = lazy(() => import("./pages/PanelRoles"));
 
 const App = () => {
   return (
-    <div>
-      <Router>
-        <div>
-          <Header />
-        </div>
-        <div className="pt-16">
+    <Router>
+      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-800">
+        <Header />
+        {/* Contenido dinámico (se expande para evitar el hueco blanco) */}
+        <main className="pt-16 flex-grow">
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -88,20 +86,17 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-        </div>
-        <div>
-          <Footer />
-          <ToastContainer
-            position="top-center"
-            autoClose={1000}
-            hideProgressBar={true}
-            closeOnClick
-            // pauseOnHover
-            theme="colored"
-          />
-        </div>
-      </Router>
-    </div>
+        </main>
+        <Footer />
+        <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar={true}
+          closeOnClick
+          theme="colored"
+        />
+      </div>
+    </Router>
   );
 };
 

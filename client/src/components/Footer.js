@@ -5,7 +5,7 @@ const Footer = () => {
     <footer 
       className="py-10 
                  bg-white text-gray-800           // modo claro por defecto
-                 dark:bg-[oklch(12.9%_0.042_264.695)] dark:text-white" // modo oscuro
+                 dark:bg-[oklch(12.9%_0.042_264.695)] dark:text-white mb-0" // modo oscuro
     >
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
         

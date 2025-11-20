@@ -3,10 +3,8 @@ function MembershipCard({ title, img, descripcion }) {
     <div
       className="
         flex flex-col items-center text-center p-8 
-        bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-2xl shadow-lg
-        hover:-translate-y-1 transition-all duration-300
+        bg-white dark:bg-gray-800
+        rounded-2xl 
       "
     >
       <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-wide">
@@ -16,7 +14,7 @@ function MembershipCard({ title, img, descripcion }) {
       <img
         src={img}
         alt="estado"
-        className="w-28 h-28 mt-4 mb-4 drop-shadow-[0_0_10px_rgba(0,255,120,0.4)]"
+        className="w-28 h-28 mt-4 mb-4"
       />
 
       <p className="text-gray-700 dark:text-gray-300 text-sm">
