@@ -1,4 +1,4 @@
-import React, { useState, useCallback, use } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,18 +6,19 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  // Alert,
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { api } from "@/src/utils/api";
-import CreateRoutineModal from "../rutine/CreateRoutineModal";
+import CreateRoutineModal from "./CreateRoutineModal";
 import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
 import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
+import { useMembership } from "@/hooks/useMembership";
+import { canSeeRoutines } from "@/src/utils/membershipAccess";
 
 interface Ejercicio {
   id: number;
@@ -42,8 +43,16 @@ interface User {
   email?: string;
   id_rol?: number;
 }
+interface Student {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+}
 
 export default function RoutineScreen() {
+  const { membership, loading: membershipLoading } = useMembership();
+
   const [routines, setRoutines] = useState<Rutina[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,32 +62,35 @@ export default function RoutineScreen() {
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState<number | null>(null);
+  const [membershipError, setMembershipError] = useState<string | null>(null);
+
+  const [students, setStudents] = useState<Student[]>([]);
+  const [showStudents, setShowStudents] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<number | null>(null);
+
   const router = useRouter();
 
-
-  const [students, setStudents] = useState([]);
-  const [showStudents, setShowStudents] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-
-
-  // const router = useRouter();
-
+  // PROTECCIÓN DE RUTA
   useFocusEffect(
     React.useCallback(() => {
       requireAuth();
     }, [])
   );
 
+  // CARGA DE USUARIO + RUTINAS
   useFocusEffect(
     useCallback(() => {
+      if (membershipLoading) return;
+
       loadUserAndRoutines();
-    }, [])
+    }, [membership])
   );
 
   const loadUserAndRoutines = async () => {
     setLoading(true);
     setError("");
-    console.log(user)
+    setMembershipError(null);
+
     try {
       const token = await AsyncStorage.getItem("authToken");
       const userDataStr = await AsyncStorage.getItem("userData");
@@ -93,7 +105,22 @@ export default function RoutineScreen() {
 
       const parsedUser: User = JSON.parse(userDataStr);
       setUser(parsedUser);
+      if (!membershipLoading && membership) {
+        let canView = true;
 
+        if (parsedUser.id_rol !== 1 && parsedUser.id_rol !== 3) {
+          canView = membership?.membershipActive === true;
+        }
+
+        if (!canView) {
+          setMembershipError(
+            "No tenés una membresía activa. Mejorá tu plan para ver rutinas."
+          );
+          setLoading(false);
+          return;
+        }
+      }
+      // 🚀 PEDIDO DE RUTINAS
       const res = await api("/routine/user");
 
       if (res?.success) {
@@ -104,15 +131,30 @@ export default function RoutineScreen() {
       }
     } catch (err: any) {
       console.error("Error fetching routines:", err.message);
-      if (err.response?.status === 401 || err.response?.status === 403) {
+
+      if (
+        err.response?.status === 403 &&
+        err.response?.data?.membershipActive === false
+      ) {
+        setRoutines([]);
+        setMembershipError(
+          "No tenés una membresía activa. Mejora tu plan para ver rutinas."
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (err.response?.status === 401) {
         await AsyncStorage.removeItem("authToken");
         await AsyncStorage.removeItem("userData");
         setUser(null);
         setRoutines([]);
         setError("Sesión inválida. Por favor inicia sesión de nuevo.");
-      } else {
-        setError("No se pudieron cargar las rutinas.");
+        setLoading(false);
+        return;
       }
+
+      setError("No se pudieron cargar las rutinas.");
     } finally {
       setLoading(false);
     }
@@ -130,7 +172,6 @@ export default function RoutineScreen() {
       await api(`/routine/${routineToDelete}`, { method: "DELETE" });
       showSuccess("Rutina eliminada correctamente");
       setSelectedRoutine(null);
-
       await loadUserAndRoutines();
     } catch {
       showError("Error al eliminar la rutina");
@@ -153,21 +194,38 @@ export default function RoutineScreen() {
   };
 
   const loadStudents = async () => {
-  try {
-    const res = await api(`/trainers/${user.id}/alumnos`);
-    console.log(res)
-    if (Array.isArray(res)) {
-      setStudents(res);
-    } else {
-      setStudents([]);
+    if (!user) return;
+
+    try {
+      const res = await api(`/trainers/${user.id}/alumnos`);
+      setStudents(Array.isArray(res) ? res : []);
+    } catch {
+      showError("Error al cargar alumnos");
     }
+  };
 
-  } catch (error) {
-    showError("Error al cargar alumnos");
+  // ❗ SI NO TIENE MEMBRESÍA — MOSTRAR PANTALLA ESPECIAL
+  if (membershipError) {
+    return (
+      <View style={styles.containerError}>
+        <Text style={styles.error}>{membershipError}</Text>
+
+        <TouchableOpacity
+          onPress={() => router.push("/membership")}
+          style={{
+            marginTop: 20,
+            backgroundColor: "#6D28D9",
+            padding: 12,
+            borderRadius: 8,
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 16 }}>Ver planes</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
-};
 
-
+  // ❗ MOSTRAR RUTINA SELECCIONADA
   if (selectedRoutine) {
     return (
       <>
@@ -176,6 +234,7 @@ export default function RoutineScreen() {
             <TouchableOpacity onPress={() => setSelectedRoutine(null)}>
               <Text style={styles.backText}>Volver</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               onPress={() => requestDeleteRoutine(selectedRoutine.id)}
               style={styles.deleteButton}
@@ -202,6 +261,7 @@ export default function RoutineScreen() {
                   <Text style={styles.subtext}>
                     Musculo principal: {item.musculo_principal}
                   </Text>
+
                   {item.url_media && (
                     <View style={styles.imageContainer}>
                       <Image
@@ -211,11 +271,13 @@ export default function RoutineScreen() {
                       />
                     </View>
                   )}
+
                   <View style={styles.infoRow}>
                     <View style={styles.infoBox}>
                       <Text style={styles.infoValue}>{item.series ?? "-"}</Text>
                       <Text style={styles.infoTitle}>SETS</Text>
                     </View>
+
                     <View style={styles.infoBox}>
                       <Text style={styles.infoValue}>
                         {item.repeticiones ?? "-"}
@@ -253,6 +315,7 @@ export default function RoutineScreen() {
             }}
           />
         </View>
+
         <ConfirmModal
           visible={showConfirm}
           title="Eliminar rutina"
@@ -269,80 +332,88 @@ export default function RoutineScreen() {
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
 
+  // ❗ VISTA PARA ENTRENADORES
   if (showStudents) {
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => setShowStudents(false)}>
-        <Text style={styles.backText}>Volver</Text>
-      </TouchableOpacity>
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity onPress={() => setShowStudents(false)}>
+          <Text style={styles.backText}>Volver</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.title}>Mis alumnos</Text>
+        <Text style={styles.title}>Mis alumnos</Text>
 
-      {students.length === 0 ? (
-        <Text style={styles.text}>No tienes alumnos asignados aún.</Text>
-      ) : (
-        <FlatList
-          data={students}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.objetivo}>{item.nombre} {item.apellido}</Text>
-              <Text style={styles.subtext}>{item.email}</Text>
-
-              <TouchableOpacity
-                style={{ backgroundColor: "#6D28D9", padding: 10, borderRadius: 5, marginTop: 10 }}
-                onPress={() => setSelectedStudent(item.id)}
-              >
-                <Text style={{ color: "white", textAlign: "center" }}>
-                  Asignar rutina
+        {students.length === 0 ? (
+          <Text style={styles.text}>No tienes alumnos asignados aún.</Text>
+        ) : (
+          <FlatList
+            data={students}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <Text style={styles.objetivo}>
+                  {item.nombre} {item.apellido}
                 </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                <Text style={styles.subtext}>{item.email}</Text>
+
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#6D28D9",
+                    padding: 10,
+                    borderRadius: 5,
+                    marginTop: 10,
+                  }}
+                  onPress={() => setSelectedStudent(item.id)}
+                >
+                  <Text style={{ color: "white", textAlign: "center" }}>
+                    Asignar rutina
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        )}
+
+        <CreateRoutineModal
+          visible={!!selectedStudent}
+          studentId={selectedStudent ?? 0}
+          onClose={() => setSelectedStudent(null)}
+          onCreated={() => {
+            loadStudents();
+            setSelectedStudent(null);
+          }}
         />
-      )}
+      </View>
+    );
+  }
 
-      <CreateRoutineModal
-        visible={!!selectedStudent}
-        studentId={selectedStudent}
-        onClose={() => setSelectedStudent(null)}
-        onCreated={() => {
-          loadStudents();
-          setSelectedStudent(null);
-        }}
-      />
-    </View>
-  );
-}
-
+  // ❗ LISTA DE RUTINAS
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>Mis rutinas</Text>
+
         <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity onPress={() => setShowModal(true)}>
-              <Text style={styles.addButton}>＋</Text>
+          <TouchableOpacity onPress={() => setShowModal(true)}>
+            <Text style={styles.addButton}>＋</Text>
+          </TouchableOpacity>
+
+          {user?.id_rol === 3 && (
+            <TouchableOpacity
+              onPress={() => {
+                loadStudents();
+                setShowStudents(true);
+              }}
+            >
+              <Text style={styles.addButton}>👥</Text>
             </TouchableOpacity>
-
-            {user?.tipo_rol === "entrenador" && (       // 👈 SOLO muestra si es entrenador
-              <TouchableOpacity
-                onPress={() => {
-                  loadStudents();
-                  setShowStudents(true);
-                }}
-              >
-                <Text style={styles.addButton}>👥</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
+          )}
+        </View>
       </View>
 
       <View style={styles.titleRow}>
         <TouchableOpacity onPress={() => router.push("/progress/progressView")}>
-        <Text>Ir a Progreso</Text>
-      </TouchableOpacity>
-
+          <Text>Ir a Progreso</Text>
+        </TouchableOpacity>
       </View>
 
       {routines.length === 0 ? (
@@ -452,10 +523,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 20,
     alignItems: "center",
-    // shadowColor: "#000",
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // elevation: 2,
   },
   infoTitle: {
     fontSize: 14,
@@ -468,7 +535,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   expandButton: {
-    // marginTop: 10,
     alignSelf: "center",
     width: "100%",
     backgroundColor: "#E0D7FF",

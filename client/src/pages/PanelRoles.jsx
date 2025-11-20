@@ -86,7 +86,7 @@ export default function PanelRoles() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-800  py-10 px-6">
+    <div className="min-h-screen bg-white dark:bg-gray-800  py-10 px-6 transform -translate-y-10 animate-fadeInUp">
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">
           Panel de Roles

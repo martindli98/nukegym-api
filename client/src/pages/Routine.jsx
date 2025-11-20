@@ -3,9 +3,9 @@ import axios from "axios";
 import RoutineCard from "../components/Routine/RoutineCard";
 import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
 import { useNavigate } from "react-router-dom";
+import { useMembership } from "../hooks/useMembership";
 
 const Routine = () => {
-
   const navigate = useNavigate();
   const [routines, setRoutines] = useState([]);
   const [selectedRoutine, setSelectedRoutine] = useState(null);
@@ -13,12 +13,17 @@ const Routine = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  const { membership, loading: loadingMembership } = useMembership();
+
+
   const userSession = JSON.parse(sessionStorage.getItem("userData"));
   const user = userSession?.userData || null;
 
   useEffect(() => {
-    fetchRoutines();
-  }, []);
+    if (membership?.membershipActive) {
+      fetchRoutines();
+    }
+  }, [membership]);
 
   const fetchRoutines = async () => {
     const token = sessionStorage.getItem("authToken");
@@ -49,6 +54,26 @@ const Routine = () => {
     }
   };
 
+  if (loadingMembership)
+    return <p className="text-center">Verificando membresía...</p>;
+
+  if (!membership?.membershipActive) {
+    return (
+      <div className="text-center p-6">
+        <h2 className="text-2xl font-bold text-red-500">Membresía inactiva</h2>
+        <p className="mt-2 text-gray-600">
+          Debes activar tu membresía para ver tus rutinas.
+        </p>
+        <button
+          onClick={() => navigate("/membership")}
+          className="mt-4 bg-orange-600 text-white px-4 py-2 rounded-lg"
+        >
+          Ir a membresía
+        </button>
+      </div>
+    );
+  }
+  
   if (loading) return <p className="text-center p-4">Cargando rutinas...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
 

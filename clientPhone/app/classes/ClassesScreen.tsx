@@ -5,7 +5,6 @@ import {
   Text,
   ScrollView,
   ActivityIndicator,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +15,9 @@ import { api } from "../../src/utils/api";
 import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
 import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
+
+import { useMembership } from "@/hooks/useMembership";
+import { canSeeClasses } from "@/src/utils/membershipAccess";
 
 const ClassesScreen: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
@@ -32,6 +34,8 @@ const ClassesScreen: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
+
+  const { membership, loading: membershipLoading } = useMembership();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -66,14 +70,14 @@ const ClassesScreen: React.FC = () => {
   const fetchClasses = async (token: string) => {
     try {
       setLoading(true);
+
       const response = await api("/classes", {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setClasses(response);
     } catch (error) {
       showError("No se pudieron cargar las clases.", "Error");
-      // Alert.alert("Error", "No se pudieron cargar las clases.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -81,24 +85,39 @@ const ClassesScreen: React.FC = () => {
 
   const fetchReservations = async (token: string) => {
     try {
+      const access = canSeeClasses(userData?.id_rol, membership);
+      if (!access.allowed) return; // evitar error 403
+
       const response = await api("/reservations", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReservations(response);
     } catch (error) {
-      console.error(error);
+      // NO mostrar error si es 403
+      if (error.response?.status !== 403) {
+        console.error(error);
+      }
     }
   };
 
   useEffect(() => {
-    if (userData && authToken) {
-      fetchClasses(authToken);
-      if (userData.tipo_rol?.toLowerCase() === "cliente") {
-        fetchReservations(authToken);
-      }
-    }
-  }, [userData, authToken]);
+    if (!membership || !userData || !authToken) return;
 
+    const access = canSeeClasses(userData.id_rol, membership);
+
+    if (access.allowed) {
+      fetchClasses(authToken);
+      fetchReservations(authToken); // <-- SOLO si tiene permiso
+    } else {
+      setClasses([]);
+      setReservations([]); // IMPORTANTE: vaciar para evitar renders
+      setLoading(false);
+    }
+  }, [membership, userData, authToken]);
+
+  // ================================
+  //  ACCIONES
+  // ================================
   const reserveClass = (id: number) => {
     if (!authToken) return;
 
@@ -115,14 +134,12 @@ const ClassesScreen: React.FC = () => {
           });
 
           showSuccess("Reserva realizada correctamente", "Éxito");
-
           fetchClasses(authToken);
           fetchReservations(authToken);
         } catch (error) {
           showError("No se pudo reservar la clase", "Error");
-          console.error(error);
         } finally {
-          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+          setConfirmConfig((p) => ({ ...p, visible: false }));
         }
       },
     });
@@ -143,13 +160,11 @@ const ClassesScreen: React.FC = () => {
           });
 
           showSuccess("Reserva cancelada", "Cancelada");
-
           fetchReservations(authToken);
         } catch (error) {
           showError("No se pudo cancelar la reserva", "Error");
-          console.error(error);
         } finally {
-          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+          setConfirmConfig((p) => ({ ...p, visible: false }));
         }
       },
     });
@@ -162,14 +177,12 @@ const ClassesScreen: React.FC = () => {
         data,
         headers: { Authorization: `Bearer ${authToken}` },
       });
+
       showSuccess("Clase creada correctamente", "Éxito");
-      // Alert.alert("Éxito", "Clase creada correctamente");
       fetchClasses(authToken!);
       setShowForm(false);
     } catch (error) {
       showError("No se pudo crear la clase", "Error");
-      // Alert.alert("Error", "No se pudo crear la clase");
-      console.error(error);
     }
   };
 
@@ -180,15 +193,13 @@ const ClassesScreen: React.FC = () => {
         data,
         headers: { Authorization: `Bearer ${authToken}` },
       });
+
       showSuccess("Clase actualizada", "Éxito");
-      // Alert.alert("Éxito", "Clase actualizada");
       fetchClasses(authToken!);
       setEditingClass(null);
       setShowForm(false);
     } catch (error) {
       showError("No se pudo actualizar la clase", "Error");
-      // Alert.alert("Error", "No se pudo actualizar la clase");
-      console.error(error);
     }
   };
 
@@ -209,7 +220,7 @@ const ClassesScreen: React.FC = () => {
         } catch (error) {
           showError("No se pudo eliminar la clase", "Error");
         } finally {
-          setConfirmConfig((prev) => ({ ...prev, visible: false }));
+          setConfirmConfig((p) => ({ ...p, visible: false }));
         }
       },
     });
@@ -229,28 +240,64 @@ const ClassesScreen: React.FC = () => {
     }
   };
 
-  if (loading)
+  // ================================
+  //   CARGAS
+  // ================================
+  if (membershipLoading) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  if (loading || membershipLoading)
     return (
       <View style={{ flex: 1, justifyContent: "center" }}>
         <ActivityIndicator size="large" color="#f97316" />
       </View>
     );
 
-  // if (!userData || !authToken)
-  //   return (
-  //     <View
-  //       style={{
-  //         flex: 1,
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         padding: 20,
-  //       }}
-  //     >
-  //       <Text style={{ fontSize: 18, textAlign: "center", color: "#444" }}>
-  //         Debes iniciar sesión para ver las clases disponibles.
-  //       </Text>
-  //     </View>
-  //   );
+  // ================================
+  //  VALIDAR ACCESO SEGÚN MEMBRESÍA
+  // ================================
+  const access =
+    userData && membership
+      ? canSeeClasses(userData.id_rol, membership)
+      : { allowed: false };
+
+  if (!access.allowed) {
+    let message = "No tienes acceso a clases.";
+
+    if (access.reason === "sin_membresia") {
+      message =
+        "No tienes una membresía activa. Suscríbete para ver las clases.";
+    } else if (access.reason === "tipo_invalido") {
+      message =
+        "Tu plan actual no incluye acceso a clases. Mejora tu membresía.";
+    }
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          padding: 30,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            color: "#6D28D9",
+            marginBottom: 10,
+          }}
+        >
+          Acceso restringido
+        </Text>
+        <Text style={{ textAlign: "center", fontSize: 16, color: "#555" }}>
+          {message}
+        </Text>
+      </View>
+    );
+  }
 
   const tipoRol = userData?.tipo_rol?.toLowerCase() || "";
   const isClient = tipoRol === "cliente";
@@ -302,7 +349,6 @@ const ClassesScreen: React.FC = () => {
             justifyContent: "space-between",
             alignItems: "center",
             marginVertical: 2,
-            // paddingVertical: 8,
           }}
         >
           <Text
@@ -317,14 +363,7 @@ const ClassesScreen: React.FC = () => {
           </Text>
 
           {canManage && (
-            <TouchableOpacity
-              style={
-                {
-                  // marginVertical: 2,
-                }
-              }
-              onPress={() => setShowForm(true)}
-            >
+            <TouchableOpacity onPress={() => setShowForm(true)}>
               <Text
                 style={{
                   color: "#6D28D9",
@@ -340,34 +379,25 @@ const ClassesScreen: React.FC = () => {
           )}
         </View>
 
-        {classes
-          .filter((c) => {
-            if (isClient) {
-              return !reservations.some(
-                (r) => r.id_clase === c.id_clase && r.estado === "reservado"
-              );
-            }
-            return true;
-          })
-          .map((c) => (
-            <ClassCard
-              key={c.id_clase}
-              classItem={c}
-              isClient={isClient}
-              canManage={canManage}
-              userReservations={reservations}
-              onReserve={reserveClass}
-              onCancelReservation={cancelReservation}
-              onEdit={(cls) => {
-                setEditingClass(cls);
-                setShowForm(true);
-              }}
-              onDelete={handleDeleteClass}
-              formatDate={formatDate}
-            />
-          ))}
+        {classes.map((c) => (
+          <ClassCard
+            key={c.id_clase}
+            classItem={c}
+            isClient={isClient}
+            canManage={canManage}
+            userReservations={reservations} // Aquí dentro sabrás si está reservada
+            onReserve={reserveClass}
+            onCancelReservation={cancelReservation}
+            onEdit={(cls) => {
+              setEditingClass(cls);
+              setShowForm(true);
+            }}
+            onDelete={handleDeleteClass}
+            formatDate={formatDate}
+          />
+        ))}
 
-        {isClient && (
+        {isClient && access.allowed && (
           <>
             <Text
               style={{
@@ -393,6 +423,7 @@ const ClassesScreen: React.FC = () => {
           </>
         )}
       </ScrollView>
+
       <ConfirmModal
         visible={confirmConfig.visible}
         title={confirmConfig.title}

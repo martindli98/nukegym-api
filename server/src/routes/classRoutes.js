@@ -10,6 +10,7 @@ import {
   cancelReservation,
 } from "../controllers/classController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
+import { allowClasses, requireActiveMembership } from "../middleware/membershipMiddleware.js";
 
 const router = express.Router();
 
@@ -18,14 +19,14 @@ router.use(authenticateToken);
 
 // Rutas para clases
 router.get("/classes", getAllClasses); // Todas las clases (admin/entrenador)
-router.get("/classes/available", getAvailableClasses); // Clases disponibles (todos)
+router.get("/classes/available",authenticateToken, requireActiveMembership, allowClasses, getAvailableClasses); // Clases disponibles (todos)
 router.post("/classes", createClass); // Crear clase (admin/entrenador)
 router.put("/classes/:id", updateClass); // Actualizar clase (admin/entrenador)
 router.delete("/classes/:id", deleteClass); // Eliminar clase (admin)
 
 // Rutas para reservas
-router.post("/reservations", createReservation); // Crear reserva (cliente)
-router.get("/reservations", getUserReservations); // Reservas del usuario
-router.delete("/reservations/:id", cancelReservation); // Cancelar reserva (cliente)
+router.post("/reservations", requireActiveMembership, allowClasses, createReservation); // Crear reserva (cliente)
+router.get("/reservations", requireActiveMembership, allowClasses, getUserReservations); // Reservas del usuario
+router.delete("/reservations/:id", requireActiveMembership, allowClasses, cancelReservation); // Cancelar reserva (cliente)
 
 export default router;

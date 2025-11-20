@@ -2,11 +2,34 @@ import { pool } from "../config/db.js";
 
 export const getMembership = async (req, res) => {
   try {
-    
-    /* const userId = 2; */
-     const userId = req.user.id;
+    const userId = req.user.id;
 
-    // membresía más reciente del usuario
+    // Obtener rol
+    const [roleRows] = await pool.query(
+      "SELECT id_rol FROM Usuario WHERE id = ?",
+      [userId]
+    );
+
+    if (roleRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado",
+      });
+    }
+
+    const role = roleRows[0].id_rol;
+
+    // Admins y entrenadores SIEMPRE tienen acceso
+    if (role === 1 || role === 3) {
+      return res.json({
+        success: true,
+        membershipActive: true,
+        message: "Acceso permitido por rol (admin/entrenador)",
+        data: { tipo: 3},
+      });
+    }
+
+    // === CLIENTE: requiere membresía ===
     const [rows] = await pool.query(
       `SELECT id, fechaInicio, fechaFin, tipo, estado
        FROM Membresia
@@ -26,34 +49,17 @@ export const getMembership = async (req, res) => {
 
     const membership = rows[0];
 
-    
-    const normalizeDate = (d) =>
-      new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const today = new Date();
+    const inicio = new Date(membership.fechaInicio);
+    const fin = new Date(membership.fechaFin);
 
-    const today = normalizeDate(new Date());
-    const inicio = normalizeDate(new Date(membership.fechaInicio));
-    const fin = normalizeDate(new Date(membership.fechaFin));
-
-    let isActive = false;
-
-  
-    if (membership.estado === "activo") {
-      if (inicio <= today && fin >= today) {
-        isActive = true; 
-      } else {
-        isActive = false; 
-      }
-    } 
+    const isActive =
+      membership.estado === "activo" && inicio <= today && fin >= today;
 
     return res.json({
       success: true,
       membershipActive: isActive,
-      data: {
-        tipo: membership.tipo,
-        fechaInicio: membership.fechaInicio,
-        fechaFin: membership.fechaFin,
-        estado: membership.estado,
-      },
+      data: membership,
     });
   } catch (error) {
     console.error("❌ Error en getMembership:", error);
@@ -66,9 +72,8 @@ export const getMembership = async (req, res) => {
 
 export const getMembershipList = async (req, res) => {
   try {
-
     const [rows] = await pool.query(
-        `SELECT 
+      `SELECT 
             m.id,
             m.fechaInicio,
             m.fechaFin,
@@ -80,8 +85,7 @@ export const getMembershipList = async (req, res) => {
         FROM Membresia AS m
         JOIN Usuario AS u ON m.id_usuario = u.id
         ORDER BY id DESC`
-      );
-
+    );
 
     if (rows.length === 0) {
       return res.json({
@@ -95,7 +99,6 @@ export const getMembershipList = async (req, res) => {
       success: true,
       membershipList: rows,
     });
-
   } catch (error) {
     console.error("❌ Error en getMembershipList:", error);
     return res.status(500).json({
@@ -105,15 +108,13 @@ export const getMembershipList = async (req, res) => {
   }
 };
 
-
 export const getPlans = async (req, res) => {
   try {
-    console.log('entra a getplanssssssssssssssssssssssssssss')
+    console.log("entra a getplanssssssssssssssssssssssssssss");
     const [rows] = await pool.query(
-        `SELECT id, nombre, descripcion, precio
+      `SELECT id, nombre, descripcion, precio
         FROM Planes`
-      );
-
+    );
 
     if (rows.length === 0) {
       return res.json({
@@ -127,7 +128,6 @@ export const getPlans = async (req, res) => {
       success: true,
       plansList: rows,
     });
-
   } catch (error) {
     console.error("❌ Error en getMembershipList:", error);
     return res.status(500).json({
@@ -136,4 +136,3 @@ export const getPlans = async (req, res) => {
     });
   }
 };
-
