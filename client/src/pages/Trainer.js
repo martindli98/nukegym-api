@@ -200,6 +200,7 @@ export default function Trainer() {
             bg-white dark:bg-gray-800
             border border-gray-200 dark:border-gray-700 
             rounded-2xl shadow-lg p-8
+            animate-fadeInUp
           "
           >
             {" "}
@@ -223,6 +224,7 @@ export default function Trainer() {
             bg-white dark:bg-gray-800
             border border-gray-200 dark:border-gray-700 
             rounded-2xl shadow-lg p-8
+            animate-fadeInUp
           "
           >
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-orange-500 pb-3">

@@ -14,12 +14,12 @@ const NotificationForm = ({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white p-6 rounded-lg shadow-md mb-6"
+      className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6"
     >
       <div className="mb-4">
         <label
           htmlFor="titulo"
-          className="block text-gray-700 text-sm font-bold mb-2"
+          className="block text-black dark:text-white text-sm font-bold mb-2"
         >
           Título <span className="text-red-500">*</span>
         </label>
@@ -29,7 +29,7 @@ const NotificationForm = ({
           placeholder="Título de la notificación"
           value={formData.titulo}
           onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="bg-gray-100 dark:bg-gray-900 w-full p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
           maxLength={100}
           required
         />
@@ -41,7 +41,7 @@ const NotificationForm = ({
       <div className="mb-4">
         <label
           htmlFor="mensaje"
-          className="block text-gray-700 text-sm font-bold mb-2"
+          className="block text-black dark:text-white text-sm font-bold mb-2"
         >
           Mensaje <span className="text-red-500">*</span>
         </label>
@@ -52,7 +52,7 @@ const NotificationForm = ({
           onChange={(e) =>
             setFormData({ ...formData, mensaje: e.target.value })
           }
-          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[100px]"
+          className="bg-gray-100 dark:bg-gray-900 w-full p-2  rounded focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[100px]"
           maxLength={255}
           required
         />
@@ -64,7 +64,7 @@ const NotificationForm = ({
       <div className="mb-4">
         <label
           htmlFor="fecha_envio"
-          className="block text-gray-700 text-sm font-bold mb-2"
+          className="block text-black dark:text-white text-sm font-bold mb-2"
         >
           Fecha de envío
         </label>
@@ -77,9 +77,9 @@ const NotificationForm = ({
             setFormData({ ...formData, fecha_envio: e.target.value })
           }
           min={minDateTime}
-          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="bg-gray-100 dark:bg-gray-900 w-full p-2 text-black dark:text-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-400 mt-1">
           {formData.fecha_envio
             ? "Notificación programada para: " +
               new Date(formData.fecha_envio).toLocaleString()

@@ -103,32 +103,32 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-5xl p-6 overflow-y-auto max-h-[85vh]">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 overflow-y-auto max-h-[85vh]">
         <button
           onClick={onClose}
-          className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
         >
           Volver
         </button>
 
-        <h2 className="text-2xl font-bold mb-4 text-center">Crear Rutina</h2>
+        <h2 className="text-black dark:text-orange-500 text-2xl font-bold mb-4 text-center">Crear Rutina</h2>
 
-        <h3 className="text-xl mb-2">Ingrese el nombre de la rutina:</h3>
+        <h3 className="text-black dark:text-white text-l mb-2">Ingrese el nombre de la rutina:</h3>
         <input
           type="text"
           placeholder="Ej: Día 1: Pecho y Tríceps"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="border w-full p-2 rounded mb-4"
+          className="bg-white dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
         />
 
-        <h5 className="text-base mb-2 text-gray-500">Filtrar por músculo</h5>
+        <h5 className="text-black dark:text-white text-l mb-2">Filtrar por músculo</h5>
         <input
           type="text"
           placeholder="Ej: pecho, espalda..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border w-full p-2 rounded mb-4"
+          className="bg-white dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
         />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -139,11 +139,13 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
             return (
               <div
                 key={ex.id}
-                className={`p-2 border rounded-lg cursor-pointer transition ${
-                  selected
-                    ? "bg-purple-200 border-purple-600"
-                    : "hover:bg-gray-100"
-                }`}
+                className={` bg-white dark:bg-gray-800 rounded-lg cursor-pointer transition 
+                            ${
+                              selected
+                                ? "bg-purple-100 dark:bg-purple-900/40 border border-purple-500"
+                                : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                            }`}
+
                 onClick={() => toggleExercise(ex)}
               >
                 {ex.url_media && (
@@ -153,44 +155,51 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
                     className="w-full h-30 object-cover rounded"
                   />
                 )}
-                <h4 className="text-sm font-semibold mt-2">{ex.nombre}</h4>
-                <p className="text-xs text-gray-500">{ex.musculo_principal}</p>
-
+                <div className="p-3">
+                  <h4 className=" text-black dark:text-orange-500 text-sm font-semibold">{ex.nombre}</h4>
+                  <p className="text-xs dark:text-gray-400 text-gray-500">{ex.musculo_principal}</p>
+                </div>
+                
                 {selected && (
-                  <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <label className="text-xs text-gray-700">Series:</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={selected.series}
-                        onChange={(e) =>
-                          updateExerciseField(ex.id, "series", e.target.value)
-                        }
-                        className="border w-16 p-1 rounded text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="text-xs text-gray-700">
-                        Repeticiones:
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={selected.repeticiones}
-                        onChange={(e) =>
-                          updateExerciseField(
-                            ex.id,
-                            "repeticiones",
-                            e.target.value
-                          )
-                        }
-                        className="border w-16 p-1 rounded text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
+                  <div className="p-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Series
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={selected.series}
+                          onChange={(e) =>
+                            updateExerciseField(ex.id, "series", e.target.value)
+                          }
+                          className="text-black dark:text-white bg-white dark:bg-purple-950/80
+
+                                    w-20 p-1 rounded-md text-sm text-right focus:outline-none 
+                                    focus:ring-2 focus:ring-purple-500 transition"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Repeticiones
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={selected.repeticiones}
+                          onChange={(e) =>
+                            updateExerciseField(ex.id, "repeticiones", e.target.value)
+                          }
+                          className="text-black dark:text-white bg-white dark:bg-purple-950/80
+                                    w-20 p-1 rounded-md text-sm text-right focus:outline-none 
+                                    focus:ring-2 focus:ring-purple-500 transition"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
                   </div>
+
                 )}
               </div>
             );

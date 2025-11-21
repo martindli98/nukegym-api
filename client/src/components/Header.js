@@ -58,7 +58,7 @@ const Header = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50 transition-colors duration-300">
       {/* Logo */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 animate-fadeInLeft">
         <img
           src={require("../img/LOGO GYM.png")}
           alt="Logo"
@@ -83,40 +83,49 @@ const Header = () => {
           </Link>
         </li>
         <li>
-          <Link
-            to="/membership"
-            className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/membership"
-                ? "text-orange-500 underline"
-                : ""
-            }`}
+          <button
+            onClick={() => {
+              if (!userData) {
+                // 🔸 SCROLL A SECCIÓN DEL HOME
+                window.location.href = "/#membership-info";
+              } else {
+                navigate("/membership");
+              }
+            }}
+            className={`font-medium hover:text-orange-500 transition-colors`}
           >
-            Membresía
-          </Link>
+            Planes
+          </button>
         </li>
+
         <li>
-          <Link
-            to="/routine"
-            className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/routine"
-                ? "text-orange-500 underline"
-                : ""
-            }`}
+          <button
+            onClick={() => {
+              if (!userData) {
+                window.location.href = "/#routine-info";
+              } else {
+                navigate("/routine");
+              }
+            }}
+            className={`font-medium hover:text-orange-500 transition-colors`}
           >
             Rutina
-          </Link>
+          </button>
         </li>
+
         <li>
-          <Link
-            to="/classes"
-            className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/classes"
-                ? "text-orange-500 underline"
-                : ""
-            }`}
+          <button
+            onClick={() => {
+              if (!userData) {
+                window.location.href = "/#classes-info";
+              } else {
+                navigate("/classes");
+              }
+            }}
+            className={`font-medium hover:text-orange-500 transition-colors`}
           >
             Clases
-          </Link>
+          </button>
         </li>
 
         {/* Conditional Rendering */}
@@ -218,16 +227,16 @@ const Header = () => {
             <li>
               <Link
                 to="/login"
-                className={`font-medium hover:text-orange-500 transition-colors ${
+                className={`font-medium transition-colors bg-gradient-to-r from-orange-500 to-purple-600 hover:bg-orange-600 px-4 py-2 rounded-lg inline-block text-white hover:opacity-90 hover:scale-[1.02] shadow-md ${
                   location.pathname === "/login"
-                    ? "text-orange-500 underline"
+                    ? "text-orange-500 "
                     : ""
                 }`}
               >
                 Ingresar
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/signup"
                 className={`font-medium hover:text-orange-500 transition-colors ${
@@ -238,23 +247,9 @@ const Header = () => {
               >
                 Registrarse
               </Link>
-            </li>
+            </li> */}
           </>
         )}
-
-        {/* Botón modo oscuro */}
-        <li>
-          <button
-            onClick={toggleDarkMode}
-            className="text-xl text-gray-700 dark:text-gray-200 hover:text-orange-500 transition-colors"
-          >
-            {darkMode ? (
-              <i className="fas fa-sun"></i> // ☀️ Modo claro
-            ) : (
-              <i className="fas fa-moon"></i> // 🌙 Modo oscuro
-            )}
-          </button>
-        </li>
       </ul>
     </nav>
   );

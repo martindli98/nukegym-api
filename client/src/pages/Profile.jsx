@@ -49,7 +49,7 @@ function Profile() {
   }
 
   return (
-    <div>
+    <div className="animate-fadeInUp">
       <ProfileCard userData={userData} onProfileUpdate={refetch} />
     </div>
   );

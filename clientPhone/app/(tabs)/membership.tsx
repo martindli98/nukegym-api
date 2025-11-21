@@ -329,6 +329,11 @@ function InfoCard({
     }
   };
 
+  const formatEstado = (estado?: string) => {
+    if (!estado) return "Desconocido";
+    return estado.charAt(0).toUpperCase() + estado.slice(1);
+  };
+
   return (
     <View style={styles.infoCard}>
       <Text style={styles.infoTitle}>Detalles de tu membresía</Text>
@@ -343,7 +348,7 @@ function InfoCard({
         <Text style={styles.infoText}>
           Estado:{" "}
           <Text style={{ color: estado === "activo" ? "#2ecc71" : "#e74c3c" }}>
-            {estado.charAt(0).toUpperCase() + estado.slice(1)}
+            {formatEstado(estado)}
           </Text>
         </Text>
       </View>
