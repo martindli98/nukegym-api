@@ -26,12 +26,14 @@ interface User {
   telefono_emergencia?: string;
   fecha_nacimiento?: string;
   patologias?: string;
+  id_rol?: number;
 }
 
-export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }: any) {
+export default function ProfileView({ onLogout, onEditPress, onProfileTrainer, onProfileStudents }: any) {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userRole, setUserRole] = useState<number | null>(null);
 
   const fetchProfile = async () => {
     try {
@@ -41,8 +43,30 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
       const res = await api("/users/profile");
 
       if (res.success) {
-        setUserData(res.user);
-        await AsyncStorage.setItem("userData", JSON.stringify(res.user));
+        // Mapear tipo_rol a id_rol
+        const getRoleId = (tipoRol: string): number => {
+          switch (tipoRol?.toLowerCase()) {
+            case "admin":
+              return 1;
+            case "cliente":
+              return 2;
+            case "entrenador":
+              return 3;
+            default:
+              return 0;
+          }
+        };
+
+        const roleId = getRoleId(res.user?.tipo_rol);
+        
+        const userWithRole = { 
+          ...res.user, 
+          id_rol: roleId
+        };
+        
+        setUserData(userWithRole);
+        setUserRole(roleId);
+        await AsyncStorage.setItem("userData", JSON.stringify(userWithRole));
       } else {
         showError("No se pudo obtener el perfil", "Error");
       }
@@ -75,7 +99,9 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
       const loadProfile = async () => {
         const storedUser = await AsyncStorage.getItem("userData");
         if (storedUser) {
-          setUserData(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          setUserData(parsedUser);
+          setUserRole(parsedUser.id_rol || null);
         }
 
         await fetchProfile();
@@ -132,9 +158,17 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
             Turno: {userData.turno}
           </Text>
         </View>
-        <TouchableOpacity style={styles.trainerButton} onPress={onProfileTrainer}>
-          <Text style={styles.editText}>Entrenador</Text>
-        </TouchableOpacity>
+        {userRole !== 3 && (
+          <TouchableOpacity style={styles.trainerButton} onPress={onProfileTrainer}>
+            <Text style={styles.editText}>Entrenador</Text>
+          </TouchableOpacity>
+        )}
+
+        {userRole === 3 && (
+          <TouchableOpacity style={styles.studentsButton} onPress={onProfileStudents}>
+            <Text style={styles.editText}>Alumnos</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.editButton} onPress={onEditPress}>
           <Text style={styles.editText}>Editar perfil</Text>
@@ -192,6 +226,12 @@ const styles = StyleSheet.create({
   logoutButton: { backgroundColor: "#6b7280", padding: 12, borderRadius: 8 },
   trainerButton: {
     backgroundColor: "#3b82f6",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  studentsButton: {
+    backgroundColor: "#6D28D9",
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,

@@ -114,7 +114,7 @@ export default function RoutineScreen() {
 
         if (!canView) {
           setMembershipError(
-            "No tenés una membresía activa. Mejorá tu plan para ver rutinas."
+            "No tenés una membresía activa. Mejorá tu plan para ver rutinas. "
           );
           setLoading(false);
           return;

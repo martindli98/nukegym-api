@@ -103,8 +103,8 @@ export default function ProfileTrainer({ onBack }: any) {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={onBack}>
-        <Text>← Volver</Text>
+      <TouchableOpacity onPress={onBack} style={styles.backButton}>
+        <Text style={styles.backText}>← Volver</Text>
       </TouchableOpacity>
 
       <Text style={styles.title}>Entrenadores disponibles</Text>
@@ -148,6 +148,17 @@ export default function ProfileTrainer({ onBack }: any) {
 const styles = StyleSheet.create({
   container: { padding: 16 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  backButton: {
+    marginBottom: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: "flex-start",
+  },
+  backText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#ff6600",
+  },
   title: {
     fontSize: 26,
     fontWeight: "bold",
