@@ -10,18 +10,18 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Validation function for email and password
-  const validateForm = () => {
-    const errors = {};
-    if (!email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Please enter a valid email address";
-    }
-    if (!password) {
-      errors.password = "Password is required";
-    }
-    return errors;
-  };
+  // const validateForm = () => {
+  //   const errors = {};
+  //   if (!email) {
+  //     errors.email = "Email is required";
+  //   } else if (!/\S+@\S+\.\S+/.test(email)) {
+  //     errors.email = "Ingrese un email valido";
+  //   }
+  //   if (!password) {
+  //     errors.password = "Ingrese una contraseña valida";
+  //   }
+  //   return errors;
+  // };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -72,7 +72,7 @@ sessionStorage.setItem("userData", JSON.stringify(userData));
           userData: userData,
         });
 
-        toast.success("¡Login exitoso! Redirigiendo...");
+        toast.success("¡Bienvenido! Redirigiendo...");
 
         // Redirigir al perfil después de un breve delay
         setTimeout(() => {
@@ -109,7 +109,7 @@ sessionStorage.setItem("userData", JSON.stringify(userData));
             placeholder="Ingrese su email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
+            className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
           />
           {errors.email && (
             <span className="text-red-500 text-sm mt-1">{errors.email}</span>
@@ -125,7 +125,7 @@ sessionStorage.setItem("userData", JSON.stringify(userData));
             placeholder="Ingrese su contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
+            className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
           />
           {errors.password && (
             <span className="text-red-500 text-sm mt-1">{errors.password}</span>

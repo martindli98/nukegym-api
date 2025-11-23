@@ -28,7 +28,7 @@ const SignUp = () => {
     }
 
     if (!formValues.password) {
-      errors.password = "Password is required";
+      errors.password = "Ingrese una contraseña";
     }
     return errors;
   };
@@ -163,7 +163,7 @@ const SignUp = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
           <div className="flex flex-col">
-            <label className="mb-1 font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-1 font-medium text-gray-100 dark:text-gray-300">
               Email
             </label>
             <input
@@ -172,7 +172,7 @@ const SignUp = () => {
               placeholder="Ingrese su email"
               value={formValues.email}
               onChange={handleInputChange}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+              className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
                        rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
             />
             {formErrors.email && (
@@ -193,7 +193,7 @@ const SignUp = () => {
               placeholder="Ingrese su D.N.I"
               value={formValues.nro_documento}
               onChange={handleInputChange}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+              className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
                        rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
             />
             {formErrors.nro_documento && (
@@ -212,7 +212,7 @@ const SignUp = () => {
               name="turno"
               value={formValues.turno}
               onChange={handleInputChange}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
+              className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"
             >
               <option value="">Seleccione un turno</option>
               <option value="mañana">Mañana</option>
@@ -235,7 +235,7 @@ const SignUp = () => {
               placeholder="Ingrese su contraseña"
               value={formValues.password}
               onChange={handleInputChange}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+              className="px-4 py-2 text-gray-100 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
                        rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition"
             />
             {formErrors.password && (

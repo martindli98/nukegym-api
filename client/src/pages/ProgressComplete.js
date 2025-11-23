@@ -122,7 +122,7 @@ function ProgressComplete() {
                   <XAxis
                     dataKey="fecha"
                     stroke="#4b5563"
-                    tick={{ fill: "#4b5563" }}
+                    tick={{ fill: "#8894a6" }}
                     dy={5}
                   />
                   <YAxis
@@ -133,7 +133,7 @@ function ProgressComplete() {
                       fill: "#4b5563",
                       offset: 10,
                     }}
-                    stroke="#4b5563"
+                    stroke="#8894a6"
                   />
                   <Tooltip
                     contentStyle={{

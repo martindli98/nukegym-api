@@ -21,10 +21,9 @@ const userTableQuery = `CREATE TABLE IF NOT EXISTS Usuario (
     patologias VARCHAR(255),
     foto_avatar VARCHAR(255),
     turno ENUM('mañana', 'tarde', 'noche') DEFAULT NULL,
-    FOREIGN KEY (id_rol) REFERENCES Rol(id),
-    FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
+    FOREIGN KEY (id_rol) REFERENCES Rol(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
-
+//  FOREIGN KEY (id_trainer) REFERENCES Usuario(id) ON DELETE SET NULL
 
 const trainerTableQuery = `CREATE TABLE IF NOT EXISTS Entrenador (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -36,11 +35,28 @@ const trainerTableQuery = `CREATE TABLE IF NOT EXISTS Entrenador (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
 
 const addTrainerFkQuery = `
-  ALTER TABLE Usuario
-  ADD CONSTRAINT fk_usuario_id_trainer
-  FOREIGN KEY (id_trainer) REFERENCES Entrenador(id)
-  ON DELETE SET NULL;
+  SELECT COUNT(*) AS count
+  FROM information_schema.KEY_COLUMN_USAGE
+  WHERE TABLE_NAME = 'Usuario'
+    AND CONSTRAINT_NAME = 'fk_usuario_id_trainer';
 `;
+
+const createTrainerForeignKey = async () => {
+  const [rows] = await pool.query(addTrainerFkQuery);
+
+  if (rows[0].count === 0) {
+    await pool.query(`
+      ALTER TABLE Usuario
+      ADD CONSTRAINT fk_usuario_id_trainer
+      FOREIGN KEY (id_trainer) REFERENCES Entrenador(id)
+      ON DELETE SET NULL;
+    `);
+
+    console.log("Foreign key fk_usuario_id_trainer created successfully!");
+  } else {
+    console.log("Foreign key fk_usuario_id_trainer already exists. Skipping...");
+  }
+};
 
 const paymentTableQuery = `CREATE TABLE IF NOT EXISTS Pago (
   id_pago INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -119,7 +135,7 @@ const routineExerciseTableQuery = `CREATE TABLE IF NOT EXISTS Rutina_Ejercicio (
 `;
 
 
-const progressTableQuery = `CREATE TABLE Progreso (
+const progressTableQuery = `CREATE TABLE IF NOT EXISTS Progreso (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
     id_rutina INT NOT NULL,
@@ -129,7 +145,7 @@ const progressTableQuery = `CREATE TABLE Progreso (
 );
 `;
 
-const progressDetailsTableQuery = `CREATE TABLE Progreso_detalle (
+const progressDetailsTableQuery = `CREATE TABLE IF NOT EXISTS Progreso_detalle (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_progreso INT NOT NULL,
     id_ejercicio INT NOT NULL,
@@ -151,11 +167,9 @@ titulo VARCHAR(100) NOT NULL,
 const asistanceTableQuery = `CREATE TABLE IF NOT EXISTS Asistencia ( 
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT(11) NOT NULL,
-    
     fecha DATE NOT NULL,
     estado ENUM('presente','ausente','justificado') NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
-   
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)   
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
 const historyTableQuery = `CREATE TABLE IF NOT EXISTS Historial (id INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -248,8 +262,8 @@ const createAllTable = async () => {
 
     // 3️⃣ Tablas relacionadas con usuarios
     await createTable("Entrenador", trainerTableQuery);
-    await pool.query(addTrainerFkQuery); // se ejecuta después de crear Entrenador
-
+    // await pool.query(addTrainerFkQuery); // se ejecuta después de crear Entrenador
+    await createTrainerForeignKey();
     // 4️⃣ Tablas de pagos y membresías
     await createTable("Pago", paymentTableQuery);
     await createTable("Membresia", membershipTableQuery);

@@ -18,7 +18,7 @@ import { showError, showSuccess } from "@/src/utils/toast";
 import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
 import { useMembership } from "@/hooks/useMembership";
-import { canSeeRoutines } from "@/src/utils/membershipAccess";
+// import { canSeeRoutines } from "@/src/utils/membershipAccess";
 
 interface Ejercicio {
   id: number;

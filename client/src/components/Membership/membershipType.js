@@ -1,4 +1,8 @@
-function MembershipType({ title, img, descripcion, color = "purple" }) {
+import { useNavigate } from "react-router-dom";
+
+function MembershipType({ title, img, descripcion, color = "purple", precio }) {
+  const navigate = useNavigate();
+
   const colorClasses = {
     purple: "from-purple-500 to-purple-700",
     blue: "from-blue-500 to-blue-700",
@@ -26,11 +30,7 @@ function MembershipType({ title, img, descripcion, color = "purple" }) {
         `}
       >
         {img ? (
-          <img
-            src={img}
-            alt={title}
-            className="w-14 h-14 object-contain"
-          />
+          <img src={img} alt={title} className="w-14 h-14 object-contain" />
         ) : (
           <span className="text-4xl font-bold">★</span>
         )}
@@ -54,7 +54,7 @@ function MembershipType({ title, img, descripcion, color = "purple" }) {
           hover:opacity-90 transition-all duration-200
         `}
       >
-        Ver detalles
+        ${precio}
       </button>
     </div>
   );

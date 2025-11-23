@@ -103,7 +103,8 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 overflow-y-auto max-h-[85vh]">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 
+                overflow-y-auto max-h-[85vh] my-auto">
         <button
           onClick={onClose}
           className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
@@ -119,7 +120,7 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
           placeholder="Ej: Día 1: Pecho y Tríceps"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="bg-white dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
+          className="bg-white text-gray-300 dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
         />
 
         <h5 className="text-black dark:text-white text-l mb-2">Filtrar por músculo</h5>
@@ -128,7 +129,7 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
           placeholder="Ej: pecho, espalda..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="bg-white dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
+          className="bg-white text-gray-300 dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
         />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
