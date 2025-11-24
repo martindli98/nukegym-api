@@ -44,10 +44,6 @@ export default function ProfileLogin({
       }
     } catch (err: any) {
       console.error("Login error:", err.response?.data || err.message);
-      // Alert.alert(
-      //   "Error",
-      //   "No se pudo iniciar sesión. Verifica tus datos o conexión."
-      // );
       showError(
         "No se pudo iniciar sesión. Verifica tus datos o conexión.",
         "Error"

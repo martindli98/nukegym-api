@@ -72,7 +72,7 @@ export const loginUser = async (email, password) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return { success: false, message: "Incorrect password" };
+      return { success: false, message: "Contraseña incorrecta" };
     }
 
     // Generate JWT token

@@ -22,6 +22,7 @@ export const getUserProfile = async (req, res) => {
         u.foto_avatar,
         u.turno,
         u.id_trainer,
+        u.id_rol,
         r.tipo as tipo_rol
       FROM Usuario u
       LEFT JOIN Rol r ON u.id_rol = r.id

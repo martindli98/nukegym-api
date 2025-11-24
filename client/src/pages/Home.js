@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import fondoGym from "../img/fondo.jpg";
 import MembershipType from "../components/Membership/membershipType";
+import Rutina from "../img/home/Rutina.png";
+import Progreso from "../img/home/Progreso.png";
+import ArmarRutina from "../img/home/ArmarRutina.png"
+import Clases from "../img/home/Clases.png"
 
 function Home() {
   const infoRef = useRef(null);
@@ -25,10 +29,33 @@ function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const elements = document.querySelectorAll(".animate-on-scroll");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const anim = entry.target.dataset.anim;
+            entry.target.classList.add(anim);
+            entry.target.classList.add("opacity-100");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="flex flex-col">
       {/* ✨ HERO - Pantalla completa */}
       <div
+        id="inicio-info"
         className="h-screen bg-cover bg-center pb-20 flex items-center justify-center 
                    transition-colors duration-300 bg-gray-200 dark:bg-gray-900"
         style={{ backgroundImage: `url(${fondoGym})` }}
@@ -50,26 +77,203 @@ function Home() {
 
       {/* Sección informativa de Rutinas */}
       <div id="routine-info" className="py-20 bg-[#131c28] text-white">
-        <h2 className="text-3xl font-bold mb-4">Rutinas</h2>
-        <p className="text-lg">Información general para visitantes.</p>
-      </div>
+        <div
+          id="rutine-info"
+          className="w-full max-w-5xl mx-auto py-16 flex flex-col text-white gap-24"
+        >
+          {/* Bloque 1 */}
+          <div className="flex justify-between items-center gap-10">
+            <div
+              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
+              data-anim="animate-fadeInLeft"
+            >
+              <img
+                src={Rutina}
+                alt="Imagen de rutina"
+                className="w-full h-full object-contain rounded-md"
+              />
+            </div>
+            <div
+              className="animate-on-scroll opacity-0"
+              data-anim="animate-fadeInRight"
+            >
+              <p
+                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl"
+              >
+                Rutinas personalizadas para que sepas exactamente qué entrenar
+                cada día.
+              </p>
+            </div>
+          </div>
 
+          {/* Bloque 2 */}
+          <div className="flex justify-between items-center gap-10 flex-row-reverse ">
+            <div
+              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
+              data-anim="animate-fadeInRight"
+            >
+              <img
+                src={Progreso}
+                alt="Imagen de progreso"
+                className="w-full h-full object-contain rounded-md"
+              />
+            </div>
+
+            <div
+              className="animate-on-scroll opacity-0"
+              data-anim="animate-fadeInLeft"
+            >
+              <p
+                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl"
+              >
+                Registro de progreso con anotaciones de peso, repeticiones y
+                mejoras para llevar un seguimiento real de tus avances.
+              </p>
+            </div>
+          </div>
+
+          {/* Bloque 3 */}
+          <div className="flex justify-between items-center gap-10 ">
+            <div
+              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
+              data-anim="animate-fadeInLeft"
+            >
+              <img
+                src={ArmarRutina}
+                alt="Imagen de armado de rutina"
+                className="w-full h-full object-contain rounded-md"
+              />
+            </div>
+            <div
+              className="animate-on-scroll opacity-0"
+              data-anim="animate-fadeInRight"
+            >
+              <p
+                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl"
+              >
+                Amplio catálogo de ejercicios con filtros para armar la rutina
+                que mejor se adapte a tus objetivos.
+              </p>
+            </div>
+          </div>
+
+          {/* Bloque 4 */}
+          <div className="flex justify-between items-center gap-10 flex-row-reverse ">
+            <div
+              className="w-[300px] h-[200px] border-4 border-black flex items-center justify-center font-bold animate-on-scroll opacity-0"
+              data-anim="animate-fadeInRight"
+            >
+              IMAGEN DE APP TERMINADA
+            </div>
+            <div
+              className="animate-on-scroll opacity-0"
+              data-anim="animate-fadeInLeft"
+            >
+              <p
+                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl"
+              >
+                Seguimiento fácil y rápido de tu rutina directamente desde la
+                app móvil.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Sección informativa de Clases */}
-      <div id="classes-info" className="py-20 bg-[#111a22] text-white">
-        <h2 className="text-3xl font-bold mb-4">Clases</h2>
-        <p className="text-lg">Horarios, tipos de clases, instructores, etc.</p>
+      <div
+        id="classes-info"
+        className="w-full max-w-5xl mx-auto py-16 flex flex-col text-white gap-24"
+      >
+        <div className="flex justify-between items-center gap-10 ">
+          <div
+            className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
+            data-anim="animate-fadeInLeft"
+          >
+            <img
+                src={Clases}
+                alt="Imagen de reserva de clases"
+                className="w-full h-full object-contain rounded-md"
+              />
+          </div>
+          <div
+            className="animate-on-scroll opacity-0"
+            data-anim="animate-fadeInRight"
+          >
+            <p
+              className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl animate-fadeInRight"
+            >
+              Si contás con una membresía Intermedia o Premium, vas a poder disfrutar de todas nuestras clases grupales.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center gap-10 flex-row-reverse ">
+          <div
+            className="w-[300px] h-[200px] border-4 border-black flex items-center justify-center font-bold animate-on-scroll opacity-0"
+            data-anim="animate-fadeInRight"
+          >
+            IMAGEN CLASES APP
+          </div>
+          <div
+            className="animate-on-scroll opacity-0"
+            data-anim="animate-fadeInLeft"
+          >
+            <p
+              className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
+        border border-gray-200 dark:border-gray-700 
+        rounded-3xl shadow-xl p-8 
+        flex items-center text-center gap-4
+        transition-all duration-300
+        hover:-translate-y-2 hover:shadow-2xl"
+            >
+              Seguimiento fácil y rápido de fecha y horario de tus clases desde la app
+              móvil.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div id="membership-info" className="py-20 bg-[#162232] text-white">
-        <h2 className="text-3xl font-bold mb-4">Nuestras Membresías</h2>
-        <p className="text-lg">Detalles de los planes, beneficios, etc.</p>
-        <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div id="membership-info" className="py-20 bg-[#162232]">
+        <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6 pa" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mx-12">
           <MembershipType
             title="Plan Básico"
             img="/img/basic.png"
             descripcion="Acceso al gimnasio en horario estándar. Ideal para quienes comienzan."
             color="purple"
+            precio=" 15.000"
+          />
+          <MembershipType
+            title="Plan Premium"
+            img="/img/premium.png"
+            descripcion="Acceso completo, entrenador personal y seguimiento avanzado."
+            color="yellow"
+            precio=" 75.000"
           />
 
           <MembershipType
@@ -77,17 +281,11 @@ function Home() {
             img="/img/intermedio.png"
             descripcion="Incluye rutinas personalizadas y asesoramiento mensual."
             color="blue"
-          />
-
-          <MembershipType
-            title="Plan Premium"
-            img="/img/premium.png"
-            descripcion="Acceso completo, entrenador personal y seguimiento avanzado."
-            color="yellow"
+            precio=" 40.000"
           />
         </div>
       </div>
-
+      <div>EMPEZA A ENTRENAR CON NOSOTROS</div>
       {/* ✨ INFO + MAPA - animación al hacer scroll */}
       <div
         ref={infoRef}

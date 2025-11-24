@@ -13,15 +13,14 @@ const RoutineCard = ({ ejercicio, index }) => {
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl shadow-lg mb-6 transition hover:shadow-xl">
       {/* Título */}
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        Ejercicio {index + 1}: {ejercicio.nombre}
-      </h3>
-
-      {/* Músculo */}
-      <p className="text-orange-500 text-sm font-medium mb-4">
+      <div className="min-h-[70px]">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Ejercicio {index + 1}: {ejercicio.nombre}
+        </h3>
+      </div>
+      <p className="text-orange-500 text-sm font-medium mb-3">
         Músculo principal: {ejercicio.musculo_principal}
       </p>
-
       {/* Imagen */}
       {ejercicio.url_media && (
         <img

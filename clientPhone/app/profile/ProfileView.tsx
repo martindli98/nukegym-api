@@ -17,6 +17,7 @@ import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
 interface User {
   id: number;
+  id_rol: number;
   nombre?: string;
   apellido?: string;
   email: string;
