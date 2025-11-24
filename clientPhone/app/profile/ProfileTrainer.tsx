@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -29,6 +30,8 @@ export default function ProfileTrainer({ onBack }: any) {
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState<number | null>(null);
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const fetchUser = async () => {
     try {
@@ -94,18 +97,73 @@ export default function ProfileTrainer({ onBack }: any) {
     if (user) fetchTrainers();
   }, [user]);
 
+  const styles = StyleSheet.create({
+  container: { padding: 16, backgroundColor: isDark ? "#111827" : "#f3f4f6",},
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#ff6600",
+  },
+  card: {
+    backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
+    padding: 12,
+    borderRadius: 12,
+    elevation: 3,
+    
+  },
+  text: { fontSize: 18, fontWeight: "bold", color: isDark ? "#ffffffff" : "#111827"},
+  label: { fontSize: 14, marginTop: 4, color: isDark ? "#b3b3b3ff" : "#545454ff" },
+  assigned: {
+    marginTop: 10,
+    color: "green",
+    fontWeight: "bold",
+    textAlign: "right",
+  },
+  btn: {
+    marginTop: 10,
+    backgroundColor: "#6200ee",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  btnText: { color: "#fff", fontWeight: "bold" },
+   // Nuevo estilo para el botón Volver
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: isDark ? "#374151" : "#e5e7eb",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  backBtnText: {
+    color: isDark ? "#fff" : "#111827",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+});
+
   if (loading)
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
       </View>
     );
-
+console.log(trainers)
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={onBack}>
-        <Text>← Volver</Text>
+      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <Text style={styles.backBtnText}>← Volver</Text>
       </TouchableOpacity>
+
 
       <Text style={styles.title}>Entrenadores disponibles</Text>
 
@@ -145,36 +203,3 @@ export default function ProfileTrainer({ onBack }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { padding: 16 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#ff6600",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 3,
-  },
-  text: { fontSize: 18, fontWeight: "bold" },
-  label: { fontSize: 14, marginTop: 4, color: "#555" },
-  assigned: {
-    marginTop: 10,
-    color: "green",
-    fontWeight: "bold",
-    textAlign: "right",
-  },
-  btn: {
-    marginTop: 10,
-    backgroundColor: "#6200ee",
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  btnText: { color: "#fff", fontWeight: "bold" },
-});

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  useColorScheme,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -38,6 +39,8 @@ export default function NotificationsScreen() {
     fecha_envio: "",
   });
   const [user, setUser] = useState<any>(null);
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const router = useRouter();
 
@@ -169,6 +172,149 @@ export default function NotificationsScreen() {
     setFormData({ titulo: "", mensaje: "", fecha_envio: "" });
   };
 
+  const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: isDark ? "#111827" : "#f3f4f6",
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: isDark ? "#111827" : "#f3f4f6",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    paddingTop: 5,
+    paddingBottom: 5,
+    backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: isDark ? "#ffffffff" : "#111827",
+    paddingVertical: 5,
+  },
+  infoBox: {
+    flexDirection: "row",
+    backgroundColor: isDark ? "#000000ff" : "#f3f4f6",
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#f97316",
+  },
+  infoContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#f97316",
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#f97316",
+  },
+  listContent: {
+    padding: 16,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#f97316",
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#ef4444",
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#6b7280",
+    marginTop: 16,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#9ca3af",
+    marginTop: 8,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  buttonContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  newButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f97316",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+  },
+  newButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "white",
+  },
+  formWrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  formTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1f2937",
+    marginBottom: 12,
+  },
+  listWrapper: {
+    padding: 16,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  adminBadge: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#f97316",
+    backgroundColor: "#fed7aa",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 4,
+    alignSelf: "flex-start",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    // gap: 10,
+  },
+});
+
   // Esperar a que se cargue el usuario
   if (!user || (loading && !refreshing)) {
     return (
@@ -193,7 +339,7 @@ export default function NotificationsScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={20} style={{ color:"#6D28D9", paddingRight: 10}}  />
+            <Ionicons name="chevron-back" size={20} style={{ color:"#f97316", paddingRight: 10}}  />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.title}>
@@ -218,7 +364,7 @@ export default function NotificationsScreen() {
       >
         {isClientOrTrainer && (
           <View style={styles.infoBox}>
-            <Ionicons name="information-circle" size={24} color="#3b82f6" />
+            <Ionicons name="information-circle" size={24} color="#f97316" />
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>
                 📬 Notificaciones del Gimnasio
@@ -312,145 +458,3 @@ export default function NotificationsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f4f6",
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f3f4f6",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 30,
-    paddingTop: 5,
-    paddingBottom: 5,
-    backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#6D28D9",
-    paddingVertical: 5,
-  },
-  infoBox: {
-    flexDirection: "row",
-    backgroundColor: "#eff6ff",
-    padding: 16,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#3b82f6",
-  },
-  infoContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e40af",
-    marginBottom: 4,
-  },
-  infoText: {
-    fontSize: 14,
-    color: "#3b82f6",
-  },
-  listContent: {
-    padding: 16,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: "#6b7280",
-  },
-  errorText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: "#ef4444",
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#6b7280",
-    marginTop: 16,
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: "#9ca3af",
-    marginTop: 8,
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  buttonContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  newButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f97316",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    gap: 8,
-  },
-  newButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "white",
-  },
-  formWrapper: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  formTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1f2937",
-    marginBottom: 12,
-  },
-  listWrapper: {
-    padding: 16,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  adminBadge: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#f97316",
-    backgroundColor: "#fed7aa",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginTop: 4,
-    alignSelf: "flex-start",
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    // gap: 10,
-  },
-});

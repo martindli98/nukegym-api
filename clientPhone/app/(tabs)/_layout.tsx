@@ -3,20 +3,21 @@ import React from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { HapticTab } from "@/components/haptic-tab";
 import CustomHeader from "@/components/notifications/CustomHeader";
+import { useColorScheme } from "react-native";
 
 export default function TabLayout() {
+  const isDark = useColorScheme() === "dark";
 
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         header: () => <CustomHeader />,
-        tabBarActiveTintColor: "#f97316",
-        tabBarInactiveTintColor: "#9ca3af",
+        tabBarActiveTintColor: isDark ? "#f97316" : "#f97316", 
+        tabBarInactiveTintColor: isDark ? "#9ca3af" : "#6b7280",
         tabBarButton: HapticTab,
-
         tabBarStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: isDark ? "#1f2937" : "#fff",
           borderTopWidth: 0,
           elevation: 8,
           height: 60,
@@ -51,7 +52,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="qr"
         options={{
@@ -65,7 +65,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="rutine"
         options={{

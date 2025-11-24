@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  useColorScheme,
   // Alert,
 } from "react-native";
 import { api } from "@/src/utils/api";
@@ -22,6 +23,8 @@ export default function ProfileRegister({ onBack }: Props) {
   const [dni, setDni] = useState("");
   const [password, setPassword] = useState("");
   const [turno, setTurno] = useState("");
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const handleRegister = async () => {
     if (!email || !dni || !password || !turno) {
@@ -60,6 +63,102 @@ export default function ProfileRegister({ onBack }: Props) {
       showError("No se pudo conectar con el servidor", "Error");
     }
   };
+  const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",      // centra verticalmente
+    alignItems: "center",          // centra horizontalmente
+    padding: 24,
+    backgroundColor: isDark ? "#111827" : "#f3f4f6",
+  },
+
+  formContainer: {
+    width: "100%",
+    maxWidth: 400,                 // evita que se estire demasiado en tablets
+    alignItems: "center",
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: isDark ? "#ffffff" : "#f97316",
+    textAlign: "center",
+    marginBottom: 32,
+  },
+
+  input: {
+    width: "100%",
+    backgroundColor: isDark ? "#4f5865f5" : "#ffffff",
+    borderWidth: 1,
+    borderColor: isDark ? "#4b5563" : "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    color: isDark ? "#ffffffff" : "#111827",
+    marginBottom: 16,
+  },
+
+  pickerContainer: {
+    width: "100%",
+    backgroundColor: isDark ? "#4f5865f5" : "#ffffff",
+    borderWidth: 1,
+    borderColor: isDark ? "#4b5563" : "#d1d5db",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+
+  picker: {
+    height: 50,
+    width: "100%",
+    color: "gray",
+  },
+
+  selectPicker: {
+    color: "gray",
+  },
+
+  button: {
+    width: "100%",
+    backgroundColor: isDark ? "#f87909" : "#f97316",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+
+  registerText: {
+    textAlign: "center",
+    marginTop: 16,
+    color: isDark ? "#d1d5db" : "#374151",
+  },
+
+  link: {
+    color: isDark ? "#f87909" : "#f97316",
+    fontWeight: "bold",
+  },
+
+  turnoBtn: {
+    padding: 12,
+    marginVertical: 5,
+    backgroundColor: "#EEE",
+    borderRadius: 8,
+  },
+
+  turnoBtnActive: {
+    backgroundColor: "#ff9800",
+  },
+
+  turnoText: {
+    textAlign: "center",
+    color: "#000",
+    fontWeight: "600",
+  },
+});
 
   return (
     <View style={styles.container}>
@@ -111,69 +210,3 @@ export default function ProfileRegister({ onBack }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "#f3f4f6",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#f97316",
-    textAlign: "center",
-    marginBottom: 32,
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingLeft: 8,
-    height: 50,
-    marginBottom: 16,
-  },
-  button: { backgroundColor: "#f97316", paddingVertical: 12, borderRadius: 8 },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  registerText: { textAlign: "center", marginTop: 16, color: "#374151" },
-  link: { color: "#f97316", fontWeight: "bold" },
-  turnoBtn: {
-    padding: 12,
-    marginVertical: 5,
-    backgroundColor: "#EEE",
-    borderRadius: 8,
-  },
-  turnoBtnActive: {
-    backgroundColor: "#ff9800",
-  },
-  turnoText: {
-    textAlign: "center",
-    color: "#000",
-    fontWeight: "600",
-  },
-  pickerContainer: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-
-  picker: {
-    height: 50,
-    width: "100%",
-    color: "gray"
-  },
-  selectPicker: {
-    color: "gray",
-    
-  }
-});

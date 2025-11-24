@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  useColorScheme
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -44,7 +45,8 @@ export default function Membership() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-
+  const theme = useColorScheme();
+    const isDark = theme === "dark";
   useFocusEffect(
     React.useCallback(() => {
       requireAuth();
@@ -165,18 +167,133 @@ export default function Membership() {
     }
   };
 
-  // const handleDownloadPDF = async () => {
-  //   const token = await AsyncStorage.getItem("authToken");
-  //   if (!token) {
-  //     Alert.alert(
-  //       "Error",
-  //       "Debes iniciar sesión como admin para descargar el listado."
-  //     );
-  //     return;
-  //   }
-  //   const pdfUrl = "http://192.168.100.11:3000/api/membership/list"; // backend genera PDF
-  //   Linking.openURL(pdfUrl);
-  // };
+ const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    backgroundColor: isDark ? "#0f172a" : "#f9fafb",
+    padding: 20,
+    paddingTop: 30,
+  },
+
+  text: {
+    marginTop: 10,
+    fontSize: 16,
+    color: isDark ? "#ffffff" : "#1e293b",
+  },
+
+  cardContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+
+  card: {
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: isDark ? "#ffffff" : "#1e293b",
+    textAlign: "center",
+  },
+
+  cardImage: {
+    width: 110,
+    height: 110,
+    marginVertical: 15,
+  },
+
+  cardDesc: {
+    textAlign: "center",
+    color: isDark ? "#d1d5db" : "#6b7280",
+    marginTop: 6,
+    fontSize: 15,
+  },
+
+  label: {
+    fontSize: 15,
+    color: isDark ? "#ffffff" : "#1e293b",
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+
+  pickerContainer: {
+    borderWidth: 1.5,
+    borderColor: isDark ? "#334155" : "#d1d5db",
+    borderRadius: 12,
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    marginBottom: 15,
+    overflow: "hidden",
+  },
+
+  button: {
+    backgroundColor: "#fa7808",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    width: "100%",
+    shadowColor: "#fa7808",
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+
+  buttonDisabled: {
+    backgroundColor: "#9ca3af",
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 17,
+  },
+
+  infoCard: {
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    marginTop: 18,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+
+  infoTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#f97316",
+    marginBottom: 18,
+    textAlign: "center",
+  },
+
+  infoText: {
+    fontSize: 16,
+    color: isDark ? "#ffffff" : "#1e293b",
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    paddingVertical: 4,
+  },
+
+  infoIcon: {
+    marginRight: 10,
+  },
+});
+
 
   if (loading) {
     return (
@@ -221,21 +338,25 @@ export default function Membership() {
           <Text style={styles.label}>Seleccioná un plan:</Text>
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={selectedPlan?.id || ""}
-              onValueChange={(value: any) => {
-                const plan = plans.find((p) => p.id === value);
-                setSelectedPlan(plan || null);
-              }}
-            >
-              <Picker.Item label="Seleccioná un plan" value="" />
-              {plans.map((plan) => (
-                <Picker.Item
-                  key={plan.id}
-                  label={`${plan.nombre} — $${plan.precio}`}
-                  value={plan.id}
-                />
-              ))}
-            </Picker>
+                style={{ color: isDark ? "#ffffff" : "#111827" }}
+                selectedValue={selectedPlan?.id || ""}
+                onValueChange={(value: any) => {
+                  const plan = plans.find((p) => p.id === value);
+                  setSelectedPlan(plan || null);
+                }}
+              >
+                <Picker.Item label="Seleccioná un plan" value="" color={isDark ? "#ffffff88" : "#888"} />
+                {plans.map((plan) => (
+                  <Picker.Item
+                    key={plan.id}
+                    label={`${plan.nombre} — $${plan.precio}`}
+                    value={plan.id}
+                    color="#111827"
+                    
+                  />
+                ))}
+              </Picker>
+
           </View>
 
           <TouchableOpacity
@@ -254,30 +375,7 @@ export default function Membership() {
       </View>
     );
   };
-
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {renderCard()}
-
-      {membership && (
-        <InfoCard
-          estado={membership.estado}
-          inicio={membership.fechaInicio}
-          fin={membership.fechaFin}
-          tipo={membership.tipo}
-        />
-      )}
-
-      {/* 📄 Si el usuario es admin */}
-      {/* Podés validar el rol desde AsyncStorage */}
-      {/* <TouchableOpacity style={styles.pdfButton} onPress={handleDownloadPDF}>
-        <Text style={styles.pdfButtonText}>📄 Descargar listado de membresías</Text>
-      </TouchableOpacity> */}
-    </ScrollView>
-  );
-}
-
-function MembershipCard({
+  function MembershipCard({
   title,
   img,
   descripcion,
@@ -306,6 +404,8 @@ function InfoCard({
   fin: string;
   tipo: string;
 }) {
+  const safeEstado = estado || "desconocido";
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -329,11 +429,6 @@ function InfoCard({
     }
   };
 
-  const formatEstado = (estado?: string) => {
-    if (!estado) return "Desconocido";
-    return estado.charAt(0).toUpperCase() + estado.slice(1);
-  };
-
   return (
     <View style={styles.infoCard}>
       <Text style={styles.infoTitle}>Detalles de tu membresía</Text>
@@ -342,13 +437,17 @@ function InfoCard({
         <Ionicons
           name="information-circle-outline"
           size={20}
-          color={estado === "activo" ? "#2ecc71" : "#e74c3c"}
+          color={safeEstado === "activo" ? "#2ecc71" : "#e74c3c"}
           style={styles.infoIcon}
         />
         <Text style={styles.infoText}>
           Estado:{" "}
-          <Text style={{ color: estado === "activo" ? "#2ecc71" : "#e74c3c" }}>
-            {formatEstado(estado)}
+          <Text
+            style={{
+              color: safeEstado === "activo" ? "#2ecc71" : "#e74c3c",
+            }}
+          >
+            {safeEstado.charAt(0).toUpperCase() + safeEstado.slice(1)}
           </Text>
         </Text>
       </View>
@@ -386,94 +485,25 @@ function InfoCard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: "#fafafa",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  text: { marginTop: 10, color: "#555" },
-  cardContainer: { alignItems: "center", width: "100%" },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 5,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-    width: "100%",
-    marginBottom: 20,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    textAlign: "center",
-  },
-  cardImage: { width: 100, height: 100, marginVertical: 10 },
-  cardDesc: { textAlign: "center", color: "#666", marginTop: 5 },
-  label: { color: "#333", fontWeight: "600", marginBottom: 5 },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    backgroundColor: "#fff",
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: "#fa7808",
-    padding: 14,
-    borderRadius: 5,
-    alignItems: "center",
-    width: "100%",
-  },
-  buttonDisabled: {
-    backgroundColor: "#bbb",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  infoCard: {
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 20,
-    width: "100%",
-    marginTop: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#7b4dee",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  infoText: { fontSize: 15, color: "#444", marginBottom: 5 },
-  // pdfButton: {
-  //   marginTop: 20,
-  //   backgroundColor: "#ff9f1a",
-  //   padding: 14,
-  //   borderRadius: 12,
-  // },
-  // pdfButtonText: {
-  //   color: "white",
-  //   fontWeight: "600",
-  // },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  infoIcon: {
-    marginRight: 8,
-  },
-});
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {renderCard()}
+
+      {membership && (
+        <InfoCard
+          estado={membership.estado}
+          inicio={membership.fechaInicio}
+          fin={membership.fechaFin}
+          tipo={membership.tipo}
+        />
+      )}
+
+      {/* 📄 Si el usuario es admin */}
+      {/* Podés validar el rol desde AsyncStorage */}
+      {/* <TouchableOpacity style={styles.pdfButton} onPress={handleDownloadPDF}>
+        <Text style={styles.pdfButtonText}>📄 Descargar listado de membresías</Text>
+      </TouchableOpacity> */}
+    </ScrollView>
+  );
+}

@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  useColorScheme,
   // Alert,
 } from "react-native";
 
@@ -25,6 +26,9 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
     horario_fin: initialData?.horario_fin || "",
   });
 
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
+
   const handleSubmit = () => {
     if (!formData.nombre || !formData.cupo_maximo || !formData.fecha) {
       showError("Completa todos los campos requeridos.","Error")
@@ -37,68 +41,146 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
     });
   };
 
+  const styles = (isDark: boolean) =>
+    StyleSheet.create({
+      container: {
+        backgroundColor: isDark ? "#0f172a" : "#f8fafc",
+        padding: 18,
+        borderRadius: 16,
+        marginTop: 10,
+        shadowColor: "#000",
+        shadowOpacity: isDark ? 0.3 : 0.08,
+        shadowRadius: 10,
+        elevation: isDark ? 6 : 3,
+      },
+
+      label: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: isDark ? "#e2e8f0" : "#334155",
+        marginTop: 14,
+        marginBottom: 6,
+      },
+
+      input: {
+        backgroundColor: isDark ? "#1e293b" : "#ffffff",
+        borderWidth: 1,
+        borderColor: isDark ? "#334155" : "#cbd5e1",
+        borderRadius: 14,
+        padding: 12,
+        fontSize: 15,
+        color: isDark ? "#f1f5f9" : "#0f172a",
+        shadowColor: "#000",
+        shadowOpacity: isDark ? 0.25 : 0.05,
+        shadowRadius: 4,
+        elevation: isDark ? 3 : 1,
+      },
+
+      textarea: {
+        height: 90,
+        textAlignVertical: "top",
+      },
+
+      buttonRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 24,
+      },
+
+      button: {
+        flex: 1,
+        borderRadius: 12,
+        paddingVertical: 14,
+        marginHorizontal: 6,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOpacity: isDark ? 0.35 : 0.15,
+        shadowRadius: 5,
+        elevation: isDark ? 5 : 3,
+      },
+
+      buttonText: {
+        color: "#ffffff",
+        fontWeight: "700",
+        fontSize: 15,
+        textAlign: "center",
+      },
+    });
+
+  // ⬅️ ACÁ ESTABA LO QUE FALTABA
+  const s = styles(isDark);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nombre de la clase</Text>
+    <View style={s.container}>
+      <Text style={s.label}>Nombre de la clase</Text>
       <TextInput
-        style={styles.input}
+        style={s.input}
         value={formData.nombre}
         onChangeText={(t) => setFormData({ ...formData, nombre: t })}
         placeholder="Ej: Yoga, CrossFit..."
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
       />
 
-      <Text style={styles.label}>Cupo máximo</Text>
+      <Text style={s.label}>Cupo máximo</Text>
       <TextInput
-        style={styles.input}
+        style={s.input}
         keyboardType="numeric"
         value={formData.cupo_maximo}
         onChangeText={(t) => setFormData({ ...formData, cupo_maximo: t })}
+        placeholder="Ej: 20"
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
       />
 
-      <Text style={styles.label}>Descripción</Text>
+      <Text style={s.label}>Descripción</Text>
       <TextInput
-        style={[styles.input, { height: 80 }]}
+        style={[s.input, s.textarea]}
         value={formData.descripcion}
         onChangeText={(t) => setFormData({ ...formData, descripcion: t })}
         multiline
+        placeholder="Descripción breve..."
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
       />
 
-      <Text style={styles.label}>Fecha</Text>
+      <Text style={s.label}>Fecha</Text>
       <TextInput
-        style={styles.input}
+        style={s.input}
         value={formData.fecha}
         placeholder="YYYY-MM-DD"
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
         onChangeText={(t) => setFormData({ ...formData, fecha: t })}
       />
 
-      <Text style={styles.label}>Hora de inicio</Text>
+      <Text style={s.label}>Hora de inicio</Text>
       <TextInput
-        style={styles.input}
+        style={s.input}
         value={formData.horario_inicio}
         placeholder="HH:mm"
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
         onChangeText={(t) => setFormData({ ...formData, horario_inicio: t })}
       />
 
-      <Text style={styles.label}>Hora de fin</Text>
+      <Text style={s.label}>Hora de fin</Text>
       <TextInput
-        style={styles.input}
+        style={s.input}
         value={formData.horario_fin}
         placeholder="HH:mm"
+        placeholderTextColor={isDark ? "#94a3b8" : "#94a3b8"}
         onChangeText={(t) => setFormData({ ...formData, horario_fin: t })}
       />
 
-      <View style={styles.buttonRow}>
+      <View style={s.buttonRow}>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#f97316" }]}
+          style={[s.button, { backgroundColor: "#f97316" }]}
           onPress={onCancel}
         >
-          <Text style={styles.buttonText}>Cancelar</Text>
+          <Text style={s.buttonText}>Cancelar</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#6D28D9" }]}
+          style={[s.button, { backgroundColor: "#6D28D9" }]}
           onPress={handleSubmit}
         >
-          <Text style={styles.buttonText}>
+          <Text style={s.buttonText}>
             {initialData ? "Actualizar" : "Crear"}
           </Text>
         </TouchableOpacity>
@@ -106,29 +188,5 @@ const ClassForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", paddingHorizontal: 10, borderRadius: 6 },
-  label: { fontWeight: "bold", color: "#444", marginTop: 10 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 5,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 15,
-  },
-  button: {
-    flex: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginHorizontal: 5,
-  },
-  buttonText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
-});
 
 export default ClassForm;

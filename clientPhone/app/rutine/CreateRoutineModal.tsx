@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  useColorScheme 
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -52,6 +53,8 @@ export default function CreateRoutineModal({
   const [filter, setFilter] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const resetState = () => {
     setName("");
@@ -191,6 +194,150 @@ export default function CreateRoutineModal({
       }
     }
   };
+const styles = StyleSheet.create({
+  /* CONTENEDOR ----------------------------- */
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: isDark ? "#0f172a" : "#f8fafc",
+  },
+
+  /* TITULO -------------------------------- */
+  title: {
+    fontSize: 26,
+    fontWeight: "800",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#f97316",
+  },
+
+  /* INPUT -------------------------------- */
+  input: {
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    color: isDark ? "#e2e8f0" : "#111827",
+    borderWidth: 1,
+    borderColor: isDark ? "#334155" : "#cbd5e1",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOpacity: isDark ? 0.25 : 0.1,
+    shadowRadius: 4,
+    elevation: isDark ? 4 : 2,
+  },
+
+  /* CARD DE EJERCICIO --------------------- */
+  exerciseCard: {
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: isDark ? "#334155" : "#e2e8f0",
+    shadowColor: "#000",
+    shadowOpacity: isDark ? 0.35 : 0.1,
+    shadowRadius: 6,
+    elevation: isDark ? 6 : 3,
+  },
+
+  exerciseSelected: {
+    borderColor: "#f97316",
+    backgroundColor: isDark ? "#30425fff" : "#f5f3ff",
+  },
+
+  image: {
+    width: "100%",
+    height: 170,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+
+  exerciseName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: isDark ? "#f8fafc" : "#1e293b",
+  },
+  muscle:{
+     fontSize: 14,
+    fontWeight: "300",
+    color: isDark ? "#9aa0a6" : "#6c6c6c",
+  },
+  muscleBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: isDark ? "#334155" : "#e2e8f0",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    marginTop: 6,
+    marginBottom: 12,
+  },
+
+  muscleBadgeText: {
+    color: isDark ? "#cbd5e1" : "#475569",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+
+  /* INPUTS CHICOS ------------------------- */
+  smallInputContainer: {
+    backgroundColor: isDark ? "#1e293b" : "#f8fafc",
+    borderRadius: 12,
+    padding: 10,
+    width: 100,
+    borderWidth: 1,
+    borderColor: isDark ? "#334155" : "#cbd5e1",
+    alignItems: "center",
+  },
+
+  smallInputLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: isDark ? "#cbd5e1" : "#475569",
+    marginBottom: 6,
+  },
+
+  smallInput: {
+    width: "100%",
+    backgroundColor: isDark ? "#1e293b" : "#ffffff",
+    borderRadius: 10,
+    padding: 8,
+    textAlign: "center",
+    borderWidth: 1,
+    borderColor: isDark ? "#475569" : "#cbd5e1",
+    color: isDark ? "#e2e8f0" : "#1e293b",
+  },
+
+  /* FOOTER BOTONES ------------------------ */
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+
+  button: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    marginHorizontal: 6,
+    alignItems: "center",
+  },
+
+  cancel: {
+    backgroundColor: "#f97316",
+  },
+
+  save: {
+    backgroundColor: "#6D28D9",
+  },
+
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+});
+
 
   return (
     <Modal visible={visible} animationType="slide">
@@ -199,6 +346,7 @@ export default function CreateRoutineModal({
 
         <TextInput
           placeholder="Ej: Día 1 - Pecho y Tríceps"
+          placeholderTextColor={isDark ? "#9aa0a6" : "#6c6c6c"}
           style={styles.input}
           value={name}
           onChangeText={setName}
@@ -206,6 +354,7 @@ export default function CreateRoutineModal({
 
         <TextInput
           placeholder="Filtrar por nombre o músculo"
+          placeholderTextColor={isDark ? "#9aa0a6" : "#6c6c6c"}
           style={styles.input}
           value={filter}
           onChangeText={setFilter}
@@ -238,39 +387,37 @@ export default function CreateRoutineModal({
                   <Text style={styles.muscle}>{ex.musculo_principal}</Text>
 
                   {selected && (
-                    <View style={{flexDirection: "row", justifyContent: "space-around" }}>
-                      <View>
-                        <Text>Series</Text>
-                        <TextInput
-                          keyboardType="numeric"
-                          placeholder="Series"
-                          style={styles.smallInput}
-                          value={
-                            selectedExercises
-                              .find((e) => e.id_ejercicio === ex.id)
-                              ?.series.toString() || "3"
-                          }
-                          onChangeText={(v) => updateField(ex.id, "series", v)}
-                        />
+                      <View style={{ 
+                        flexDirection: "row", 
+                        justifyContent: "space-between",
+                        marginTop: 14 
+                      }}>
+                        <View style={styles.smallInputContainer}>
+                          <Text style={styles.smallInputLabel}>Series</Text>
+                          <TextInput
+                            keyboardType="numeric"
+                            style={styles.smallInput}
+                            value={
+                              selectedExercises.find((e) => e.id_ejercicio === ex.id)?.series.toString() || "3"
+                            }
+                            onChangeText={(v) => updateField(ex.id, "series", v)}
+                          />
+                        </View>
+
+                        <View style={styles.smallInputContainer}>
+                          <Text style={styles.smallInputLabel}>Reps</Text>
+                          <TextInput
+                            keyboardType="numeric"
+                            style={styles.smallInput}
+                            value={
+                              selectedExercises.find((e) => e.id_ejercicio === ex.id)?.repeticiones.toString() || "12"
+                            }
+                            onChangeText={(v) => updateField(ex.id, "repeticiones", v)}
+                          />
+                        </View>
                       </View>
-                      <View>
-                        <Text>Repeticiones</Text>
-                        <TextInput
-                          keyboardType="numeric"
-                          placeholder="Repeticiones"
-                          style={styles.smallInput}
-                          value={
-                            selectedExercises
-                              .find((e) => e.id_ejercicio === ex.id)
-                              ?.repeticiones.toString() || "12"
-                          }
-                          onChangeText={(v) =>
-                            updateField(ex.id, "repeticiones", v)
-                          }
-                        />
-                      </View>
-                    </View>
-                  )}
+                    )}
+
                 </TouchableOpacity>
               );
             })}
@@ -298,58 +445,3 @@ export default function CreateRoutineModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#6D28D9",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  exerciseCard: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-  },
-  exerciseSelected: {
-    backgroundColor: "#E9D5FF",
-    borderColor: "#7C3AED",
-  },
-  exerciseName: { fontWeight: "bold", fontSize: 16, color: "#333" },
-  muscle: { color: "gray", marginBottom: 6 },
-  image: { width: "100%", height: 150, borderRadius: 5, marginBottom: 5 },
-  smallInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 6,
-    width: 100,
-    marginVertical: 4,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 5,
-    marginHorizontal: 5,
-    alignItems: "center",
-  },
-  cancel: { backgroundColor: "#f97316" },
-  save: { backgroundColor: "#6D28D9" },
-  buttonText: { color: "#fff", fontWeight: "bold" },
-});

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
+  useColorScheme,
   // Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -33,7 +34,8 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
   const fetchProfile = async () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -85,6 +87,53 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
       loadProfile();
     }, [])
   );
+
+  const styles = StyleSheet.create({
+    container: { flex: 1,  backgroundColor: isDark ? "#111827" : "#f3f4f6", padding: 20 },
+    centered: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
+    },
+    header: { alignItems: "center", marginBottom: 20 },
+    avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+    name: { fontSize: 22, fontWeight: "bold", color: isDark ? "#ffffffff" : "#111827" },
+    email: { color: "#6b7280" },
+    card: {
+      backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
+      borderRadius: 10,
+      padding: 16,
+      marginBottom: 20,
+      
+    },
+    info: { fontSize: 16, color: isDark ? "#ffffffff" : "#111827", marginBottom: 8, textTransform: 'capitalize' },
+    editButton: {
+      backgroundColor: "#f97316",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    editText: {
+      color: "#fff",
+      textAlign: "center",
+      fontWeight: "bold",
+      fontSize: 16,
+    },
+    logoutButton: { backgroundColor: "#6b7280", padding: 12, borderRadius: 8 },
+    trainerButton: {
+      backgroundColor: "#3b82f6",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    logoutText: {
+      color: "#fff",
+      textAlign: "center",
+      fontWeight: "bold",
+      fontSize: 16,
+    },
+  });
 
   if (loading) {
     return (
@@ -158,49 +207,3 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 20 },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f3f4f6",
-  },
-  header: { alignItems: "center", marginBottom: 20 },
-  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  name: { fontSize: 22, fontWeight: "bold", color: "#1f2937" },
-  email: { color: "#6b7280" },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 20,
-  },
-  info: { fontSize: 16, color: "#374151", marginBottom: 8, textTransform: 'capitalize' },
-  editButton: {
-    backgroundColor: "#f97316",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  editText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  logoutButton: { backgroundColor: "#6b7280", padding: 12, borderRadius: 8 },
-  trainerButton: {
-    backgroundColor: "#3b82f6",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  logoutText: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-});

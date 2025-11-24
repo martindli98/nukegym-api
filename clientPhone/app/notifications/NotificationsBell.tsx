@@ -14,8 +14,9 @@ export default function NotificationsBell() {
     <TouchableOpacity
       style={styles.container}
       onPress={() => router.push("/notifications/NotificationsScreen")}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // mejor toque
     >
-      <Ionicons name="notifications-outline" size={22} color="#f97316" />
+      <Ionicons name="notifications-outline" size={24} color="#f97316" />
 
       {unread > 0 && (
         <View style={styles.badge}>
@@ -28,20 +29,33 @@ export default function NotificationsBell() {
 
 const styles = StyleSheet.create({
   container: {
-       // 🔥 baja un poquito la campana
+    paddingTop: 2,           // 🔥 baja un poquito la campana (ajuste suave)
+    justifyContent: "center",
+    alignItems: "center",
   },
+
   badge: {
     position: "absolute",
-    top: 0,
-    right: -4,
-    backgroundColor: "red",
+    top: -2,                // más alineado con el icono moderno
+    right: -6,
+    backgroundColor: "#ef4444",
     borderRadius: 10,
-    paddingHorizontal: 5,
-    paddingVertical: 0,
+    minWidth: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+
+    // pequeña sombra para que se vea profesional
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
   },
+
   badgeText: {
     color: "white",
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
 });

@@ -8,6 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
   KeyboardTypeOptions,
+    useColorScheme,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -45,7 +46,8 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
   });
 
   const [loading, setLoading] = useState(false);
-
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
   useEffect(() => {
     loadUserData();
   }, []);
@@ -189,6 +191,80 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
     }
   };
 
+  const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: isDark ? "#111827" : "#f3f4f6",
+    
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    color: "#f97316",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: isDark ? "#ffffffff" : "#111827",
+    borderBottomWidth: 2,
+    borderBottomColor: "#f97316",
+    marginBottom: 20,
+    paddingBottom: 5,
+  },
+  field: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    color: isDark ? "#a4a4a4ff" : "#111827",
+    fontWeight: "600",
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: isDark ? "#344256ff" : "#c3c3c3ff",
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: isDark ? "#1f2937" : "#ecececff",
+    color: isDark ? "#ffffffff" : "#111827",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  saveButton: {
+    backgroundColor: "#f97316",
+  },
+  cancelButton: {
+    backgroundColor: "#6b7280",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: isDark ? "#344256ff" : "#c3c3c3ff",
+    borderRadius: 10,
+    backgroundColor: isDark ? "#1f2937" : "#ecececff",
+  },
+});
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -241,6 +317,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
           <Picker
             selectedValue={formData.turno}
             onValueChange={(value) => handleChange("turno", value)}
+            style={{ color: formData.turno ? (isDark ? "#ffffff" : "#111827") : "#9ca3af" }}
           >
             <Picker.Item label="Mañana" value="mañana" />
             <Picker.Item label="Tarde" value="tarde" />
@@ -256,6 +333,7 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
           style={styles.input}
           value={formData.fechaNac}
           placeholder="YYYY-MM-DD"
+          placeholderTextColor={isDark ? "#a4a4a4" : "#9ca3af"} 
           onChangeText={(text) => handleChange("fechaNac", text)}
         />
       </View>
@@ -294,73 +372,3 @@ export default function ProfileEdit({ onCancel, onSave }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    marginTop: 10,
-    color: "#555",
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#111",
-    borderBottomWidth: 2,
-    borderBottomColor: "#f97316",
-    marginBottom: 20,
-    paddingBottom: 5,
-  },
-  field: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: "#444",
-    fontWeight: "600",
-    marginBottom: 5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: "#fafafa",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 5,
-  },
-  saveButton: {
-    backgroundColor: "#f97316",
-  },
-  cancelButton: {
-    backgroundColor: "#6b7280",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    backgroundColor: "#fafafa",
-  },
-});
