@@ -8,10 +8,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  useColorScheme
 } from "react-native";
 import { api } from "@/src/utils/api";
 import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { useRouter, Stack } from "expo-router";
 import { showSuccess, showError } from "@/src/utils/toast";
 
 // TIPOS -------------------------
@@ -34,6 +35,9 @@ export default function ProgressView() {
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
+
 
   // FETCH -------------------------
   const fetchRoutines = async () => {
@@ -84,6 +88,120 @@ export default function ProgressView() {
     }
   };
 
+  const styles = StyleSheet.create({
+  /* CONTENEDOR --------------------------- */
+  container: {
+    padding: 20,
+    flex: 1,
+    backgroundColor: isDark ? "#111827" : "#f3f4f6",
+  },
+
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  /* TITULO ------------------------------- */
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    marginBottom: 20,
+    color: isDark ? "#f97316" : "#f97316",
+    textAlign: "center",
+  },
+
+  /* CARD ------------------------------- */
+  card: {
+    backgroundColor: isDark ? "#1f2937" : "#ffffff",
+    padding: 18,
+    borderRadius: 14,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: isDark ? 0.45 : 0.12,
+    shadowRadius: 6,
+    elevation: isDark ? 6 : 3,
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+    color: isDark ? "#e5e7eb" : "#111827",
+  },
+
+  /* EJERCICIO BOX ------------------------ */
+  exerciseBox: {
+    backgroundColor: isDark ? "#111827" : "#e5e7eb",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: isDark ? 0.25 : 0.06,
+    shadowRadius: 4,
+    elevation: isDark ? 3 : 1,
+  },
+
+  exerciseName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: isDark ? "#f97316" : "#f97316",
+    marginBottom: 4,
+  },
+  exerciseInf:{
+    fontSize: 13,
+    fontWeight: "700",
+    color: isDark ? "#9ca3af" : "#6b7280",
+    marginBottom: 4,
+  },
+
+  /* INPUT ------------------------------- */
+  input: {
+    backgroundColor: isDark ? "#1f2937" : "#ffffff",
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: isDark ? "#374151" : "#d1d5db",
+    color: isDark ? "#e5e7eb" : "#111827",
+    marginTop: 8,
+    
+  },
+
+  /* BOTONES ----------------------------- */
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    width: "48%",
+    shadowColor: "#000",
+    shadowOpacity: isDark ? 0.35 : 0.1,
+    shadowRadius: 4,
+    elevation: isDark ? 5 : 2,
+  },
+
+  btnBlue: {
+    backgroundColor: isDark ? "#2563eb" : "#2563eb",
+  },
+
+  btnGreen: {
+    backgroundColor: isDark ? "#16a34a" : "#16a34a",
+  },
+
+  buttonText: {
+    color: "#ffffff",
+    textAlign: "center",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+});
+
+
   // LOADING -------------------------
   if (loading) {
     return (
@@ -95,6 +213,13 @@ export default function ProgressView() {
 
   // UI -------------------------
   return (
+  <>
+    <Stack.Screen
+      options={{
+        title: "Progresos",
+      }}
+    />
+
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Progreso de Entrenamiento</Text>
 
@@ -110,14 +235,15 @@ export default function ProgressView() {
             {routine.ejercicios?.map((ej) => (
               <View key={ej.id} style={styles.exerciseBox}>
                 <Text style={styles.exerciseName}>{ej.nombre}</Text>
-                <Text>Series: {ej.series}</Text>
-                <Text>Reps: {ej.repeticiones}</Text>
+                <Text style={styles.exerciseInf}>Series: {ej.series}</Text>
+                <Text style={styles.exerciseInf}>Reps: {ej.repeticiones}</Text>
 
                 <TextInput
+                  style={styles.input}
                   placeholder="Peso (kg)"
+                  placeholderTextColor={isDark ? "#9ca3af" : "#6b7280"}
                   keyboardType="numeric"
                   onChangeText={(v) => (formValues[`peso_${ej.id}`] = v)}
-                  style={styles.input}
                 />
               </View>
             ))}
@@ -146,46 +272,8 @@ export default function ProgressView() {
         );
       })}
     </ScrollView>
-  );
+  </>
+);
+
 }
 
-const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#f3f4f6" },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 20 },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  cardTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
-  exerciseBox: {
-    backgroundColor: "#eee",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  exerciseName: { fontSize: 16, fontWeight: "600" },
-  input: {
-    backgroundColor: "white",
-    padding: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginTop: 8,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-  button: {
-    padding: 12,
-    borderRadius: 8,
-    width: "48%",
-  },
-  btnBlue: { backgroundColor: "#2563eb" },
-  btnGreen: { backgroundColor: "#16a34a" },
-  buttonText: { color: "white", fontWeight: "bold", textAlign: "center" },
-});

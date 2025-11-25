@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme} from "react-native";
 
 interface Props {
   classItem: any;
@@ -24,30 +24,63 @@ const ClassCard: React.FC<Props> = ({
   onDelete,
   formatDate,
 }) => {
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
+
   const reserva = userReservations?.find(
     (r) => r.id_clase === classItem.id_clase && r.estado === "reservado"
   );
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{classItem.nombre}</Text>
-      {classItem.descripcion ? (
-        <Text style={styles.desc}>{classItem.descripcion}</Text>
-      ) : null}
-      <Text style={styles.text}>🕒 {formatDate(classItem.horario)}</Text>
-      <Text style={styles.text}>
-        👤 {classItem.entrenador_nombre || "Sin entrenador"}
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? "#1f2937" : "#ffffff",
+          borderColor: isDark ? "#374151" : "#e5e7eb",
+        },
+      ]}
+    >
+      {/* TITLE */}
+      <Text
+        style={[
+          styles.title,
+          { color: isDark ? "#f97316" : "#f97316" },
+        ]}
+      >
+        {classItem.nombre}
       </Text>
-      <Text style={styles.text}>
-        🧍‍♂️ Cupo: {classItem.cupo_maximo}{" "}
+
+      {/* DESCRIPTION */}
+      {classItem.descripcion ? (
+        <Text
+          style={[
+            styles.desc,
+            { color: isDark ? "#d1d5db" : "#4b5563" },
+          ]}
+        >
+          {classItem.descripcion}
+        </Text>
+      ) : null}
+
+      {/* INFO */}
+      <Text style={[styles.text, { color: isDark ? "#d1d5db" : "#4b5563" }]}>
+        🕒 {formatDate(classItem.horario)}
+      </Text>
+      <Text style={[styles.text, { color: isDark ? "#d1d5db" : "#4b5563" }]}>
+        🏋️ {classItem.entrenador_nombre || "Sin entrenador"}
+      </Text>
+      <Text style={[styles.text, { color: isDark ? "#d1d5db" : "#4b5563" }]}>
+        👥 Cupo: {classItem.cupo_maximo}{" "}
         {classItem.cupos_disponibles !== undefined &&
           `(${classItem.cupos_disponibles} disponibles)`}
       </Text>
 
+      {/* CLIENT BUTTONS */}
       {isClient &&
         (reserva ? (
           <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
+            style={[styles.button, { backgroundColor: "#dc2626" }]}
             onPress={() => onCancelReservation(reserva.id)}
           >
             <Text style={styles.buttonText}>Cancelar reserva</Text>
@@ -56,7 +89,7 @@ const ClassCard: React.FC<Props> = ({
           <TouchableOpacity
             style={[
               styles.button,
-              classItem.cupos_disponibles === 0 && styles.disabledButton,
+              classItem.cupos_disponibles === 0 && { backgroundColor: "#9ca3af" },
             ]}
             onPress={() => onReserve(classItem.id_clase)}
             disabled={classItem.cupos_disponibles === 0}
@@ -67,19 +100,21 @@ const ClassCard: React.FC<Props> = ({
           </TouchableOpacity>
         ))}
 
+      {/* ADMIN BUTTONS */}
       {canManage && (
-        <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#3b82f6" }]}
+            style={[styles.subButton, { backgroundColor: "#3b82f6" }]}
             onPress={() => onEdit && onEdit(classItem)}
           >
-            <Text style={styles.buttonText}>Editar</Text>
+            <Text style={styles.subButtonText}>Editar</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#ef4444" }]}
+            style={[styles.subButton, { backgroundColor: "#ef4444" }]}
             onPress={() => onDelete && onDelete(classItem.id_clase)}
           >
-            <Text style={styles.buttonText}>Eliminar</Text>
+            <Text style={styles.subButtonText}>Eliminar</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -89,34 +124,51 @@ const ClassCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#e8e8e8",
-    borderRadius: 5,
-    padding: 3,
-    marginBottom: 16,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 18,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.07,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
-    elevation: 3,
-    marginVertical: 12,
+    elevation: 2,
   },
-  title: { fontSize: 18, fontWeight: "bold", color: "#6D28D9", paddingBottom: 4 },
-  desc: { color: "gray", marginVertical: 5 },
-  text: { color: "gray", marginVertical: 4 },
+  title: {
+    fontSize: 20,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
+  desc: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  text: {
+    fontSize: 15,
+    marginBottom: 6,
+  },
   button: {
+    marginTop: 12,
     backgroundColor: "#f97316",
-    borderRadius: 5,
-    paddingVertical: 8,
-    marginVertical: 8,
+    borderRadius: 10,
+    paddingVertical: 10,
   },
   buttonText: {
-    color: "#fff",
     textAlign: "center",
-    fontWeight: "600",
-    paddingHorizontal: 14,
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
   },
-  cancelButton: { backgroundColor: "#ef4444" },
-  disabledButton: { backgroundColor: "#ccc" },
+  subButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  subButtonText: {
+    textAlign: "center",
+    color: "white",
+    fontWeight: "600",
+  },
 });
 
 export default ClassCard;

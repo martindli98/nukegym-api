@@ -5,6 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  useColorScheme,
+  Image
   // Alert,
 } from "react-native";
 import { api } from "@/src/utils/api";
@@ -22,6 +24,8 @@ export default function ProfileLogin({
 }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const theme = useColorScheme();
+  const isDark = theme === "dark";
 
   const handleLogin = async () => {
     try {
@@ -51,8 +55,79 @@ export default function ProfileLogin({
     }
   };
 
+  const styles = StyleSheet.create({
+              container: {
+                flex: 1,
+                justifyContent: "center",    
+                alignItems: "center",       
+                padding: 24,
+                backgroundColor: isDark ? "#111827" : "#f3f4f6", 
+              },
+
+              formContainer: {             
+                width: "100%",
+                maxWidth: 400,              
+                alignItems: "center",        
+              },
+
+              logo: {
+                width: 120,   
+                height: 120,  
+                marginBottom: 24,
+              },
+
+              title: {
+                fontSize: 24,
+                fontWeight: "bold",
+                color: isDark ? "#ffffff" : "#f97316",
+                textAlign: "center",
+                marginBottom: 32,
+              },
+
+              input: {
+                width: "100%",               // ocupa todo el ancho del formContainer
+                backgroundColor: isDark ? "#4f5865f5" : "#ffffff",
+                borderWidth: 1,
+                borderColor: isDark ? "#66728dff" : "#d1d5db",
+                borderRadius: 8,
+                padding: 12,
+                color: isDark ? "#ffffffff" : "#111827",
+                marginBottom: 16,
+              },
+
+              button: {
+                width: "100%",               // ocupa todo el ancho del formContainer
+                backgroundColor: isDark ? "#f87909" : "#f97316",
+                paddingVertical: 12,
+                borderRadius: 8,
+              },
+
+              buttonText: {
+                color: "#fff",
+                fontSize: 18,
+                textAlign: "center",
+                fontWeight: "600",
+              },
+
+              registerText: {
+                textAlign: "center",
+                marginTop: 16,
+                color: isDark ? "#d1d5db" : "#374151",
+              },
+
+              link: {
+                color: isDark ? "#f87909" : "#f97316",
+                fontWeight: "bold",
+              },
+            });
+
   return (
     <View style={styles.container}>
+      <Image
+        source={require("../../assets/images/LOGO GYM-TRANSPARENTE.png")} 
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.title}>Iniciar Sesión</Text>
       <TextInput
         placeholder="Email"
@@ -81,35 +156,3 @@ export default function ProfileLogin({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "#f3f4f6",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#f97316",
-    textAlign: "center",
-    marginBottom: 32,
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  button: { backgroundColor: "#f97316", paddingVertical: 12, borderRadius: 8 },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  registerText: { textAlign: "center", marginTop: 16, color: "#374151" },
-  link: { color: "#f97316", fontWeight: "bold" },
-});
