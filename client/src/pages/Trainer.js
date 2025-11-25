@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
+import { useMembership } from "../hooks/useMembership";
 
 export default function Trainer() {
   const userSession = JSON.parse(sessionStorage.getItem("userData"));
@@ -12,9 +13,10 @@ export default function Trainer() {
   const [activeTrainerId, setActiveTrainerId] = useState(null);
 
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const { membership, loading: loadingMembership } = useMembership();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !membership?.membershipActive) return;
 
     if (user.id_rol === 2) {
       fetchTrainers();
@@ -22,16 +24,26 @@ export default function Trainer() {
     } else if (user.id_rol === 3) {
       fetchStudents();
     }
-  }, []);
+  }, [membership]);
 
   const fetchTrainers = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/trainers");
-      setTrainers(res.data);
-      console.log(res.data);
+      const params = new URLSearchParams(window.location.search);
+      const turno = params.get("turno") || user.turno;
+
+      const url = turno
+        ? `http://localhost:3000/api/trainers/trainers?turno=${encodeURIComponent(
+            turno
+          )}`
+        : "http://localhost:3000/api/trainers";
+
+      const res = await axios.get(url);
+      const data = res.data.entrenadores || res.data || [];
+      setTrainers(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error("Error al cargar entrenadores");
       console.error(error);
+      setTrainers([]);
     }
   };
 
@@ -53,7 +65,7 @@ export default function Trainer() {
       return;
     }
 
-    const confirm = window.confirm("¿Deseas asignar este entrenador?");
+    const confirm = window.confirm("¿Deseas asignarte este entrenador?");
     if (!confirm) return;
 
     try {
@@ -77,54 +89,60 @@ export default function Trainer() {
 
   const renderTrainerTable = () => (
     <div className="mt-6 overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead className="bg-orange-500 text-white">
-          <tr>
-            <th className="p-3 text-left">Nombre</th>
-            <th className="p-3 text-left">Apellido</th>
-            <th className="p-3 text-left">Email</th>
-            <th className="p-3 text-left">Cupos</th>
-            <th className="p-3 text-left">Turno</th>
-            <th className="p-3 text-center">Acción</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-300 dark:divide-gray-700">
-          {trainers.map((t) => (
-            <tr
-              key={t.id_entrenador}
-              className={`transition-colors text-gray-900 dark:text-gray-100 ${
-                t.id_entrenador === activeTrainerId
-                  ? "bg-green-100 dark:bg-green-900/30 font-semibold"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              <td className="p-3">{t.nombre}</td>
-              <td className="p-3">{t.apellido}</td>
-              <td className="p-3">{t.email}</td>
-              <td className="p-3">{t.cupos}</td>
-              <td className="p-3">{t.turno}</td>
-              <td className="p-3 text-center">
-                {t.id_entrenador === activeTrainerId ? (
-                  <span className="text-green-600 dark:text-green-400 font-bold">
-                    Asignado
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => handleAssign(t.id_entrenador)}
-                    className="
+      {trainers.length === 0 ? (
+        <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+          No hay entrenadores disponibles para el turno seleccionado.
+        </p>
+      ) : (
+        <table className="w-full border-collapse">
+          <thead className="bg-orange-500 text-white">
+            <tr>
+              <th className="p-3 text-left">Nombre</th>
+              <th className="p-3 text-left">Apellido</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Cupos</th>
+              <th className="p-3 text-left">Turno</th>
+              <th className="p-3 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-300 dark:divide-gray-700">
+            {trainers.map((t) => (
+              <tr
+                key={t.id_entrenador}
+                className={`transition-colors text-gray-900 dark:text-gray-100 ${
+                  t.id_entrenador === activeTrainerId
+                    ? "bg-green-100 dark:bg-green-900/30 font-semibold"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <td className="p-3">{t.nombre}</td>
+                <td className="p-3">{t.apellido}</td>
+                <td className="p-3">{t.email}</td>
+                <td className="p-3">{t.cupos}</td>
+                <td className="p-3">{t.turno}</td>
+                <td className="p-3 text-center">
+                  {t.id_entrenador === activeTrainerId ? (
+                    <span className="text-green-600 dark:text-green-400 font-bold">
+                      Asignado
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleAssign(t.id_entrenador)}
+                      className="
                     bg-purple-600 hover:bg-purple-800 
                     text-white px-4 py-2 rounded-lg 
                     transition-all shadow-md
                   "
-                  >
-                    Asignar
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    >
+                      Asignar
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 
@@ -181,6 +199,26 @@ export default function Trainer() {
       )}
     </div>
   );
+
+  if (loadingMembership)
+    return <p className="text-center">Verificando membresía...</p>;
+
+  if (!membership?.membershipActive) {
+    return (
+      <div className="text-center p-6">
+        <h2 className="text-2xl font-bold text-red-500">Membresía inactiva</h2>
+        <p className="mt-2 text-gray-600">
+          Necesitas tener una membresía activa para acceder a esta sección.
+        </p>
+        <button
+          onClick={() => (window.location.href = "/membership")}
+          className="mt-4 bg-orange-600 text-white px-4 py-2 rounded-lg"
+        >
+          Ir a membresía
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors duration-300">

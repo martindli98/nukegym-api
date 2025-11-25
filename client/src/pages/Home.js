@@ -1,14 +1,34 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import fondoGym from "../img/fondo.jpg";
 import MembershipType from "../components/Membership/membershipType";
 import Rutina from "../img/home/Rutina.png";
 import Progreso from "../img/home/Progreso.png";
-import ArmarRutina from "../img/home/ArmarRutina.png"
-import Clases from "../img/home/Clases.png"
-
+import ArmarRutina from "../img/home/ArmarRutina.png";
+import Clases from "../img/home/Clases.png";
+import PlanBasico from "../img/membershipType/PlanBasico2.png";
+import PlanPremium from "../img/membershipType/PlanPremium1.png";
+import PlanIntermedio from "../img/membershipType/PlanIntermedio1.png";
 function Home() {
   const infoRef = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [plansList, setPlansList] = useState([]);
+
+  useEffect(() => {
+    const getPlans = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/membership/plans"
+        );
+        if (response.data.success) {
+          setPlansList(response.data.plansList);
+        }
+      } catch (error) {
+        console.error("Error al obtener planes:", error);
+      }
+    };
+    getPlans();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -103,7 +123,7 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
               >
                 Rutinas personalizadas para que sepas exactamente qué entrenar
                 cada día.
@@ -134,7 +154,7 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
               >
                 Registro de progreso con anotaciones de peso, repeticiones y
                 mejoras para llevar un seguimiento real de tus avances.
@@ -164,7 +184,7 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
               >
                 Amplio catálogo de ejercicios con filtros para armar la rutina
                 que mejor se adapte a tus objetivos.
@@ -190,7 +210,7 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
               >
                 Seguimiento fácil y rápido de tu rutina directamente desde la
                 app móvil.
@@ -210,10 +230,10 @@ function Home() {
             data-anim="animate-fadeInLeft"
           >
             <img
-                src={Clases}
-                alt="Imagen de reserva de clases"
-                className="w-full h-full object-contain rounded-md"
-              />
+              src={Clases}
+              alt="Imagen de reserva de clases"
+              className="w-full h-full object-contain rounded-md"
+            />
           </div>
           <div
             className="animate-on-scroll opacity-0"
@@ -225,9 +245,10 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl animate-fadeInRight"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white "
             >
-              Si contás con una membresía Intermedia o Premium, vas a poder disfrutar de todas nuestras clases grupales.
+              Si contás con una membresía Intermedia o Premium, vas a poder
+              disfrutar de todas nuestras clases grupales.
             </p>
           </div>
         </div>
@@ -249,43 +270,31 @@ function Home() {
         rounded-3xl shadow-xl p-8 
         flex items-center text-center gap-4
         transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl"
+        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
             >
-              Seguimiento fácil y rápido de fecha y horario de tus clases desde la app
-              móvil.
+              Seguimiento fácil y rápido de fecha y horario de tus clases desde
+              la app móvil.
             </p>
           </div>
         </div>
       </div>
 
       <div id="membership-info" className="py-20 bg-[#162232]">
-        <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6 pa" />
+        <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mx-12">
-          <MembershipType
-            title="Plan Básico"
-            img="/img/basic.png"
-            descripcion="Acceso al gimnasio en horario estándar. Ideal para quienes comienzan."
-            color="purple"
-            precio=" 15.000"
-          />
-          <MembershipType
-            title="Plan Premium"
-            img="/img/premium.png"
-            descripcion="Acceso completo, entrenador personal y seguimiento avanzado."
-            color="yellow"
-            precio=" 75.000"
-          />
-
-          <MembershipType
-            title="Plan Intermedio"
-            img="/img/intermedio.png"
-            descripcion="Incluye rutinas personalizadas y asesoramiento mensual."
-            color="blue"
-            precio=" 40.000"
-          />
+          {plansList.map((plan, idx) => (
+            <MembershipType
+              key={plan.id}
+              title={plan.nombre}
+              img={[PlanBasico, PlanPremium, PlanIntermedio][idx]}
+              descripcion={plan.descripcion}
+              color={["purple", "yellow", "blue"][idx]}
+              precio={plan.precio}
+            />
+          ))}
         </div>
       </div>
-      <div>EMPEZA A ENTRENAR CON NOSOTROS</div>
+
       {/* ✨ INFO + MAPA - animación al hacer scroll */}
       <div
         ref={infoRef}

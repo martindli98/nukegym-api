@@ -20,18 +20,19 @@ export default function ProfileCard({ userData, onProfileUpdate }) {
         return;
       }
 
-      if (userData.id_rol === 2 && formData.id_trainer) {
-      await axios.put(
-        `http://localhost:3000/api/trainers/${userData.id}/asignar`,
-        { id_trainer: formData.id_trainer },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+      // Solo llama  a asignar si cambió el entrenador
+      if (userData.id_rol === 2 && formData.id_trainer && formData.id_trainer !== userData.id_trainer) {
+        await axios.put(
+          `http://localhost:3000/api/trainers/${userData.id}/asignar`,
+          { id_trainer: formData.id_trainer },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
 
       const response = await axios.put(
         "http://localhost:3000/api/users/profile",

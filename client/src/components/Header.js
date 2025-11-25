@@ -7,6 +7,7 @@ const Header = () => {
   const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [showRoutineMenu, setShowRoutineMenu] = useState(false);
   const navigate = useNavigate();
 
   // Hook para verificar notificaciones (solo para clientes)
@@ -58,7 +59,7 @@ const Header = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-900 shadow-md fixed top-0 w-full z-50 transition-colors duration-300">
       {/* Logo */}
-      <div className="flex items-center space-x-2 animate-fadeInLeft">
+      <Link to="/" className="flex items-center space-x-2 animate-fadeInLeft">
         <img
           src={require("../img/LOGO GYM.png")}
           alt="Logo"
@@ -68,83 +69,112 @@ const Header = () => {
           <span className="text-orange-500">NUKE</span>
           <span className="text-purple-700 dark:text-purple-400">GYM</span>
         </div>
-      </div>
+      </Link>
 
       {/* Links */}
       <ul className="flex items-center space-x-6 text-gray-700 dark:text-gray-200">
         <li>
           <button
             onClick={() => {
+              navigate("/");
               if (!userData) {
-                document.getElementById("inicio-info")?.scrollIntoView({
-                  behavior: "smooth",
-                });
-              } else {
-                navigate("/");
+                setTimeout(() => {
+                  document
+                    .getElementById("inicio-info")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
               }
             }}
-            className={`font-medium hover:text-orange-500 transition-colors`}
-          >
-            Inicio
-          </button>
-          {/* <Link
-            to="/"
             className={`font-medium hover:text-orange-500 transition-colors ${
-              location.pathname === "/" ? "text-orange-500 underline" : ""
+              location.pathname === "/" ? "border-b-2 border-orange-500" : ""
             }`}
           >
             Inicio
-          </Link> */}
-        </li>
-        <li>
-          <button
-            onClick={() => {
-              if (!userData) {
-                // 🔸 SCROLL A SECCIÓN DEL HOME
-                document.getElementById("membership-info")?.scrollIntoView({
-                  behavior: "smooth",
-                });
-              } else {
-                navigate("/membership");
-              }
-            }}
-            className={`font-medium hover:text-orange-500 transition-colors`}
-          >
-            Planes
           </button>
         </li>
 
-        <li>
+        <li
+          className="relative"
+          onMouseEnter={() => setShowRoutineMenu(true)}
+          onMouseLeave={() => setShowRoutineMenu(false)}
+        >
           <button
             onClick={() => {
               if (!userData) {
-                document.getElementById("routine-info")?.scrollIntoView({
-                  behavior: "smooth",
-                });
+                navigate("/");
+                setTimeout(() => {
+                  document
+                    .getElementById("routine-info")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
               } else {
                 navigate("/routine");
               }
             }}
-            className={`font-medium hover:text-orange-500 transition-colors`}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/routine"
+                ? "border-b-2 border-orange-500"
+                : ""
+            }`}
           >
-            Rutina
+            Rutinas
           </button>
+          {showRoutineMenu && userData && (
+            <div className="absolute top-full left-0  bg-white dark:bg-gray-800 shadow-lg rounded-lg py-2 min-w-[160px] z-50">
+              <button
+                onClick={() => navigate("/progress")}
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                Ver progreso
+              </button>
+            </div>
+          )}
         </li>
 
         <li>
           <button
             onClick={() => {
               if (!userData) {
-                document.getElementById("classes-info")?.scrollIntoView({
-                  behavior: "smooth",
-                });
+                navigate("/");
+                setTimeout(() => {
+                  document
+                    .getElementById("classes-info")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
               } else {
                 navigate("/classes");
               }
             }}
-            className={`font-medium hover:text-orange-500 transition-colors`}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/classes"
+                ? "border-b-2 border-orange-500"
+                : ""
+            }`}
           >
             Clases
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => {
+              if (!userData) {
+                navigate("/");
+                setTimeout(() => {
+                  document
+                    .getElementById("membership-info")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+              } else {
+                navigate("/membership");
+              }
+            }}
+            className={`font-medium hover:text-orange-500 transition-colors ${
+              location.pathname === "/membership"
+                ? "border-b-2 border-orange-500"
+                : ""
+            }`}
+          >
+            Planes
           </button>
         </li>
 
@@ -166,7 +196,11 @@ const Header = () => {
               <li>
                 <Link
                   to="/trainers"
-                  className="font-medium hover:text-orange-500 transition-colors"
+                  className={`font-semibold hover:text-orange-500 transition-colors ${
+                    location.pathname === "/trainers"
+                      ? "border-b-2 border-orange-500"
+                      : ""
+                  }`}
                 >
                   Alumnos
                 </Link>
@@ -180,7 +214,7 @@ const Header = () => {
                     to="/admin/roles"
                     className={`font-semibold hover:text-orange-500 transition-colors ${
                       location.pathname === "/admin/roles"
-                        ? "text-orange-500 underline"
+                        ? "border-b-2 border-orange-500"
                         : ""
                     }`}
                   >
@@ -192,7 +226,7 @@ const Header = () => {
                     to="/admin/notifications"
                     className={`font-semibold hover:text-orange-500 transition-colors ${
                       location.pathname === "/admin/notifications"
-                        ? "text-orange-500 underline"
+                        ? "border-b-2 border-orange-500"
                         : ""
                     }`}
                   >
@@ -226,7 +260,7 @@ const Header = () => {
                   to="/notifications"
                   className={`font-semibold hover:text-orange-500 transition-colors ${
                     location.pathname === "/notifications"
-                      ? "text-orange-500 underline"
+                      ? "border-b-2 border-orange-500"
                       : ""
                   }`}
                 >

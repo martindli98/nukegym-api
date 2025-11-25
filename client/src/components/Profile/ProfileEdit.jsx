@@ -98,15 +98,22 @@ export default function ProfileEdit({ userData, onSave, onCancel, loading }) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
 
+    if (name === "turno") {
+      setFormData((prev) => ({ ...prev, turno: value, id_trainer: null }));
+
+      // Actualizar sessionStorage inmediatamente
+      const session = JSON.parse(sessionStorage.getItem("userData"));
+      if (session?.userData) {
+        session.userData.turno = value;
+        sessionStorage.setItem("userData", JSON.stringify(session));
+      }
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: String(value || ""),
     }));
-
-    if (name === "turno") {
-      setFormData((prev) => ({ ...prev, turno: value, id_trainer: null }));
-      return;
-    }
   };
 
   const handleSubmit = (e) => {
@@ -258,7 +265,7 @@ export default function ProfileEdit({ userData, onSave, onCancel, loading }) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border rounded-lg dark:bg-gray-700 dark:text-gray-100"
                 >
-                  <option value="">Seleccione turno</option>
+                  {/* <option value="">Seleccione turno</option> */}
                   <option value="mañana">Mañana</option>
                   <option value="tarde">Tarde</option>
                   <option value="noche">Noche</option>
@@ -266,17 +273,19 @@ export default function ProfileEdit({ userData, onSave, onCancel, loading }) {
               </div>
             )}
             <div className="w-1/4">
-              {isClient && (
+              {isClient && formData.turno && (
                 <button
                   type="button"
-                  className=" bg-orange-700 text-white px-4 py-3 rounded-lg ml-2 w-full"
-                  onClick={() => (window.location.href = "/trainers")}
+                  className="bg-orange-700 text-white px-4 py-3 rounded-lg ml-2 w-full"
+                  onClick={() =>
+                    (window.location.href = `/trainers?turno=${formData.turno}`)
+                  }
                 >
                   Elegir entrenador
                 </button>
               )}
 
-              {!formData.turno && (
+              {isClient && !formData.turno && (
                 <p className="text-sm text-gray-500">
                   Seleccione primero un turno
                 </p>

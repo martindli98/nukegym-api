@@ -25,7 +25,7 @@ export const getMembership = async (req, res) => {
         success: true,
         membershipActive: true,
         message: "Acceso permitido por rol (admin/entrenador)",
-        data: { tipo: 3},
+        data: { tipo: 3 },
       });
     }
 
@@ -133,6 +133,29 @@ export const getPlans = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error al obtener la lista de planes",
+    });
+  }
+};
+
+export const updatePlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, descripcion, precio } = req.body;
+
+    await pool.query(
+      `UPDATE Planes SET nombre = ?, descripcion = ?, precio = ? WHERE id = ?`,
+      [nombre, descripcion, precio, id]
+    );
+
+    return res.json({
+      success: true,
+      message: "Plan actualizado correctamente",
+    });
+  } catch (error) {
+    console.error("❌ Error en updatePlan:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error al actualizar el plan",
     });
   }
 };

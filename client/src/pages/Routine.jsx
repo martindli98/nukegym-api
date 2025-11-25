@@ -94,7 +94,7 @@ const Routine = () => {
                 onClick={() => navigate(`/progress`)}
                 className="bg-orange-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
               >
-                Ver progreso
+                Anotar progreso
               </button>
 
               <button

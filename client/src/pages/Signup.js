@@ -53,13 +53,16 @@ const SignUp = () => {
         // Guardar token en sessionStorage
         sessionStorage.setItem("authToken", token);
 
-        // Guardar datos del usuario para el Header
+        // Guardar datos completos del usuario para el Header
         const userData = {
           isLoggedIn: true,
           userData: {
             name: user?.nombre || user?.email || "Usuario",
             email: user?.email,
             id: user?.id,
+            id_rol: user?.id_rol,
+            turno: user?.turno,
+            id_trainer: user?.id_trainer,
           },
         };
 
