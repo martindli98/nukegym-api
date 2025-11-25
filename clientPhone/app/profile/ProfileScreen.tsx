@@ -6,13 +6,16 @@ import ProfileView from "./ProfileView";
 import ProfileRegister from "./ProfileRegister";
 import ProfileEdit from "./ProfileEdit";
 import ProfileTrainer from "./ProfileTrainer";
+import Feedback from "./feedback";
 
 export default function ProfileScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [showRegister, setShowRegister] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showTrainer, setShowTrainer] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -31,6 +34,9 @@ export default function ProfileScreen() {
     );
   }
 
+  // ────────────────────────────────────────────────────────────────
+  // LOGIN / REGISTRO
+  // ────────────────────────────────────────────────────────────────
   if (!token) {
     return showRegister ? (
       <ProfileRegister onBack={() => setShowRegister(false)} />
@@ -45,25 +51,41 @@ export default function ProfileScreen() {
     );
   }
 
+  // ────────────────────────────────────────────────────────────────
+  // EDITAR PERFIL
+  // ────────────────────────────────────────────────────────────────
   if (showEdit) {
     return (
       <ProfileEdit
         onCancel={() => setShowEdit(false)}
-        onSave={() => {
-          setShowEdit(false);
-        }}
+        onSave={() => setShowEdit(false)}
       />
     );
   }
 
+  // ────────────────────────────────────────────────────────────────
+  // ENTRENADOR
+  // ────────────────────────────────────────────────────────────────
   if (showTrainer) {
     return <ProfileTrainer onBack={() => setShowTrainer(false)} />;
   }
+
+  // ────────────────────────────────────────────────────────────────
+  // FEEDBACK
+  // ────────────────────────────────────────────────────────────────
+  if (showFeedback) {
+    return <Feedback onBack={() => setShowFeedback(false)} />;
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // PERFIL PRINCIPAL
+  // ────────────────────────────────────────────────────────────────
   return (
     <ProfileView
       onLogout={() => setToken(null)}
       onEditPress={() => setShowEdit(true)}
       onProfileTrainer={() => setShowTrainer(true)}
+      onFeedback={() => setShowFeedback(true)}
     />
   );
 }

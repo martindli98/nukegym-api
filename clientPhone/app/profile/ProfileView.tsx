@@ -8,7 +8,6 @@ import {
   Image,
   ScrollView,
   useColorScheme,
-  // Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -30,12 +29,13 @@ interface User {
   patologias?: string;
 }
 
-export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }: any) {
+export default function ProfileView({ onLogout, onEditPress, onProfileTrainer , onFeedback}: any) {
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const theme = useColorScheme();
   const isDark = theme === "dark";
+
   const fetchProfile = async () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -89,7 +89,7 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
   );
 
   const styles = StyleSheet.create({
-    container: { flex: 1,  backgroundColor: isDark ? "#111827" : "#f3f4f6", padding: 20 },
+    container: { flex: 1, backgroundColor: isDark ? "#111827" : "#f3f4f6", padding: 20 },
     centered: {
       flex: 1,
       justifyContent: "center",
@@ -98,18 +98,40 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
     },
     header: { alignItems: "center", marginBottom: 20 },
     avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-    name: { fontSize: 22, fontWeight: "bold", color: isDark ? "#ffffffff" : "#111827" },
+    name: { fontSize: 22, fontWeight: "bold", color: isDark ? "#ffffff" : "#111827" },
     email: { color: "#6b7280" },
     card: {
       backgroundColor: isDark ? "#1f2937" : "#f3f4f6",
       borderRadius: 10,
       padding: 16,
       marginBottom: 20,
-      
     },
-    info: { fontSize: 16, color: isDark ? "#ffffffff" : "#111827", marginBottom: 8, textTransform: 'capitalize' },
+    info: {
+      fontSize: 16,
+      color: isDark ? "#ffffff" : "#111827",
+      marginBottom: 8,
+      textTransform: "capitalize",
+    },
+    trainerButton: {
+      backgroundColor: "#3b82f6",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
     editButton: {
       backgroundColor: "#f97316",
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    extraButton: {
+      backgroundColor: "#6b7280" ,
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    logoutButton: {
+      backgroundColor: "#cd4848ff",
       padding: 12,
       borderRadius: 8,
       marginBottom: 12,
@@ -120,12 +142,11 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
       fontWeight: "bold",
       fontSize: 16,
     },
-    logoutButton: { backgroundColor: "#6b7280", padding: 12, borderRadius: 8 },
-    trainerButton: {
-      backgroundColor: "#3b82f6",
-      padding: 12,
-      borderRadius: 8,
-      marginBottom: 12,
+    editFeed: {
+      color: "#fff",
+      textAlign: "center",
+      fontWeight: "bold",
+      fontSize: 16,
     },
     logoutText: {
       color: "#fff",
@@ -169,19 +190,12 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
 
         <View style={styles.card}>
           <Text style={styles.info}>DNI: {userData.nro_documento}</Text>
-          <Text style={styles.info}>
-            Teléfono personal: {userData.telefono_personal}
-          </Text>
-          <Text style={styles.info}>
-            Teléfono de emergencia: {userData.telefono_emergencia || "-"}
-          </Text>
-          <Text style={styles.info}>
-            Fecha de nacimiento: {userData.fecha_nacimiento || "-"}
-          </Text>
-          <Text style={styles.info}>
-            Turno: {userData.turno}
-          </Text>
+          <Text style={styles.info}>Teléfono personal: {userData.telefono_personal}</Text>
+          <Text style={styles.info}>Teléfono de emergencia: {userData.telefono_emergencia || "-"}</Text>
+          <Text style={styles.info}>Fecha de nacimiento: {userData.fecha_nacimiento || "-"}</Text>
+          <Text style={styles.info}>Turno: {userData.turno}</Text>
         </View>
+
         <TouchableOpacity style={styles.trainerButton} onPress={onProfileTrainer}>
           <Text style={styles.editText}>Entrenador</Text>
         </TouchableOpacity>
@@ -191,12 +205,20 @@ export default function ProfileView({ onLogout, onEditPress, onProfileTrainer }:
         </TouchableOpacity>
 
         <TouchableOpacity
+          style={styles.extraButton}
+          onPress={onFeedback}
+        >
+          <Text style={styles.editText}>Enviar comentario</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => setShowLogoutModal(true)}
         >
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
       </ScrollView>
+
       <ConfirmModal
         visible={showLogoutModal}
         title="Cerrar sesión"
