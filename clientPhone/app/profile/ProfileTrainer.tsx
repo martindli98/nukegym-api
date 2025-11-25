@@ -30,21 +30,46 @@ export default function ProfileTrainer({ onBack }: any) {
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState<number | null>(null);
+  const [membership, setMembership] = useState<any>(null);
+  const [loadingMembership, setLoadingMembership] = useState(true);
   const theme = useColorScheme();
   const isDark = theme === "dark";
 
   const fetchUser = async () => {
     try {
+      setMembership(null);
+      setLoadingMembership(true);
+
       const stored = await AsyncStorage.getItem("userData");
-      if (!stored) return;
+      if (!stored) {
+        setMembership({ membershipActive: false, data: {} });
+        setLoadingMembership(false);
+        return;
+      }
 
       const u = JSON.parse(stored);
       const realUser = u.userData ? u.userData : u;
 
       setUser(realUser);
       setActiveTrainerId(realUser.id_trainer ?? null);
+
+      // Cargar membresía
+      const role = realUser.id_rol;
+      if (role === 1 || role === 3) {
+        setMembership({ membershipActive: true, data: { tipo: "libre" } });
+      } else {
+        try {
+          const res = await api("/membership/status");
+          setMembership(res);
+        } catch (err) {
+          console.error("Error membership:", err);
+          setMembership({ membershipActive: false });
+        }
+      }
+      setLoadingMembership(false);
     } catch {
       showError("Error cargando usuario");
+      setLoadingMembership(false);
     }
   };
 
@@ -151,12 +176,36 @@ export default function ProfileTrainer({ onBack }: any) {
   },
 });
 
-  if (loading)
+  const canSelectTrainer = () => {
+    if (!user || !membership) return false;
+    const rol = user.id_rol;
+    const tipo = membership?.data?.tipo;
+    const active = membership?.membershipActive;
+
+    if (rol === 1 || rol === 3) return true;
+    if (rol === 2 && active && tipo !== 1) return true;
+    return false;
+  };
+
+  if (loading || loadingMembership)
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
       </View>
     );
+
+  if (user?.id_rol === 2 && !canSelectTrainer()) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: isDark ? "#111827" : "#f3f4f6" }}>
+        <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "bold", color: "#f97316", marginBottom: 10 }}>Membresía insuficiente</Text>
+        <Text style={{ textAlign: "center", fontSize: 16, color: "#6b7280", marginBottom: 20 }}>Tu plan no permite seleccionar entrenador. Actualizá tu membresía para acceder.</Text>
+        <TouchableOpacity style={{ backgroundColor: "#f97316", paddingVertical: 12, paddingHorizontal: 24, borderRadius: 10 }} onPress={onBack}>
+          <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>← Volver al perfil</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
 console.log(trainers)
   return (
     <ScrollView style={styles.container}>

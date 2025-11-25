@@ -18,9 +18,6 @@ import { requireAuth } from "@/src/utils/authGuard";
 import { showError, showSuccess } from "@/src/utils/toast";
 import ConfirmModal from "@/components/confirm_modal/ConfirmModal";
 
-// 🔥 🔥 IMPORTANTE: HOOK DE MEMBRESÍA EXACTO AL DEL WEB
-import { useMembership } from "../../hooks/useMembership";
-
 const ClassesScreen: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -36,12 +33,11 @@ const ClassesScreen: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
+  const [membership, setMembership] = useState<any>(null);
+  const [loadingMembership, setLoadingMembership] = useState(true);
 
   const theme = useColorScheme();
   const isDark = theme === "dark";
-
-  // 🔥 MEMBRESÍA
-  const { membership, loading: loadingMembership } = useMembership();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -53,18 +49,50 @@ const ClassesScreen: React.FC = () => {
     useCallback(() => {
       const loadUserData = async () => {
         try {
+          // Resetear estado antes de cargar
+          setClasses([]);
+          setReservations([]);
+          setUserData(null);
+          setAuthToken(null);
+          setMembership(null);
+          setLoading(true);
+          setLoadingMembership(true);
+
           const storedUser = await AsyncStorage.getItem("userData");
           const storedToken = await AsyncStorage.getItem("authToken");
 
           if (storedUser && storedToken) {
-            setUserData(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUserData(parsedUser);
             setAuthToken(storedToken);
+
+            // Cargar membresía
+            const role = parsedUser.id_rol;
+
+            if (role === 1 || role === 3) {
+              setMembership({
+                membershipActive: true,
+                data: { tipo: "libre" },
+              });
+            } else {
+              try {
+                const res = await api("/membership/status");
+                setMembership(res);
+              } catch (err) {
+                console.error("Error membership:", err);
+                setMembership({ membershipActive: false });
+              }
+            }
+            setLoadingMembership(false);
           } else {
             setUserData(null);
             setAuthToken(null);
+            setMembership({ membershipActive: false, data: {} });
+            setLoadingMembership(false);
           }
         } catch (error) {
           console.error("Error al cargar datos del usuario:", error);
+          setLoadingMembership(false);
         } finally {
           setLoading(false);
         }

@@ -46,16 +46,17 @@ export default function Membership() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const theme = useColorScheme();
-    const isDark = theme === "dark";
-  useFocusEffect(
-    React.useCallback(() => {
-      requireAuth();
-    }, [])
-  );
+  const isDark = theme === "dark";
 
   useFocusEffect(
     useCallback(() => {
       const fetchMembership = async () => {
+        requireAuth();
+        
+        // Resetear estado antes de cargar
+        setMembership(null);
+        setMembershipStatus(null);
+        setSelectedPlan(null);
         setLoading(true);
         setError("");
 

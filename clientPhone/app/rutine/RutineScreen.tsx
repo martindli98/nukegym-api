@@ -60,6 +60,8 @@ export default function RoutineScreen() {
   const [students, setStudents] = useState([]);
   const [showStudents, setShowStudents] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [membership, setMembership] = useState<any>(null);
+  const [loadingMembership, setLoadingMembership] = useState(true);
   const theme = useColorScheme();
   const isDark = theme === "dark";
 
@@ -80,7 +82,9 @@ export default function RoutineScreen() {
 
   const loadUserAndRoutines = async () => {
     setLoading(true);
+    setLoadingMembership(true);
     setError("");
+    setMembership(null);
     console.log(user)
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -89,6 +93,8 @@ export default function RoutineScreen() {
       if (!token || !userDataStr) {
         setUser(null);
         setRoutines([]);
+        setMembership({ membershipActive: false, data: {} });
+        setLoadingMembership(false);
         setError("Debes iniciar sesión para ver tus rutinas.");
         setLoading(false);
         return;
@@ -96,6 +102,21 @@ export default function RoutineScreen() {
 
       const parsedUser: User = JSON.parse(userDataStr);
       setUser(parsedUser);
+
+      // Cargar membresía
+      const role = parsedUser.id_rol;
+      if (role === 1 || role === 3) {
+        setMembership({ membershipActive: true, data: { tipo: "libre" } });
+      } else {
+        try {
+          const res = await api("/membership/status");
+          setMembership(res);
+        } catch (err) {
+          console.error("Error membership:", err);
+          setMembership({ membershipActive: false });
+        }
+      }
+      setLoadingMembership(false);
 
       const res = await api("/routine/user");
 
@@ -141,6 +162,17 @@ export default function RoutineScreen() {
       setShowConfirm(false);
       setRoutineToDelete(null);
     }
+  };
+
+  const canViewRoutines = () => {
+    if (!user || !membership) return false;
+    const rol = user.id_rol;
+    const tipo = membership?.data?.tipo;
+    const active = membership?.membershipActive;
+
+    if (rol === 1 || rol === 3) return true;
+    if (rol === 2 && active && tipo !== 1) return true;
+    return false;
   };
 
   const formatDescription = (descripcion?: string): string[] => {
@@ -457,7 +489,16 @@ const styles = StyleSheet.create({
     );
   }
 
-  if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+  if (loading || loadingMembership) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+
+  if (user?.id_rol === 2 && !canViewRoutines()) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: isDark ? "#111827" : "#f3f4f6" }}>
+        <Text style={{ textAlign: "center", fontSize: 20, fontWeight: "bold", color: "#f97316", marginBottom: 10 }}>Membresía insuficiente</Text>
+        <Text style={{ textAlign: "center", fontSize: 16, color: "#6b7280" }}>Tu plan no permite ver rutinas. Actualizá tu membresía para acceder.</Text>
+      </View>
+    );
+  }
 
   if (showStudents) {
   return (
