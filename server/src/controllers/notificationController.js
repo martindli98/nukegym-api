@@ -84,21 +84,19 @@ export const getNotifications = async (req, res) => {
 
     let notifications;
 
-    // Si es admin (id_rol === 1), puede ver las notificaciones que él creó
     if (id_rol === 1) {
       [notifications] = await pool.query(
         "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
         [id]
       );
     } else {
-      // Si es cliente o entrenador, ve todas las notificaciones
       [notifications] = await pool.query(
-        "SELECT * FROM Notificacion ORDER BY fecha DESC"
+        "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
+        [id]
       );
     }
 
-    // Asegurarse de que siempre devolvemos un array
-    res.json(Array.isArray(notifications) ? notifications : []);
+    res.json(notifications || []);
   } catch (error) {
     console.error("Error getting notifications:", error);
     res.status(500).json({ error: error.message });

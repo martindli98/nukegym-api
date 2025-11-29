@@ -1,5 +1,21 @@
 import { pool } from "../config/db.js";
 
+const formatearFecha = (f) => {
+  const fecha = new Date(f);
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const año = fecha.getFullYear();
+  return `${dia}-${mes}-${año}`;
+};
+const formatearHora = (h) => {
+  if (!h) return "";
+  if (typeof h === "string") return h.substring(0, 5);
+  return `${h.getHours().toString().padStart(2, "0")}:${h
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`;
+};
+
 // Obtener todas las clases (para admin/entrenador)
 export const getAllClasses = async (req, res) => {
   try {
@@ -84,12 +100,10 @@ export const createClass = async (req, res) => {
     // Validar que la fecha no sea anterior al día actual
     const fechaActual = new Date().toISOString().split("T")[0];
     if (fecha < fechaActual) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "No se puede crear una clase en una fecha anterior al día actual",
-        });
+      return res.status(400).json({
+        message:
+          "No se puede crear una clase en una fecha anterior al día actual",
+      });
     }
 
     // Verificar permisos
@@ -176,12 +190,10 @@ export const updateClass = async (req, res) => {
     // Validar que la fecha no sea anterior al día actual
     const fechaActual = new Date().toISOString().split("T")[0];
     if (fecha < fechaActual) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "No se puede programar una clase en una fecha anterior al día actual",
-        });
+      return res.status(400).json({
+        message:
+          "No se puede programar una clase en una fecha anterior al día actual",
+      });
     }
 
     // Validar que no haya solapamiento de horarios en el mismo día (excluyendo la clase actual)
@@ -235,6 +247,39 @@ export const updateClass = async (req, res) => {
       return res.status(404).json({ message: "Clase no encontrada" });
     }
 
+    const [usuarios] = await pool.query(
+      `SELECT r.id_usuario
+FROM Reserva r
+JOIN Usuario u ON r.id_usuario = u.id
+JOIN Clase c ON c.id = r.id_clase
+WHERE r.id_clase = ?
+  AND r.estado = 'reservado'
+  AND u.id_rol = 2
+  AND CONCAT(c.fecha, ' ', c.horario_inicio) >= NOW()`,
+      [id]
+    );
+
+    if (usuarios.length > 0) {
+      const mensajeNotif = `
+        La clase "${nombre}" ha sido reprogramada.
+        Nueva fecha: ${formatearFecha(fecha)}
+        Horario: ${formatearHora(horario_inicio)} a ${formatearHora(
+        horario_fin
+      )}
+        Disculpe las molestias.
+      `;
+
+      const tituloNotif = "Clase reprogramada";
+
+      for (const u of usuarios) {
+        await pool.query(
+          `INSERT INTO Notificacion (titulo, mensaje, id_usuario, fecha)
+           VALUES (?, ?, ?, NOW())`,
+          [tituloNotif, mensajeNotif, u.id_usuario]
+        );
+      }
+    }
+
     res.json({ message: "Clase actualizada exitosamente" });
   } catch (error) {
     console.error("Error al actualizar clase:", error);
@@ -247,17 +292,61 @@ export const deleteClass = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Solo admin puede eliminar clases
-    if (req.user.id_rol === 1) {
-      return res
-        .status(403)
-        .json({ message: "Solo los administradores pueden eliminar clases" });
+    // Solo admin o entrenador pueden eliminar clases
+    if (req.user.id_rol === 2) {
+      return res.status(403).json({
+        message: "No tienes permisos para eliminar clases",
+      });
     }
 
-    // Primero eliminar las reservas asociadas
+    // 1️⃣ Obtener datos de la clase antes de eliminarla
+    const [claseData] = await pool.query(
+      `SELECT nombre, fecha, horario_inicio, horario_fin 
+       FROM Clase WHERE id = ?`,
+      [id]
+    );
+
+    if (claseData.length === 0) {
+      return res.status(404).json({ message: "Clase no encontrada" });
+    }
+
+    const { nombre, fecha, horario_inicio, horario_fin } = claseData[0];
+
+    // 2️⃣ Obtener usuarios con reserva activa para esta clase
+    const [usuarios] = await pool.query(
+      `SELECT r.id_usuario
+   FROM Reserva r
+   JOIN Usuario u ON r.id_usuario = u.id
+   WHERE r.id_clase = ?
+     AND r.estado = 'reservado'
+     AND u.id_rol = 2`,
+      [id]
+    );
+
+    // 3️⃣ Enviar notificaciones si hay usuarios
+    if (usuarios.length > 0) {
+      const tituloNotif = "Clase cancelada";
+      const mensajeNotif = `
+        La clase "${nombre}" programada para el día ${formatearFecha(fecha)} 
+        en el horario ${formatearHora(horario_inicio)} a ${formatearHora(
+        horario_fin
+      )} ha sido cancelada. 
+        Disculpe las molestias
+      `;
+
+      for (const u of usuarios) {
+        await pool.query(
+          `INSERT INTO Notificacion (titulo, mensaje, id_usuario, fecha)
+           VALUES (?, ?, ?, NOW())`,
+          [tituloNotif, mensajeNotif, u.id_usuario]
+        );
+      }
+    }
+
+    // 4️⃣ Eliminar reservas
     await pool.query("DELETE FROM Reserva WHERE id_clase = ?", [id]);
 
-    // Luego eliminar la clase
+    // 5️⃣ Eliminar clase
     const [result] = await pool.query("DELETE FROM Clase WHERE id = ?", [id]);
 
     if (result.affectedRows === 0) {

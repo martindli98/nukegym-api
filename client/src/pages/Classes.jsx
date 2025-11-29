@@ -5,6 +5,7 @@ import ClassCard from "../components/Class/ClassCard";
 import ClassForm from "../components/Class/ClassForm";
 import ReservationCard from "../components/Class/ReservationCard";
 import { useMembership } from "../hooks/useMembership";
+import ConfirmModal from "../components/confirmModal/confirmModal";
 
 const Classes = () => {
   const [userData, setUserData] = useState(null);
@@ -21,6 +22,29 @@ const Classes = () => {
     cupo_maximo: 10,
     id_entrenador: "",
   });
+
+  const [confirmConfig, setConfirmConfig] = useState({
+    show: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const openConfirm = (title, message, onConfirm) => {
+    setConfirmConfig({
+      show: true,
+      title,
+      message,
+      onConfirm,
+    });
+  };
+
+  const closeConfirm = () => {
+    setConfirmConfig({
+      ...confirmConfig,
+      show: false,
+    });
+  };
 
   // Estado para reservas del usuario
   const [userReservations, setUserReservations] = useState([]);
@@ -69,22 +93,21 @@ const Classes = () => {
 
   // Cancelar reserva
   const cancelReservation = async (reservationId) => {
-    try {
-      const res = await api(`/reservations/${reservationId}`, {
-        method: "DELETE",
-      });
-      if (res.success) {
-        toast.success(res.message || "Reserva cancelada");
-        // Refrescar reservas y clases
-        const reservas = await api("/reservations");
-        setUserReservations(reservas);
-        fetchClasses();
-      } else {
-        toast.error(res.message || "No se pudo cancelar la reserva");
+    openConfirm(
+      "Cancelar reserva",
+      "¿Seguro que deseas cancelar esta reserva?",
+      async () => {
+        try {
+          await api(`/reservations/${reservationId}`, { method: "DELETE" });
+          toast.success("Reserva cancelada");
+          const res = await api("/reservations");
+          setUserReservations(res);
+          fetchClasses();
+        } catch (e) {
+          toast.error("Error al cancelar reserva");
+        }
       }
-    } catch (error) {
-      toast.error(error.message || "Error al cancelar la reserva");
-    }
+    );
   };
 
   // Obtener datos del usuario
@@ -159,6 +182,12 @@ const Classes = () => {
     }
   };
 
+  const requestReserveClass = (classId) => {
+    openConfirm("Confirmar reserva", "¿Deseas reservar esta clase?", () =>
+      reserveClass(classId)
+    );
+  };
+
   // Crear/actualizar clase
   const handleSaveClass = async (e) => {
     e.preventDefault();
@@ -224,18 +253,18 @@ const Classes = () => {
   };
 
   // Eliminar clase
-  const deleteClass = async (classId) => {
-    if (!window.confirm("¿Estás seguro de que quieres eliminar esta clase?")) {
-      return;
-    }
+  const deleteClass = (classId) => {
+    openConfirm("Eliminar clase", "¿Realmente deseas borrar esta clase?", () =>
+      handleDeleteClass(classId)
+    );
 
-    try {
-      await api(`/classes/${classId}`, { method: "DELETE" });
-      toast.success("Clase eliminada exitosamente");
-      fetchClasses();
-    } catch (error) {
-      toast.error(error.message || "Error al eliminar clase");
-    }
+    // try {
+    //   await api(`/classes/${classId}`, { method: "DELETE" });
+    //   toast.success("Clase eliminada exitosamente");
+    //   fetchClasses();
+    // } catch (error) {
+    //   toast.error(error.message || "Error al eliminar clase");
+    // }
   };
 
   // Editar clase
@@ -272,6 +301,16 @@ const Classes = () => {
       cupo_maximo: 10,
       id_entrenador: "",
     });
+  };
+
+  const handleDeleteClass = async (classId) => {
+    try {
+      await api(`/classes/${classId}`, { method: "DELETE" });
+      toast.success("Clase eliminada exitosamente");
+      fetchClasses();
+    } catch (error) {
+      toast.error("Error al eliminar clase");
+    }
   };
 
   // Formatear fecha
@@ -323,7 +362,7 @@ const Classes = () => {
       </div>
     );
   }
-  
+
   const tipo = membership?.data?.tipo; // 1 = básica, 2 = medio, 3 = libre
 
   if (userData.id_rol === 2 && membership.membershipActive && tipo === 1) {
@@ -427,7 +466,7 @@ const Classes = () => {
       </div>
     );
   }
-  
+
   /* ---------------------- VISTA PRINCIPAL (LISTA DE CLASES) ---------------------- */
   return (
     <section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 transition-colors duration-300 animate-fadeInUp">
@@ -511,7 +550,7 @@ const Classes = () => {
                     classItem={classItem}
                     isClient={isClient}
                     userReservations={userReservations}
-                    onReserve={reserveClass}
+                    onReserve={requestReserveClass}
                     onCancelReservation={cancelReservation}
                     onEdit={editClass}
                     onDelete={deleteClass}
@@ -557,6 +596,16 @@ const Classes = () => {
           </div>
         )}
       </div>
+      <ConfirmModal
+        isOpen={confirmConfig.show}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={() => {
+          confirmConfig.onConfirm();
+          closeConfirm();
+        }}
+        onCancel={closeConfirm}
+      />
     </section>
   );
 };

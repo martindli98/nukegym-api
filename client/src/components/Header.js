@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useNotifications from "../hooks/useNotifications";
 import "../App.css";
+import ConfirmModal from "./confirmModal/confirmModal";
 
 const Header = () => {
   const location = useLocation();
@@ -9,6 +10,26 @@ const Header = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showRoutineMenu, setShowRoutineMenu] = useState(false);
   const navigate = useNavigate();
+
+  const [confirmConfig, setConfirmConfig] = useState({
+    show: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
+
+  const openConfirm = (title, message, onConfirm) => {
+    setConfirmConfig({
+      show: true,
+      title,
+      message,
+      onConfirm,
+    });
+  };
+
+  const closeConfirm = () => {
+    setConfirmConfig({ show: false, title: "", message: "", onConfirm: null });
+  };
 
   // Hook para verificar notificaciones (solo para clientes)
   useNotifications(userData);
@@ -268,13 +289,13 @@ const Header = () => {
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke-width="1.5"
+                    strokeWidth="1.5"
                     stroke="currentColor"
-                    class="size-6"
+                    className="size-6"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
                     />
                   </svg>
@@ -285,7 +306,13 @@ const Header = () => {
             <li>
               <i
                 className="fas fa-sign-out-alt text-xl cursor-pointer hover:text-orange-500 transition-colors"
-                onClick={logout}
+                onClick={() =>
+                  openConfirm(
+                    "Cerrar sesión",
+                    "¿Estás seguro de que deseas cerrar sesión?",
+                    logout
+                  )
+                }
               ></i>
             </li>
           </>
@@ -316,6 +343,16 @@ const Header = () => {
           </>
         )}
       </ul>
+      <ConfirmModal
+        isOpen={confirmConfig.show}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={() => {
+          confirmConfig.onConfirm();
+          closeConfirm();
+        }}
+        onCancel={closeConfirm}
+      />
     </nav>
   );
 };

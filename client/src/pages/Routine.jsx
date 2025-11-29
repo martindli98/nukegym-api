@@ -4,6 +4,8 @@ import RoutineCard from "../components/Routine/RoutineCard";
 import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
+import { toast } from "react-toastify";
+import ConfirmModal from "../components/confirmModal/confirmModal";
 
 const Routine = () => {
   const navigate = useNavigate();
@@ -12,9 +14,10 @@ const Routine = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [routineToDelete, setRoutineToDelete] = useState(null);
 
   const { membership, loading: loadingMembership } = useMembership();
-
 
   const userSession = JSON.parse(sessionStorage.getItem("userData"));
   const user = userSession?.userData || null;
@@ -24,6 +27,28 @@ const Routine = () => {
       fetchRoutines();
     }
   }, [membership]);
+
+  const handleDeleteRoutine = async () => {
+    try {
+      const token = sessionStorage.getItem("authToken");
+
+      await axios.delete(
+        `http://localhost:3000/api/routine/${routineToDelete.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setRoutines((prev) => prev.filter((r) => r.id !== routineToDelete.id));
+      setSelectedRoutine(null);
+      toast.success("Rutina eliminada correctamente");
+    } catch (error) {
+      toast.error("Error al eliminar la rutina");
+    } finally {
+      setShowConfirm(false);
+      setRoutineToDelete(null);
+    }
+  };
 
   const fetchRoutines = async () => {
     const token = sessionStorage.getItem("authToken");
@@ -73,160 +98,143 @@ const Routine = () => {
       </div>
     );
   }
-  
+
   if (loading) return <p className="text-center p-4">Cargando rutinas...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
 
- 
   return (
-  <div className="animate-fadeInUp">
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md m-10">
+    <div className="animate-fadeInUp">
+      <div className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-md m-10">
+        <div className="flex justify-between items-center mb-6">
+          {!selectedRoutine ? (
+            <>
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+                Tus Rutinas
+              </h2>
 
-      <div className="flex justify-between items-center mb-6">
-        {!selectedRoutine ? (
-          <>
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
-              Tus Rutinas
-            </h2>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigate(`/progress`)}
+                  className="bg-orange-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
+                >
+                  Anotar progreso
+                </button>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(`/progress`)}
-                className="bg-orange-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
-              >
-                Anotar progreso
-              </button>
-
-              <button
-                onClick={() => setShowModal(true)}
-                className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
-              >
-                Armar rutina
-              </button>
-            </div>
-          </>
-        ) : (
-          <button
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded-lg"
+                >
+                  Armar rutina
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
               onClick={() => setSelectedRoutine(null)}
               className="inline-flex items-center gap-2 text-white bg-orange-500 font-medium text-lg px-3 py-2 rounded-lg hover:bg-orange-400 transition-colors"
             >
               <span className="text-xl">←</span>
               <span>Volver a todas las rutinas</span>
             </button>
+          )}
+        </div>
 
+        {showModal && (
+          <CreateRoutineModal
+            studentId={user?.id}
+            trainerId={null}
+            onClose={() => {
+              setShowModal(false);
+              fetchRoutines();
+            }}
+          />
+        )}
+
+        {selectedRoutine ? (
+          <>
+            <h3 className="text-2xl font-semibold text-orange-600 mb-2">
+              {selectedRoutine.objetivo}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              <strong>Fecha:</strong>{" "}
+              {new Date(selectedRoutine.fecha).toLocaleDateString()}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {selectedRoutine.ejercicios.length > 0 ? (
+                selectedRoutine.ejercicios
+                  .slice()
+                  .sort((a, b) => (a.orden ?? a.id) - (b.orden ?? b.id))
+                  .map((e, index) => (
+                    <RoutineCard key={e.id} ejercicio={e} index={index} />
+                  ))
+              ) : (
+                <p className="text-gray-500">No hay ejercicios asignados.</p>
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={async () => {
+                  setRoutineToDelete(selectedRoutine);
+                  setShowConfirm(true);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  />
+                </svg>
+              </button>
+            </div>
+          </>
+        ) : routines.length > 0 ? (
+          /* LISTADO DE RUTINAS */
+          <div className="grid grid-cols-4 gap-6 text-center hover:-translate-y-1 transition-all duration-100">
+            {routines.map((r) => (
+              <div
+                key={r.id}
+                onClick={() => setSelectedRoutine(r)}
+                className="cursor-pointer border border-gray-300 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg transition"
+              >
+                <h3 className="text-xl font-bold text-orange-500 mb-2">
+                  {r.objetivo}
+                </h3>
+                <p className="text-gray-600">
+                  <strong>Fecha:</strong>{" "}
+                  {new Date(r.fecha).toLocaleDateString()}
+                </p>
+                <p className="text-gray-500 mt-2">
+                  {r.ejercicios.length} Ejercicios
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600 text-center">
+            No tienes rutinas asignadas aún.
+          </p>
         )}
       </div>
-
-
-      {showModal && (
-        <CreateRoutineModal
-          studentId={user?.id}
-          trainerId={null}
-          onClose={() => {
-            setShowModal(false);
-            fetchRoutines();
-          }}
-        />
-      )}
-
-
-      {selectedRoutine ? (
-        <>
-          <h3 className="text-2xl font-semibold text-orange-600 mb-2">
-            {selectedRoutine.objetivo}
-          </h3>
-          <p className="text-gray-600 mb-4">
-            <strong>Fecha:</strong>{" "}
-            {new Date(selectedRoutine.fecha).toLocaleDateString()}
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {selectedRoutine.ejercicios.length > 0 ? (
-              selectedRoutine.ejercicios
-                .slice()
-                .sort((a, b) => (a.orden ?? a.id) - (b.orden ?? b.id))
-                .map((e, index) => (
-                  <RoutineCard key={e.id} ejercicio={e} index={index} />
-                ))
-            ) : (
-              <p className="text-gray-500">No hay ejercicios asignados.</p>
-            )}
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={async () => {
-                const confirmDelete = window.confirm(
-                  "¿Seguro que deseas eliminar esta rutina? Esta acción no se puede deshacer."
-                );
-                if (!confirmDelete) return;
-                try {
-                  const token = sessionStorage.getItem("authToken");
-                  await axios.delete(
-                    `http://localhost:3000/api/routine/${selectedRoutine.id}`,
-                    {
-                      headers: { Authorization: `Bearer ${token}` },
-                    }
-                  );
-                  setRoutines((prev) =>
-                    prev.filter((r) => r.id !== selectedRoutine.id)
-                  );
-                  setSelectedRoutine(null);
-                  alert("Rutina eliminada correctamente 🗑️");
-                } catch (err) {
-                  console.error("Error al eliminar rutina:", err);
-                  alert("Error al eliminar la rutina");
-                }
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                />
-              </svg>
-            </button>
-          </div>
-        </>
-      ) : routines.length > 0 ? (
-        /* LISTADO DE RUTINAS */
-        <div className="grid grid-cols-4 gap-6 text-center hover:-translate-y-1 transition-all duration-100">
-          {routines.map((r) => (
-            <div
-              key={r.id}
-              onClick={() => setSelectedRoutine(r)}
-              className="cursor-pointer border border-gray-300 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg transition"
-            >
-              <h3 className="text-xl font-bold text-orange-500 mb-2">
-                {r.objetivo}
-              </h3>
-              <p className="text-gray-600">
-                <strong>Fecha:</strong> {new Date(r.fecha).toLocaleDateString()}
-              </p>
-              <p className="text-gray-500 mt-2">
-                {r.ejercicios.length} Ejercicios
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-600 text-center">
-          No tienes rutinas asignadas aún.
-        </p>
-      )}
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Eliminar rutina"
+        message="¿Seguro que deseas eliminar esta rutina? Esta acción no se puede deshacer."
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={handleDeleteRoutine}
+      />
     </div>
-  </div>
-);
-
+  );
 };
 
 export default Routine;

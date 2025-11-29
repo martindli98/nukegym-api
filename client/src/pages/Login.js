@@ -9,30 +9,9 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  // Validation function for email and password
-  // const validateForm = () => {
-  //   const errors = {};
-  //   if (!email) {
-  //     errors.email = "Email is required";
-  //   } else if (!/\S+@\S+\.\S+/.test(email)) {
-  //     errors.email = "Ingrese un email valido";
-  //   }
-  //   if (!password) {
-  //     errors.password = "Ingrese una contraseña valida";
-  //   }
-  //   return errors;
-  // };
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate form fields
-    // const validationErrors = validateForm();
-    // if (Object.keys(validationErrors).length > 0) {
-    //   setErrors(validationErrors);
-    //   return;
-    // }
 
     try {
       // Make API request to login
