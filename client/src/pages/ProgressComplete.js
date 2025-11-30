@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
-  ComposedChart,
   Bar,
   BarChart,
 } from "recharts";
@@ -23,12 +19,14 @@ function ProgressComplete() {
   const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
   const [noData, setNoData] = useState(false);
+  const [routineName, setRoutineName] = useState("");
   const { membership, loading: loadingMembership } = useMembership();
 
   useEffect(() => {
     if (membership?.membershipActive) {
       fetchProgress();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [membership]);
 
   const fetchProgress = async () => {
@@ -49,6 +47,11 @@ function ProgressComplete() {
           setNoData(true);
           setData([]);
           return;
+        }
+
+        // Obtener el nombre de la rutina del primer progreso
+        if (progresos.length > 0 && progresos[0].objetivo_rutina) {
+          setRoutineName(progresos[0].objetivo_rutina);
         }
 
         const agrupado = Object.values(
@@ -110,7 +113,7 @@ function ProgressComplete() {
       </button>
 
       <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-white">
-        Progreso completo – Rutina #{idRutina}
+        Progreso completo – {routineName || `Rutina #${idRutina}`}
       </h2>
 
       {error && (
@@ -132,21 +135,25 @@ function ProgressComplete() {
       {!loading && !noData && data.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {data.map((ejercicio) => {
-            const chartData = ejercicio.progresos.map((p) => ({
-              fecha: new Date(p.fecha).toLocaleString("es-AR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-              peso: Number(p.peso),
-            }));
+            const chartData = ejercicio.progresos
+              .map((p, idx) => ({
+                fecha: new Date(p.fecha).toLocaleString("es-AR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }),
+                peso: Number(p.peso),
+                timestamp: new Date(p.fecha).getTime(),
+              }))
+              .sort((a, b) => a.timestamp - b.timestamp);
 
             return (
               <div
                 key={ejercicio.id_ejercicio}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700"
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 "
               >
                 <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">
                   {ejercicio.nombre}
@@ -161,8 +168,9 @@ function ProgressComplete() {
                     <XAxis
                       dataKey="fecha"
                       stroke="#4b5563"
-                      tick={{ fill: "#8894a6" }}
+                      tick={{ fill: "#8894a6", fontSize: 10 }}
                       dy={5}
+                      angle={-10}
                     />
                     <YAxis
                       label={{
@@ -173,6 +181,7 @@ function ProgressComplete() {
                         offset: 10,
                       }}
                       stroke="#8894a6"
+                      domain={[0, "auto"]}
                     />
                     <Tooltip
                       contentStyle={{

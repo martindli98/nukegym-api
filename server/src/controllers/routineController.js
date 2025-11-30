@@ -1,68 +1,16 @@
-// import { pool } from "../config/db.js";
-
-// // Obtener la rutina más reciente asignada a un usuario
-// export const getRoutineByUser = async (req, res) => {
-//   try {
-//     const userId = req.user.id; // ID del usuario autenticado
-
-//     // 1️⃣ Obtener la rutina más reciente del usuario
-//     const [routineRows] = await pool.query(
-//       `SELECT id, fecha, objetivo
-//        FROM rutina
-//        WHERE id_usuario = ?
-//        ORDER BY fecha DESC
-//        LIMIT 1`,
-//       [userId]
-//     );
-
-//     if (routineRows.length === 0) {
-//       return res.json({
-//         success: true,
-//         routineExists: false,
-//         message: "El usuario no tiene una rutina asignada",
-//       });
-//     }
-
-//     const routine = routineRows[0];
-
-//     // 2️⃣ Obtener los ejercicios asociados a esa rutina
-//     const [exerciseRows] = await pool.query(
-//       `SELECT e.id, e.nombre, e.url_media, e.descripcion
-//        FROM rutina_ejercicio re
-//        INNER JOIN ejercicio e ON re.id_ejercicio = e.id
-//        WHERE re.id_rutina = ?`,
-//       [routine.id]
-//     );
-
-//     // 3️⃣ Respuesta completa
-//     return res.json({
-//       success: true,
-//       routineExists: true,
-//       data: {
-//         id: routine.id,
-//         fecha: routine.fecha,
-//         objetivo: routine.objetivo,
-//         id_usuario: userId,
-//         ejercicios: exerciseRows,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("❌ Error en getRoutineByUser:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Error al obtener la rutina del usuario",
-//     });
-//   }
-// };
-
 import { RoutineModel } from "../models/routineModel.js";
+
+const handleError = (res, error, message, status = 500) => {
+  console.error(error);
+  res.status(status).json({ success: false, message });
+};
 
 export const createRutine = async (req, res) => {
   try {
     const { id_usuario, id_entrenador, fecha, objetivo, ejercicios } = req.body;
-
     if (!id_usuario || !ejercicios?.length)
       return res.status(400).json({ message: "Faltan datos obligatorios" });
+
     console.log(
       "🟢 createRutine - body incoming:",
       JSON.stringify(req.body, null, 2)
@@ -74,57 +22,109 @@ export const createRutine = async (req, res) => {
       objetivo,
       ejercicios,
     });
-
     res.status(201).json({ message: "Rutina creada", id });
   } catch (error) {
-    console.error("Error al crear rutina:", error);
-    res.status(500).json({ message: "Error al crear rutina" });
+    handleError(res, error, "Error al crear rutina");
   }
 };
 
 export const getRoutineByUser = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const rutinas = await RoutineModel.listByUser(userId);
-
-    return res.json({
-      success: true,
-      routines: rutinas,
-    });
+    const rutinas = await RoutineModel.listByUser(req.user.id);
+    res.json({ success: true, routines: rutinas });
   } catch (error) {
-    console.error("Error al obtener rutinas:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error al obtener rutinas" });
+    handleError(res, error, "Error al obtener rutinas");
+  }
+};
+
+export const getRoutineByUserId = async (req, res) => {
+  try {
+    const rutinas = await RoutineModel.listByUser(req.params.userId);
+    res.json({ success: true, routines: rutinas });
+  } catch (error) {
+    handleError(res, error, "Error al obtener rutinas");
   }
 };
 
 export const getRoutineDetails = async (req, res) => {
   try {
-    const { id } = req.params;
-    const rutina = await RoutineModel.getRutine(id);
-    res.json(rutina);
+    res.json(await RoutineModel.getRutine(req.params.id));
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener detalle" });
+    handleError(res, error, "Error al obtener detalle");
+  }
+};
+
+export const updateRoutineName = async (req, res) => {
+  try {
+    const updated = await RoutineModel.updateRoutineName(
+      req.params.id,
+      req.user.id,
+      req.body.objetivo
+    );
+    updated
+      ? res.json({ success: true, message: "Nombre actualizado" })
+      : res
+          .status(404)
+          .json({ success: false, message: "Rutina no encontrada" });
+  } catch (error) {
+    handleError(res, error, "Error al actualizar");
+  }
+};
+
+export const updateExercise = async (req, res) => {
+  try {
+    const { id_rutina, id_ejercicio } = req.params;
+    const { series, repeticiones } = req.body;
+    const updated = await RoutineModel.updateExercise(
+      id_rutina,
+      id_ejercicio,
+      series,
+      repeticiones
+    );
+    updated
+      ? res.json({ success: true, message: "Ejercicio actualizado" })
+      : res
+          .status(404)
+          .json({ success: false, message: "Ejercicio no encontrado" });
+  } catch (error) {
+    handleError(res, error, "Error al actualizar");
+  }
+};
+
+export const addExercises = async (req, res) => {
+  try {
+    const { ejercicios } = req.body;
+    if (!ejercicios?.length)
+      return res
+        .status(400)
+        .json({ success: false, message: "No se enviaron ejercicios" });
+
+    await RoutineModel.addExercises(req.params.id, ejercicios);
+    res.json({ success: true, message: "Ejercicios agregados" });
+  } catch (error) {
+    handleError(res, error, "Error al agregar ejercicios");
+  }
+};
+
+export const deleteExercise = async (req, res) => {
+  try {
+    const { id_rutina, id_ejercicio } = req.params;
+    const deleted = await RoutineModel.deleteExercise(id_rutina, id_ejercicio);
+    deleted
+      ? res.json({ success: true, message: "Ejercicio eliminado" })
+      : res
+          .status(404)
+          .json({ success: false, message: "Ejercicio no encontrado" });
+  } catch (error) {
+    handleError(res, error, "Error al eliminar");
   }
 };
 
 export const deleteRutine = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    const result = await RoutineModel.deleteRutine(id, userId);
-
-    if (!result.success) {
-      return res.status(404).json(result);
-    }
-
-    res.json(result);
+    const result = await RoutineModel.deleteRutine(req.params.id, req.user.id);
+    result.success ? res.json(result) : res.status(404).json(result);
   } catch (error) {
-    console.error("Error al eliminar rutina:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error al eliminar rutina" });
+    handleError(res, error, "Error al eliminar rutina");
   }
 };

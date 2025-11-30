@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import RoutineCard from "../components/Routine/RoutineCard";
 import CreateRoutineModal from "../components/Routine/CreateRoutineModal";
+import AddExercisesModal from "../components/Routine/AddExercisesModal";
 import { useNavigate } from "react-router-dom";
 import { useMembership } from "../hooks/useMembership";
 import { toast } from "react-toastify";
@@ -14,8 +15,14 @@ const Routine = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showAddExercises, setShowAddExercises] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
+  const [showConfirmExercise, setShowConfirmExercise] = useState(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const editNameRef = useRef(null);
 
   const { membership, loading: loadingMembership } = useMembership();
 
@@ -27,6 +34,117 @@ const Routine = () => {
       fetchRoutines();
     }
   }, [membership]);
+
+  // Manejar cancelación automática al hacer clic fuera o presionar Escape
+  useEffect(() => {
+    if (!isEditingName) return;
+
+    const handleClickOutside = (event) => {
+      if (editNameRef.current && !editNameRef.current.contains(event.target)) {
+        setIsEditingName(false);
+        setEditedName(selectedRoutine?.objetivo || "");
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsEditingName(false);
+        setEditedName(selectedRoutine?.objetivo || "");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isEditingName, selectedRoutine]);
+
+  const handleUpdateRoutineName = async () => {
+    try {
+      const token = sessionStorage.getItem("authToken");
+      await axios.put(
+        `http://localhost:3000/api/routine/${selectedRoutine.id}/name`,
+        { objetivo: editedName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSelectedRoutine({ ...selectedRoutine, objetivo: editedName });
+      setRoutines(
+        routines.map((r) =>
+          r.id === selectedRoutine.id ? { ...r, objetivo: editedName } : r
+        )
+      );
+      setIsEditingName(false);
+      toast.success("Nombre actualizado");
+    } catch (error) {
+      toast.error("Error al actualizar nombre", { autoClose: 6000 });
+    }
+  };
+
+  const handleAddExercises = async (ejercicios) => {
+    try {
+      const token = sessionStorage.getItem("authToken");
+      await axios.post(
+        `http://localhost:3000/api/routine/${selectedRoutine.id}/exercises`,
+        { ejercicios },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const res = await axios.get(
+        `http://localhost:3000/api/routine/${selectedRoutine.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSelectedRoutine(res.data);
+
+      toast.success("Ejercicios agregados");
+      setShowAddExercises(false);
+    } catch (error) {
+      toast.error("Error al agregar ejercicios");
+    }
+  };
+
+  const handleUpdateExercise = async (ejercicioId, series, repeticiones) => {
+    try {
+      const token = sessionStorage.getItem("authToken");
+      await axios.put(
+        `http://localhost:3000/api/routine/${selectedRoutine.id}/exercise/${ejercicioId}`,
+        { series, repeticiones },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updatedEjercicios = selectedRoutine.ejercicios.map((e) =>
+        e.id === ejercicioId ? { ...e, series, repeticiones } : e
+      );
+      setSelectedRoutine({ ...selectedRoutine, ejercicios: updatedEjercicios });
+      toast.success("Ejercicio actualizado");
+    } catch (error) {
+      toast.error("Error al actualizar ejercicio");
+    }
+  };
+
+  const handleDeleteExercise = async () => {
+    try {
+      const token = sessionStorage.getItem("authToken");
+      await axios.delete(
+        `http://localhost:3000/api/routine/${selectedRoutine.id}/exercise/${exerciseToDelete}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updatedEjercicios = selectedRoutine.ejercicios.filter(
+        (e) => e.id !== exerciseToDelete
+      );
+      setSelectedRoutine({ ...selectedRoutine, ejercicios: updatedEjercicios });
+      toast.success("Ejercicio eliminado");
+    } catch (error) {
+      toast.error("Error al eliminar ejercicio");
+    } finally {
+      setShowConfirmExercise(false);
+      setExerciseToDelete(null);
+    }
+  };
 
   const handleDeleteRoutine = async () => {
     try {
@@ -150,11 +268,65 @@ const Routine = () => {
           />
         )}
 
+        {showAddExercises && (
+          <AddExercisesModal
+            onClose={() => setShowAddExercises(false)}
+            onSubmit={handleAddExercises}
+            existingExercises={selectedRoutine?.ejercicios || []}
+          />
+        )}
+
         {selectedRoutine ? (
           <>
-            <h3 className="text-2xl font-semibold text-orange-600 mb-2">
-              {selectedRoutine.objetivo}
-            </h3>
+            <div className="flex items-center gap-3 mb-2">
+              {isEditingName ? (
+                <div
+                  ref={editNameRef}
+                  className="flex items-center gap-3 flex-1"
+                >
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleUpdateRoutineName();
+                    }}
+                    autoFocus
+                    className="flex-1 text-2xl font-semibold text-orange-600 border-2 border-orange-500 rounded px-2 py-1"
+                  />
+                  <button
+                    onClick={handleUpdateRoutineName}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingName(false);
+                      setEditedName(selectedRoutine.objetivo);
+                    }}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-semibold text-orange-600">
+                    {selectedRoutine.objetivo}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setIsEditingName(true);
+                      setEditedName(selectedRoutine.objetivo);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm"
+                  >
+                    Editar nombre
+                  </button>
+                </>
+              )}
+            </div>
             <p className="text-gray-600 mb-4">
               <strong>Fecha:</strong>{" "}
               {new Date(selectedRoutine.fecha).toLocaleDateString()}
@@ -166,14 +338,43 @@ const Routine = () => {
                   .slice()
                   .sort((a, b) => (a.orden ?? a.id) - (b.orden ?? b.id))
                   .map((e, index) => (
-                    <RoutineCard key={e.id} ejercicio={e} index={index} />
+                    <RoutineCard
+                      key={e.id}
+                      ejercicio={e}
+                      index={index}
+                      onUpdate={handleUpdateExercise}
+                      onDelete={(ejercicioId) => {
+                        setExerciseToDelete(ejercicioId);
+                        setShowConfirmExercise(true);
+                      }}
+                    />
                   ))
               ) : (
                 <p className="text-gray-500">No hay ejercicios asignados.</p>
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddExercises(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+                Agregar ejercicios
+              </button>
               <button
                 onClick={async () => {
                   setRoutineToDelete(selectedRoutine);
@@ -232,6 +433,16 @@ const Routine = () => {
         message="¿Seguro que deseas eliminar esta rutina? Esta acción no se puede deshacer."
         onCancel={() => setShowConfirm(false)}
         onConfirm={handleDeleteRoutine}
+      />
+      <ConfirmModal
+        isOpen={showConfirmExercise}
+        title="Eliminar ejercicio"
+        message="¿Seguro que deseas eliminar este ejercicio de la rutina?"
+        onCancel={() => {
+          setShowConfirmExercise(false);
+          setExerciseToDelete(null);
+        }}
+        onConfirm={handleDeleteExercise}
       />
     </div>
   );

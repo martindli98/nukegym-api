@@ -29,16 +29,23 @@ function Progress() {
     try {
       const routine = routines.find((r) => r.id === routineId);
 
-      const progresos = routine.ejercicios.map((ej) => {
-        const peso = e.target[`peso_${ej.id}`]?.value || null;
-        const repeticiones =
-          e.target[`repeticiones_${ej.id}`]?.value || ej.repeticiones || null;
-        return {
-          id_ejercicio: ej.id,
-          peso: Number(peso),
-          repeticiones: Number(repeticiones),
-        };
-      });
+      const progresos = routine.ejercicios
+        .map((ej) => {
+          const peso = e.target[`peso_${ej.id}`]?.value;
+          const repeticiones =
+            e.target[`repeticiones_${ej.id}`]?.value || ej.repeticiones || null;
+          return {
+            id_ejercicio: ej.id,
+            peso: peso ? Number(peso) : null,
+            repeticiones: Number(repeticiones),
+          };
+        })
+        .filter((p) => p.peso !== null && p.peso > 0);
+
+      if (progresos.length === 0) {
+        toast.error("Debes ingresar al menos un peso para guardar el progreso");
+        return;
+      }
 
       const response = await axios.post(
         "http://localhost:3000/api/progress/add",
@@ -186,7 +193,7 @@ function Progress() {
                               placeholder="Peso"
                               min={1}
                               max={1000}
-                              required
+                              step="0.5"
                               className="w-24 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg p-1.5 text-center text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
                             />
                           </td>
