@@ -204,7 +204,7 @@ export default function Trainer() {
     } catch (error) {
       console.error("Error al actualizar nombre:", error);
       toast.error(
-        "No tienes permisos para modificar esta rutina o la rutina no existe",
+        "No tienes permisos para modificar el nombre de esta rutina o la rutina no existe",
         { autoClose: 6000 }
       );
     }
