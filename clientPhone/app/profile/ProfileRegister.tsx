@@ -166,12 +166,14 @@ export default function ProfileRegister({ onBack }: Props) {
 
       <TextInput
         placeholder="Email"
+        placeholderTextColor={isDark? "#c0c0c0" : "#0f0f0f"}
         value={email}
         onChangeText={setEmail}
         style={styles.input}
       />
       <TextInput
         placeholder="DNI"
+        placeholderTextColor={isDark? "#c0c0c0" : "#0f0f0f"}
         value={dni}
         onChangeText={setDni}
         style={styles.input}
@@ -192,6 +194,7 @@ export default function ProfileRegister({ onBack }: Props) {
       </View>
       <TextInput
         placeholder="Contraseña"
+        placeholderTextColor={isDark? "#c0c0c0" : "#0f0f0f"}
         value={password}
         onChangeText={setPassword}
         secureTextEntry

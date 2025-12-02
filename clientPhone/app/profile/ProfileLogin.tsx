@@ -131,6 +131,7 @@ export default function ProfileLogin({
       <Text style={styles.title}>Iniciar Sesión</Text>
       <TextInput
         placeholder="Email"
+        placeholderTextColor={isDark? "#c0c0c0" : "#0f0f0f"}
         style={styles.input}
         autoCapitalize="none"
         keyboardType="email-address"
@@ -139,6 +140,7 @@ export default function ProfileLogin({
       />
       <TextInput
         placeholder="Contraseña"
+        placeholderTextColor={isDark? "#c0c0c0" : "#0f0f0f"}
         style={styles.input}
         secureTextEntry
         value={password}

@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
-  useColorScheme 
+  useColorScheme,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/src/utils/api";
@@ -194,150 +194,149 @@ export default function CreateRoutineModal({
       }
     }
   };
-const styles = StyleSheet.create({
-  /* CONTENEDOR ----------------------------- */
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: isDark ? "#0f172a" : "#f8fafc",
-  },
+  const styles = StyleSheet.create({
+    /* CONTENEDOR ----------------------------- */
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: isDark ? "#0f172a" : "#f8fafc",
+    },
 
-  /* TITULO -------------------------------- */
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#f97316",
-  },
+    /* TITULO -------------------------------- */
+    title: {
+      fontSize: 26,
+      fontWeight: "800",
+      marginBottom: 20,
+      textAlign: "center",
+      color: "#f97316",
+    },
 
-  /* INPUT -------------------------------- */
-  input: {
-    backgroundColor: isDark ? "#1e293b" : "#ffffff",
-    color: isDark ? "#e2e8f0" : "#111827",
-    borderWidth: 1,
-    borderColor: isDark ? "#334155" : "#cbd5e1",
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 14,
-    fontSize: 16,
-    shadowColor: "#000",
-    shadowOpacity: isDark ? 0.25 : 0.1,
-    shadowRadius: 4,
-    elevation: isDark ? 4 : 2,
-  },
+    /* INPUT -------------------------------- */
+    input: {
+      backgroundColor: isDark ? "#1e293b" : "#ffffff",
+      color: isDark ? "#e2e8f0" : "#111827",
+      borderWidth: 1,
+      borderColor: isDark ? "#334155" : "#cbd5e1",
+      borderRadius: 14,
+      padding: 14,
+      marginBottom: 14,
+      fontSize: 16,
+      shadowColor: "#000",
+      shadowOpacity: isDark ? 0.25 : 0.1,
+      shadowRadius: 4,
+      elevation: isDark ? 4 : 2,
+    },
 
-  /* CARD DE EJERCICIO --------------------- */
-  exerciseCard: {
-    backgroundColor: isDark ? "#1e293b" : "#ffffff",
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: isDark ? "#334155" : "#e2e8f0",
-    shadowColor: "#000",
-    shadowOpacity: isDark ? 0.35 : 0.1,
-    shadowRadius: 6,
-    elevation: isDark ? 6 : 3,
-  },
+    /* CARD DE EJERCICIO --------------------- */
+    exerciseCard: {
+      backgroundColor: isDark ? "#1e293b" : "#ffffff",
+      borderRadius: 18,
+      padding: 14,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: isDark ? "#334155" : "#e2e8f0",
+      shadowColor: "#000",
+      shadowOpacity: isDark ? 0.35 : 0.1,
+      shadowRadius: 6,
+      elevation: isDark ? 6 : 3,
+    },
 
-  exerciseSelected: {
-    borderColor: "#f97316",
-    backgroundColor: isDark ? "#30425fff" : "#f5f3ff",
-  },
+    exerciseSelected: {
+      borderColor: "#f97316",
+      backgroundColor: isDark ? "#30425fff" : "#f5f3ff",
+    },
 
-  image: {
-    width: "100%",
-    height: 170,
-    borderRadius: 14,
-    marginBottom: 12,
-  },
+    image: {
+      width: "100%",
+      height: 170,
+      borderRadius: 14,
+      marginBottom: 12,
+    },
 
-  exerciseName: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: isDark ? "#f8fafc" : "#1e293b",
-  },
-  muscle:{
-     fontSize: 14,
-    fontWeight: "300",
-    color: isDark ? "#9aa0a6" : "#6c6c6c",
-  },
-  muscleBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: isDark ? "#334155" : "#e2e8f0",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    marginTop: 6,
-    marginBottom: 12,
-  },
+    exerciseName: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: isDark ? "#f8fafc" : "#1e293b",
+    },
+    muscle: {
+      fontSize: 14,
+      fontWeight: "300",
+      color: isDark ? "#9aa0a6" : "#6c6c6c",
+    },
+    muscleBadge: {
+      alignSelf: "flex-start",
+      backgroundColor: isDark ? "#334155" : "#e2e8f0",
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      borderRadius: 20,
+      marginTop: 6,
+      marginBottom: 12,
+    },
 
-  muscleBadgeText: {
-    color: isDark ? "#cbd5e1" : "#475569",
-    fontWeight: "600",
-    fontSize: 13,
-  },
+    muscleBadgeText: {
+      color: isDark ? "#cbd5e1" : "#475569",
+      fontWeight: "600",
+      fontSize: 13,
+    },
 
-  /* INPUTS CHICOS ------------------------- */
-  smallInputContainer: {
-    backgroundColor: isDark ? "#1e293b" : "#f8fafc",
-    borderRadius: 12,
-    padding: 10,
-    width: 100,
-    borderWidth: 1,
-    borderColor: isDark ? "#334155" : "#cbd5e1",
-    alignItems: "center",
-  },
+    /* INPUTS CHICOS ------------------------- */
+    smallInputContainer: {
+      backgroundColor: isDark ? "#1e293b" : "#f8fafc",
+      borderRadius: 12,
+      padding: 10,
+      width: 100,
+      borderWidth: 1,
+      borderColor: isDark ? "#334155" : "#cbd5e1",
+      alignItems: "center",
+    },
 
-  smallInputLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: isDark ? "#cbd5e1" : "#475569",
-    marginBottom: 6,
-  },
+    smallInputLabel: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: isDark ? "#cbd5e1" : "#475569",
+      marginBottom: 6,
+    },
 
-  smallInput: {
-    width: "100%",
-    backgroundColor: isDark ? "#1e293b" : "#ffffff",
-    borderRadius: 10,
-    padding: 8,
-    textAlign: "center",
-    borderWidth: 1,
-    borderColor: isDark ? "#475569" : "#cbd5e1",
-    color: isDark ? "#e2e8f0" : "#1e293b",
-  },
+    smallInput: {
+      width: "100%",
+      backgroundColor: isDark ? "#1e293b" : "#ffffff",
+      borderRadius: 10,
+      padding: 8,
+      textAlign: "center",
+      borderWidth: 1,
+      borderColor: isDark ? "#475569" : "#cbd5e1",
+      color: isDark ? "#e2e8f0" : "#1e293b",
+    },
 
-  /* FOOTER BOTONES ------------------------ */
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
+    /* FOOTER BOTONES ------------------------ */
+    footer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 20,
+    },
 
-  button: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 12,
-    marginHorizontal: 6,
-    alignItems: "center",
-  },
+    button: {
+      flex: 1,
+      padding: 14,
+      borderRadius: 12,
+      marginHorizontal: 6,
+      alignItems: "center",
+    },
 
-  cancel: {
-    backgroundColor: "#f97316",
-  },
+    cancel: {
+      backgroundColor: "#f97316",
+    },
 
-  save: {
-    backgroundColor: "#6D28D9",
-  },
+    save: {
+      backgroundColor: "#6D28D9",
+    },
 
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-});
-
+    buttonText: {
+      color: "#ffffff",
+      fontWeight: "700",
+      fontSize: 16,
+    },
+  });
 
   return (
     <Modal visible={visible} animationType="slide">
@@ -387,37 +386,44 @@ const styles = StyleSheet.create({
                   <Text style={styles.muscle}>{ex.musculo_principal}</Text>
 
                   {selected && (
-                      <View style={{ 
-                        flexDirection: "row", 
+                    <View
+                      style={{
+                        flexDirection: "row",
                         justifyContent: "space-between",
-                        marginTop: 14 
-                      }}>
-                        <View style={styles.smallInputContainer}>
-                          <Text style={styles.smallInputLabel}>Series</Text>
-                          <TextInput
-                            keyboardType="numeric"
-                            style={styles.smallInput}
-                            value={
-                              selectedExercises.find((e) => e.id_ejercicio === ex.id)?.series.toString() || "3"
-                            }
-                            onChangeText={(v) => updateField(ex.id, "series", v)}
-                          />
-                        </View>
-
-                        <View style={styles.smallInputContainer}>
-                          <Text style={styles.smallInputLabel}>Reps</Text>
-                          <TextInput
-                            keyboardType="numeric"
-                            style={styles.smallInput}
-                            value={
-                              selectedExercises.find((e) => e.id_ejercicio === ex.id)?.repeticiones.toString() || "12"
-                            }
-                            onChangeText={(v) => updateField(ex.id, "repeticiones", v)}
-                          />
-                        </View>
+                        marginTop: 14,
+                      }}
+                    >
+                      <View style={styles.smallInputContainer}>
+                        <Text style={styles.smallInputLabel}>Series</Text>
+                        <TextInput
+                          keyboardType="numeric"
+                          style={styles.smallInput}
+                          value={
+                            selectedExercises
+                              .find((e) => e.id_ejercicio === ex.id)
+                              ?.series.toString() || "3"
+                          }
+                          onChangeText={(v) => updateField(ex.id, "series", v)}
+                        />
                       </View>
-                    )}
 
+                      <View style={styles.smallInputContainer}>
+                        <Text style={styles.smallInputLabel}>Reps</Text>
+                        <TextInput
+                          keyboardType="numeric"
+                          style={styles.smallInput}
+                          value={
+                            selectedExercises
+                              .find((e) => e.id_ejercicio === ex.id)
+                              ?.repeticiones.toString() || "12"
+                          }
+                          onChangeText={(v) =>
+                            updateField(ex.id, "repeticiones", v)
+                          }
+                        />
+                      </View>
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             })}
