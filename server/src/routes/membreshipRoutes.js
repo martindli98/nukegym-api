@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  assignMembership,
+  deactivateMembership,
   getMembership,
   getMembershipList,
   getPlans,
@@ -14,5 +16,8 @@ router.get("/list", authenticateToken, getMembershipList);
 
 router.get("/plans", getPlans);
 router.put("/plans/:id", authenticateToken, updatePlan);
+
+router.post("/assign", assignMembership);
+router.put("/deactivate", deactivateMembership);
 
 export default router;

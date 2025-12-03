@@ -159,3 +159,74 @@ export const updatePlan = async (req, res) => {
     });
   }
 };
+
+function getPlanPrice(tipo) {
+  switch (tipo) {
+    case "basico": return 15000;
+    case "medio": return 40000;
+    case "libre": return 75000;
+    default: return 0;
+  }
+}
+
+async function getPlanIdByName(nombre) {
+  const [rows] = await pool.query(
+    "SELECT id FROM planes WHERE nombre = ? LIMIT 1",
+    [nombre]
+  );
+  return rows.length ? rows[0].id : null;
+}
+
+export const assignMembership = async (req, res) => {
+  try {
+    const { userId, tipo } = req.body;
+
+    // OBTENER ID REAL DEL PLAN
+    const planId = await getPlanIdByName(tipo);
+
+    if (!planId) {
+      return res.status(400).json({ error: "Tipo de plan inválido" });
+    }
+
+    // Crear pago
+    const [pago] = await pool.query(
+      `INSERT INTO pago (valor, fecha_pago, descuento, tipo_plan, estado, id_usuario)
+       VALUES (?, NOW(), 0, ?, 'aprobado', ?)`,
+      [getPlanPrice(tipo), planId, userId]
+    );
+
+    const id_pago = pago.insertId;
+
+    // Crear membresía con ID correcto (NO string)
+    await pool.query(
+      `INSERT INTO membresia (id_usuario, id_pago, fechaInicio, fechaFin, tipo, estado)
+       VALUES (?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), ?, 'activo')`,
+      [userId, id_pago, planId]
+    );
+
+    res.json({ success: true, message: "Membresía asignada" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error asignando membresía" });
+  }
+};
+
+
+export const deactivateMembership = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    await pool.query(
+      `UPDATE membresia
+       SET estado = 'inactivo', fechaFin = CURDATE()
+       WHERE id_usuario = ?
+       ORDER BY id DESC
+       LIMIT 1`
+    , [userId]);
+
+    res.json({ success: true, message: "Membresía dada de baja" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al dar de baja" });
+  }
+};

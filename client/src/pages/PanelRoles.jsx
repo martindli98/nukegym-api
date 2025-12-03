@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ConfirmModal from "../components/confirmModal/confirmModal.jsx";
+import { toast } from "react-toastify";
 
 export default function PanelRoles() {
   const [usuarios, setUsuarios] = useState([]);
   const [trainerData, setTrainerData] = useState({});
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRol, setSelectedRol] = useState(null);
+  const [confirmData, setConfirmData] = useState(null);
 
   const token = sessionStorage.getItem("authToken");
+
+  const stored = sessionStorage.getItem("userData");
+  const loggedUserId = stored ? JSON.parse(stored).userData?.id : null;
 
   useEffect(() => {
     if (!token) return;
@@ -18,7 +22,16 @@ export default function PanelRoles() {
       .get("http://localhost:3000/api/roles", {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setUsuarios(res.data))
+      .then((res) => {
+        const mapped = res.data.map((u) => ({
+          ...u,
+          membresia: u.membresia_tipo
+            ? { tipo: u.membresia_tipo, estado: u.membresia_estado }
+            : null,
+        }));
+
+        setUsuarios(mapped);
+      })
       .catch((err) => console.error(err));
   }, [token]);
 
@@ -35,60 +48,152 @@ export default function PanelRoles() {
       .catch((err) => console.error("Error cargando entrenadores:", err));
   }, []);
 
-  // Se dispara al seleccionar un cambio de rol
   const handleRolChange = (user, newRol) => {
-    setSelectedUser(user);
-    setSelectedRol(Number(newRol));
-    setConfirmModalOpen(true);
+    if (Number(user.id) === Number(loggedUserId)) {
+      toast.error("No podés cambiar tu propio rol.");
+      return;
+    }
+
+    abrirConfirmacion(
+      "Confirmar cambio de rol",
+      `¿Seguro que deseas cambiar el rol de ${user.nombre}?`,
+      () => confirmarCambioRol(user, newRol)
+    );
   };
 
-  // Confirmar cambio de rol
-  const confirmarCambioRol = async () => {
-    if (!selectedUser || selectedRol === null) return;
-
+  const confirmarCambioRol = async (user, newRol) => {
     try {
       await axios.put(
-        `http://localhost:3000/api/roles/${selectedUser.id}`,
-        { id_rol: selectedRol },
+        `http://localhost:3000/api/roles/${Number(user.id)}`,
+        { id_rol: Number(newRol) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setUsuarios((prev) =>
-        prev.map((u) =>
-          u.id === selectedUser.id ? { ...u, id_rol: selectedRol } : u
-        )
+        prev.map((u) => (u.id === user.id ? { ...u, id_rol: newRol } : u))
       );
+
+      toast.success("Rol actualizado correctamente");
     } catch (err) {
-      console.error("Error al actualizar rol:", err);
-    } finally {
-      setConfirmModalOpen(false);
-      setSelectedUser(null);
-      setSelectedRol(null);
+      console.error(err);
+      toast.error("Error actualizando rol");
     }
+
+    setConfirmData(null);
   };
 
-  const actualizarTrainer = async (id_usuario, campo, valor) => {
-    const actual = trainerData[id_usuario] || {};
+  const actualizarTrainer = (id_usuario, campo, valor) => {
+    abrirConfirmacion(
+      "Confirmar cambio",
+      `¿Seguro que deseas cambiar el ${campo} del entrenador?`,
+      async () => {
+        const actual = trainerData[id_usuario] || {};
 
-    const newData = {
-      turno: campo === "turno" ? valor : actual.turno,
-      cupos: campo === "cupos" ? Number(valor) : actual.cupos,
-    };
+        const newData = {
+          turno: campo === "turno" ? valor : actual.turno,
+          cupos: campo === "cupos" ? Number(valor) : actual.cupos,
+        };
 
-    try {
-      await axios.put(
-        `http://localhost:3000/api/trainers/${id_usuario}/update`,
-        newData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        try {
+          await axios.put(
+            `http://localhost:3000/api/trainers/${id_usuario}/update`,
+            newData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
 
-      setTrainerData((prev) => ({
-        ...prev,
-        [id_usuario]: { ...prev[id_usuario], ...newData },
-      }));
-    } catch (err) {
-      console.error("Error al actualizar entrenador:", err);
-    }
+          setTrainerData((prev) => ({
+            ...prev,
+            [id_usuario]: { ...prev[id_usuario], ...newData },
+          }));
+        } catch (err) {
+          console.error("Error al actualizar:", err);
+        }
+
+        setConfirmData(null);
+      }
+    );
+  };
+
+  const getMembresiaNombre = (tipo) => {
+    const t = String(tipo)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    // Esto elimina tildes y normaliza todo
+
+    if (t === "1" || t === "basico") return "Básico";
+    if (t === "2" || t === "medio") return "Medio";
+    if (t === "3" || t === "libre") return "Libre";
+
+    return "Desconocido";
+  };
+
+  const asignarMembresia = (userId, tipo) => {
+    abrirConfirmacion(
+      "Asignar membresía",
+      `¿Seguro que deseas asignar el plan ${tipo.toUpperCase()} a este usuario?`,
+      async () => {
+        try {
+          await axios.post(
+            "http://localhost:3000/api/membership/assign",
+            { userId, tipo },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          toast.success("Membresía asignada");
+
+          setUsuarios((prev) =>
+            prev.map((u) =>
+              u.id === userId
+                ? {
+                    ...u,
+                    membresia: {
+                      tipo,
+                      estado: "activo",
+                    },
+                  }
+                : u
+            )
+          );
+        } catch (err) {
+          console.error(err);
+          toast.error("Error asignando membresía");
+        }
+
+        setConfirmData(null);
+      }
+    );
+  };
+
+  const darDeBaja = (userId) => {
+    abrirConfirmacion(
+      "Dar de baja",
+      "¿Estás seguro que deseas dar de baja esta membresía?",
+      async () => {
+        try {
+          await axios.put(
+            "http://localhost:3000/api/membership/deactivate",
+            { userId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          toast.success("Membresía dada de baja");
+
+          setUsuarios((prev) =>
+            prev.map((u) =>
+              u.id === userId
+                ? { ...u, membresia: { ...u.membresia, estado: "inactivo" } }
+                : u
+            )
+          );
+        } catch (err) {
+          console.error(err);
+          toast.error("Error al dar de baja");
+        }
+
+        setConfirmData(null);
+      }
+    );
   };
 
   const getRolNombre = (id_rol) => {
@@ -102,6 +207,10 @@ export default function PanelRoles() {
       default:
         return "Desconocido";
     }
+  };
+
+  const abrirConfirmacion = (title, message, onConfirm) => {
+    setConfirmData({ title, message, onConfirm });
   };
 
   return (
@@ -120,6 +229,8 @@ export default function PanelRoles() {
               <th className="py-3 px-4">Cambiar Rol</th>
               <th className="py-3 px-4">Turno</th>
               <th className="py-3 px-4">Cupos</th>
+              <th className="py-3 px-4">Membresía</th>
+              <th className="py-3 px-4">Acciones</th>
             </tr>
           </thead>
 
@@ -138,14 +249,19 @@ export default function PanelRoles() {
                 >
                   <td className="py-3 px-4">{u.nombre}</td>
                   <td className="py-3 px-4">{u.email}</td>
+
                   <td className="py-3 px-4 font-semibold">
                     {getRolNombre(u.id_rol)}
                   </td>
 
+                  {/* Selección de rol */}
                   <td className="py-3 px-4">
                     <select
                       value={u.id_rol}
-                      onChange={(e) => handleRolChange(u, e.target.value)}
+                      disabled={Number(u.id) === Number(loggedUserId)}
+                      onChange={(e) =>
+                        handleRolChange(u, Number(e.target.value))
+                      }
                       className="bg-white dark:bg-gray-700 rounded-lg px-2 py-1"
                     >
                       <option value={1}>Admin</option>
@@ -153,6 +269,8 @@ export default function PanelRoles() {
                       <option value={3}>Entrenador</option>
                     </select>
                   </td>
+
+                  {/* Turno */}
                   <td className="py-3 px-4">
                     {u.id_rol === 3 ? (
                       <select
@@ -170,6 +288,8 @@ export default function PanelRoles() {
                       "-"
                     )}
                   </td>
+
+                  {/* Cupos */}
                   <td className="py-3 px-4">
                     {u.id_rol === 3 ? (
                       <input
@@ -184,6 +304,61 @@ export default function PanelRoles() {
                       "-"
                     )}
                   </td>
+
+                  {/* Membresía */}
+                  <td className="py-3 px-4">
+                    {u.id_rol === 2 ? (
+                      u.membresia ? (
+                        <span
+                          className={
+                            u.membresia.estado === "activo"
+                              ? "text-green-600 font-semibold"
+                              : "text-red-600 font-semibold"
+                          }
+                        >
+                          {getMembresiaNombre(u.membresia.tipo)} (
+                          {u.membresia.estado})
+                        </span>
+                      ) : (
+                        <span className="text-red-500 font-semibold">
+                          Sin membresía
+                        </span>
+                      )
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* Acciones de membresía */}
+                  <td className="py-3 px-4">
+                    {u.id_rol === 2 && (
+                      <div className="flex gap-2">
+                        <select
+                          onChange={(e) =>
+                            asignarMembresia(u.id, e.target.value)
+                          }
+                          className="bg-white dark:bg-gray-700 rounded px-2 py-1"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Elegir plan
+                          </option>
+                          <option value="basico">Básico</option>
+                          <option value="medio">Medio</option>
+                          <option value="libre">Libre</option>
+                        </select>
+
+                        {u.membresia && (
+                          <button
+                            onClick={() => darDeBaja(u.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded"
+                          >
+                            Baja
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -191,13 +366,16 @@ export default function PanelRoles() {
         </table>
       </div>
 
-      <ConfirmModal
-        isOpen={confirmModalOpen}
-        title="Confirmar cambio de rol"
-        message={`¿Estás seguro que quieres cambiar el rol de ${selectedUser?.nombre}?`}
-        onConfirm={confirmarCambioRol}
-        onCancel={() => setConfirmModalOpen(false)}
-      />
+      {/* Modal de Confirmación */}
+      {confirmData && (
+        <ConfirmModal
+          isOpen={true}
+          title={confirmData.title}
+          message={confirmData.message}
+          onConfirm={confirmData.onConfirm}
+          onCancel={() => setConfirmData(null)}
+        />
+      )}
     </div>
   );
 }

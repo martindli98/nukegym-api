@@ -3,7 +3,7 @@ import { pool } from "../config/db.js";
 export const getUsers = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, nombre, email, id_rol FROM usuario"
+      "SELECT u.id, u.nombre, u.email, u.id_rol, m.tipo AS membresia_tipo, m.estado AS membresia_estado FROM usuario u LEFT JOIN membresia m ON m.id_usuario = u.id AND m.id = (SELECT id FROM membresia WHERE id_usuario = u.id ORDER BY id DESC LIMIT 1)"
     );
     res.json(rows);
   } catch (error) {
