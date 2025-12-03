@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { createPortal } from "react-dom";
+
 
 const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
   const [exercises, setExercises] = useState([]);
@@ -101,7 +103,9 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
     }
   };
 
-  return (
+return createPortal(
+  (
+    
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 
                 overflow-y-auto max-h-[85vh] my-auto">
@@ -222,8 +226,12 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
-  );
+
+     </div>
+    ),
+  document.getElementById("modal-root")
+);
+
 };
 
 export default CreateRoutineModal;

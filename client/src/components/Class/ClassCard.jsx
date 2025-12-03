@@ -9,6 +9,7 @@ const ClassCard = ({
   onEdit,
   onDelete,
   formatDate,
+  getDetails
 }) => {
   const reserva = userReservations?.find(
     (r) => r.id_clase === classItem.id_clase && r.estado === "reservado"
@@ -17,6 +18,7 @@ const ClassCard = ({
   return (
     <div
       className="
+        flex flex-col h-full
         bg-white dark:bg-gray-800
         border border-gray-200 dark:border-gray-700
         rounded-2xl shadow-lg
@@ -26,13 +28,13 @@ const ClassCard = ({
       "
     >
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-6 py-4">
-        <h3 className="text-xl font-bold text-white tracking-wide">
+      <div className="bg-gray-200 dark:bg-gray-900  px-6 py-4">
+        <h3 className="text-xl font-bold text-black dark:text-orange-500 tracking-wide">
           {classItem.nombre}
         </h3>
 
         {classItem.descripcion && (
-          <p className="text-orange-100 text-sm mt-1">
+          <p className="text-gray-600 dark:text-orange-100 text-sm mt-1">
             {classItem.descripcion}
           </p>
         )}
@@ -109,10 +111,16 @@ const ClassCard = ({
             </span>
           )}
         </div>
+        <button onClick={() => getDetails(classItem)}>
+
+             
+            
+              Ver detalles
+            </button>
       </div>
 
       {/* BOTONES */}
-      <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-auto px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         {isClient ? (
           reserva ? (
             <button
@@ -133,8 +141,8 @@ const ClassCard = ({
                 w-full font-semibold py-2.5 rounded-xl transition active:scale-95
                 ${
                   classItem.cupos_disponibles === 0
-                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    : "bg-orange-600 hover:bg-orange-700 text-white"
+                    ? "bg-green-300 dark:bg-green-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700 text-white"
                 }
               `}
             >

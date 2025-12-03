@@ -110,7 +110,7 @@ export const getMembershipList = async (req, res) => {
 
 export const getPlans = async (req, res) => {
   try {
-    console.log("entra a getplanssssssssssssssssssssssssssss");
+  
     const [rows] = await pool.query(
       `SELECT id, nombre, descripcion, precio
         FROM Planes`

@@ -91,7 +91,7 @@ export const getNotifications = async (req, res) => {
       );
     } else {
       [notifications] = await pool.query(
-        "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
+         "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
         [id]
       );
     }

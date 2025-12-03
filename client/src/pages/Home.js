@@ -1,3 +1,4 @@
+// Home.js actualizado con animaciones variadas y soporte de dark mode
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import fondoGym from "../img/fondo.jpg";
@@ -5,24 +6,26 @@ import MembershipType from "../components/Membership/membershipType";
 import Rutina from "../img/home/Rutina.png";
 import Progreso from "../img/home/Progreso.png";
 import ArmarRutina from "../img/home/ArmarRutina.png";
+import Celu1 from "../img/home/celu1.png";
+import Celu2 from "../img/home/celu2.png";
 import Clases from "../img/home/Clases.png";
 import PlanBasico from "../img/membershipType/PlanBasico2.png";
 import PlanPremium from "../img/membershipType/PlanPremium1.png";
 import PlanIntermedio from "../img/membershipType/PlanIntermedio1.png";
+import { Dumbbell, UserCheck, Target, Flower, Flame, Ellipsis } from "lucide-react";
 function Home() {
   const infoRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [plansList, setPlansList] = useState([]);
 
+  // --------------------------------------
+  // GET MEMBERSHIP PLANS
+  // --------------------------------------
   useEffect(() => {
     const getPlans = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/membership/plans"
-        );
-        if (response.data.success) {
-          setPlansList(response.data.plansList);
-        }
+        const response = await axios.get("http://localhost:3000/api/membership/plans");
+        if (response.data.success) setPlansList(response.data.plansList);
       } catch (error) {
         console.error("Error al obtener planes:", error);
       }
@@ -30,25 +33,27 @@ function Home() {
     getPlans();
   }, []);
 
+  // --------------------------------------
+  // OBSERVER PARA MAPA
+  // --------------------------------------
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisible(true);
-        }
+        if (entries[0].isIntersecting) setVisible(true);
       },
-      { threshold: 0.2 } // se activa cuando 20% es visible
+      { threshold: 0.2 }
     );
 
-    if (infoRef.current) {
-      observer.observe(infoRef.current);
-    }
+    if (infoRef.current) observer.observe(infoRef.current);
 
     return () => {
       if (infoRef.current) observer.unobserve(infoRef.current);
     };
   }, []);
 
+  // --------------------------------------
+  // OBSERVER PARA ANIMACIONES ON-SCROLL
+  // --------------------------------------
   useEffect(() => {
     const elements = document.querySelectorAll(".animate-on-scroll");
 
@@ -57,8 +62,7 @@ function Home() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const anim = entry.target.dataset.anim;
-            entry.target.classList.add(anim);
-            entry.target.classList.add("opacity-100");
+            entry.target.classList.add(anim, "opacity-100");
             observer.unobserve(entry.target);
           }
         });
@@ -67,221 +71,214 @@ function Home() {
     );
 
     elements.forEach((el) => observer.observe(el));
-
     return () => observer.disconnect();
   }, []);
 
+  // ==========================
+  //    RENDER
+  // ==========================
   return (
-    <div className="flex flex-col">
-      {/* ✨ HERO - Pantalla completa */}
+    <div className="flex flex-col dark:bg-gray-900 bg-gray-100 transition-colors duration-300">
+
+      {/* ===================================== */}
+      {/* HERO */}
+      {/* ===================================== */}
       <div
         id="inicio-info"
-        className="h-screen bg-cover bg-center pb-20 flex items-center justify-center 
-                   transition-colors duration-300 bg-gray-200 dark:bg-gray-900"
+        className="h-screen bg-cover bg-center pb-20 flex items-center justify-center"
         style={{ backgroundImage: `url(${fondoGym})` }}
       >
         <div
-          className="bg-black/60 dark:bg-black/70 backdrop-blur-sm px-8 py-10
-                     rounded-xl text-center shadow-2xl max-w-lg border border-white/10
-                     transform -translate-y-10 animate-fadeInUp"
+          className="bg-black/60 dark:bg-black/70 backdrop-blur-sm px-8 py-10 rounded-xl text-center shadow-2xl max-w-lg border border-white/10 animate-on-scroll opacity-0"
+          data-anim="animate-fadeInUp"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white">
             Bienvenidos a <span className="text-orange-500">NukeGym</span>
           </h2>
-
-          <p className="mt-3 text-lg text-gray-200 dark:text-gray-300 animate-fadeIn">
+          <p className="mt-3 text-lg text-gray-200 dark:text-gray-300 animate-on-scroll opacity-0" data-anim="animate-zoomIn">
             Tu lugar para entrenar
           </p>
         </div>
       </div>
 
-      {/* Sección informativa de Rutinas */}
-      <div id="routine-info" className="py-20 bg-[#131c28] text-white">
-        <div
-          id="rutine-info"
-          className="w-full max-w-5xl mx-auto py-16 flex flex-col text-white gap-24"
-        >
-          {/* Bloque 1 */}
-          <div className="flex justify-between items-center gap-10">
-            <div
-              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
-              data-anim="animate-fadeInLeft"
-            >
-              <img
-                src={Rutina}
-                alt="Imagen de rutina"
-                className="w-full h-full object-contain rounded-md"
-              />
-            </div>
-            <div
-              className="animate-on-scroll opacity-0"
-              data-anim="animate-fadeInRight"
-            >
-              <p
-                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
-              >
-                Rutinas personalizadas para que sepas exactamente qué entrenar
-                cada día.
-              </p>
-            </div>
-          </div>
+      {/* ===================================== */}
+      {/* ¿POR QUÉ ELEGIRNOS? */}
+      {/* ===================================== */}
+      <div className="bg-gray-800 dark:bg-gray-950 text-white py-14 px-6">
+        <p className="text-center text-orange-500 font-medium tracking-widest text-sm animate-on-scroll opacity-0" data-anim="animate-slideUp">
+          ¿POR QUÉ ELEGIRNOS?
+        </p>
 
-          {/* Bloque 2 */}
-          <div className="flex justify-between items-center gap-10 flex-row-reverse ">
-            <div
-              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
-              data-anim="animate-fadeInRight"
-            >
-              <img
-                src={Progreso}
-                alt="Imagen de progreso"
-                className="w-full h-full object-contain rounded-md"
-              />
-            </div>
+        <h2 className="text-center text-3xl md:text-4xl font-extrabold mt-2 mb-10 animate-on-scroll opacity-0" data-anim="animate-fadeInUp">
+          LLEVÁ TUS LÍMITES AL SIGUIENTE NIVEL
+        </h2>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+          {[
+            {
+              icon: <Dumbbell className="w-10 h-10 text-orange-500" />,
+              title: "Equipamiento moderno",
+              desc: "Máquinas y tecnología de última generación.",
+              anim: "animate-fadeInLeft",
+            },
+            {
+              icon: <UserCheck className="w-10 h-10 text-orange-500" />,
+              title: "Entrenamiento profesional",
+              desc: "Rutinas personalizadas con seguimiento.",
+              anim: "animate-fadeInUp",
+            },
+            {
+              icon: <Target className="w-10 h-10 text-orange-500" />,
+              title: "Adaptado a tus necesidades",
+              desc: "Un enfoque pensado para vos.",
+              anim: "animate-fadeInRight",
+            },
+          ].map((item, i) => (
             <div
-              className="animate-on-scroll opacity-0"
-              data-anim="animate-fadeInLeft"
+              key={i}
+              className="text-center flex flex-col items-center animate-on-scroll opacity-0"
+              data-anim={item.anim}
             >
-              <p
-                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
-              >
-                Registro de progreso con anotaciones de peso, repeticiones y
-                mejoras para llevar un seguimiento real de tus avances.
-              </p>
+              <div className="w-20 h-20 bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+                {item.icon}
+              </div>
+              <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
             </div>
-          </div>
-
-          {/* Bloque 3 */}
-          <div className="flex justify-between items-center gap-10 ">
-            <div
-              className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
-              data-anim="animate-fadeInLeft"
-            >
-              <img
-                src={ArmarRutina}
-                alt="Imagen de armado de rutina"
-                className="w-full h-full object-contain rounded-md"
-              />
-            </div>
-            <div
-              className="animate-on-scroll opacity-0"
-              data-anim="animate-fadeInRight"
-            >
-              <p
-                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
-              >
-                Amplio catálogo de ejercicios con filtros para armar la rutina
-                que mejor se adapte a tus objetivos.
-              </p>
-            </div>
-          </div>
-
-          {/* Bloque 4 */}
-          <div className="flex justify-between items-center gap-10 flex-row-reverse ">
-            <div
-              className="w-[300px] h-[200px] border-4 border-black flex items-center justify-center font-bold animate-on-scroll opacity-0"
-              data-anim="animate-fadeInRight"
-            >
-              IMAGEN DE APP TERMINADA
-            </div>
-            <div
-              className="animate-on-scroll opacity-0"
-              data-anim="animate-fadeInLeft"
-            >
-              <p
-                className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
-              >
-                Seguimiento fácil y rápido de tu rutina directamente desde la
-                app móvil.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-      {/* Sección informativa de Clases */}
+
+      {/* ===================================== */}
+      {/* SECCIONES CATALOGO */}
+      {/* ===================================== */}
+
+      {/* --- 1: Rutinas --- */}
       <div
-        id="classes-info"
-        className="w-full max-w-5xl mx-auto py-16 flex flex-col text-white gap-24"
+        className="relative w-full min-h-[380px] flex items-center justify-between px-10 overflow-hidden bg-gradient-to-r from-gray-800 to-black animate-on-scroll opacity-0"
+        data-anim="animate-slideLeft"
       >
-        <div className="flex justify-between items-center gap-10 ">
-          <div
-            className="flex items-center justify-center font-bold animate-on-scroll opacity-0 rounded-md border border-gray-200"
-            data-anim="animate-fadeInLeft"
-          >
-            <img
-              src={Clases}
-              alt="Imagen de reserva de clases"
-              className="w-full h-full object-contain rounded-md"
-            />
-          </div>
-          <div
-            className="animate-on-scroll opacity-0"
-            data-anim="animate-fadeInRight"
-          >
-            <p
-              className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white "
-            >
-              Si contás con una membresía Intermedia o Premium, vas a poder
-              disfrutar de todas nuestras clases grupales.
-            </p>
-          </div>
-        </div>
+        <img src={Rutina} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm" />
+        <div className="absolute inset-0 bg-black/40"></div>
 
-        <div className="flex justify-between items-center gap-10 flex-row-reverse ">
+        <div className="relative flex items-center w-full">
+          <div className="w-1/2 flex items-center justify-center animate-on-scroll opacity-0" data-anim="animate-fadeInLeft">
+            <img src={Rutina} className="w-full max-w-[550px] rounded-xl object-contain" />
+          </div>
+
           <div
-            className="w-[300px] h-[200px] border-4 border-black flex items-center justify-center font-bold animate-on-scroll opacity-0"
+            className="w-1/2 text-white animate-on-scroll opacity-0"
             data-anim="animate-fadeInRight"
           >
-            IMAGEN CLASES APP
-          </div>
-          <div
-            className="animate-on-scroll opacity-0"
-            data-anim="animate-fadeInLeft"
-          >
-            <p
-              className="w-[400px] h-[200px] bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700 
-        rounded-3xl shadow-xl p-8 
-        flex items-center text-center gap-4
-        transition-all duration-300
-        hover:-translate-y-2 hover:shadow-2xl text-gray-900 dark:text-white"
-            >
-              Seguimiento fácil y rápido de fecha y horario de tus clases desde
-              la app móvil.
+            <p className="text-4xl font-bold leading-tight text-right">
+              Amplio catálogo de ejercicios <br /> con filtros personalizados.
             </p>
           </div>
         </div>
       </div>
 
-      <div id="membership-info" className="py-20 bg-[#162232]">
-        <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mx-12">
+      {/* --- 2: Progreso --- */}
+      <div
+        className="relative w-full min-h-[380px] flex items-center justify-between px-10 py-3 overflow-hidden bg-gradient-to-r from-black to-gray-500 animate-on-scroll opacity-0"
+        data-anim="animate-fadeInUp"
+      >
+        <img src={Progreso} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm" />
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="relative flex items-center w-full">
+          <div className="w-1/2 text-white animate-on-scroll opacity-0" data-anim="animate-slideLeft">
+            <p className="text-3xl font-bold leading-tight text-left">
+              Registro real de peso, repeticiones y evolución.
+            </p>
+          </div>
+
+          <div className="w-1/2 flex items-center justify-center animate-on-scroll opacity-0" data-anim="animate-slideUp">
+            <img src={Progreso} className="w-full max-w-[550px] rounded-xl object-contain" />
+          </div>
+        </div>
+      </div>
+
+      {/* --- 3: Armar Rutina --- */}
+      <div
+        className="relative w-full min-h-[380px] flex items-center justify-between px-10 py-3 overflow-hidden bg-gradient-to-r from-gray-800 to-black animate-on-scroll opacity-0"
+        data-anim="animate-zoomIn"
+      >
+        <img src={ArmarRutina} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm" />
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="relative flex items-center w-full">
+          <div className="w-1/2 flex items-center justify-center animate-on-scroll opacity-0" data-anim="animate-fadeInLeft">
+            <img src={ArmarRutina} className="w-full max-w-[550px] rounded-xl object-contain" />
+          </div>
+
+          <div className="w-1/2 text-white animate-on-scroll opacity-0" data-anim="animate-fadeInRight">
+            <p className="text-4xl font-bold leading-tight text-right">
+              Diseñá tu rutina ideal <br /> combinando filtros avanzados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* --- 4: App Móvil --- */}
+      <div
+        className="relative w-full min-h-[380px] flex items-center justify-between px-10 py-3 overflow-hidden bg-gradient-to-r from-black to-gray-500 animate-on-scroll opacity-0"
+        data-anim="animate-fadeInRight"
+      >
+        <img src={Progreso} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm" />
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        <div className="relative flex items-center w-full">
+          <div className="w-1/2 text-white animate-on-scroll opacity-0" data-anim="animate-slideUp">
+            <p className="text-3xl font-bold leading-tight text-left">
+              Seguimiento rápido y fácil desde tu celular.
+            </p>
+          </div>
+
+          <div className="w-1/2 flex gap-4 items-center justify-center animate-on-scroll opacity-0" data-anim="animate-zoomIn">
+            <img src={Celu1} className="w-full max-w-[200px] rounded-xl object-contain" />
+            <img src={Celu2} className="w-full max-w-[200px] rounded-xl object-contain" />
+          </div>
+        </div>
+
+
+      {/* ===================================== */}
+      {/* CLASES */}
+      {/* ===================================== */}
+
+      </div>
+          <div className="w-full flex flex-col md:flex-row min-h-[450px]">
+      {/* IMAGEN */}
+      <div className="w-full md:w-1/2 h-64 md:h-auto">
+        <img 
+          src={Clases}
+          alt="Gym"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* TEXTO */}
+      <div className="w-full md:w-1/2 bg-orange text-white px-8 md:px-16 py-12 flex flex-col justify-center">
+        
+        {/* Línea  */}
+        <div className="w-12 h-2 bg-orange-500 mb-4 rounded"></div>
+
+        <h2 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4">
+        CLASES ILIMITADAS CON <br /> TU MEMBRESIA MEDIA O PREMIUM
+        </h2>
+
+        <p className="text-sm md:text-base text-gray-200 mb-8 leading-relaxed">
+          Accedé a una amplia variedad de entrenamientos, elegí tus favoritos, reservá tu lugar y disfrutá de la experiencia completa del gimnasio sin límites.
+        </p>
+
+      </div>
+    </div>
+
+      {/* ===================================== */}
+      {/* PLANES */}
+      {/* ===================================== */}
+      <div id="membership-info" className="py-10 bg-[#162232] dark:bg-gradient-to-r from-orange-600 to-orange-500">
+       
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mx-20">
           {plansList.map((plan, idx) => (
             <MembershipType
               key={plan.id}
@@ -295,30 +292,21 @@ function Home() {
         </div>
       </div>
 
-      {/* ✨ INFO + MAPA - animación al hacer scroll */}
+      {/* ===================================== */}
+      {/* MAPA */}
+      {/* ===================================== */}
       <div
         ref={infoRef}
-        className={`w-full bg-[#162232] dark:bg-gray-900 py-16 px-6 shadow-inner 
-          ${visible ? "animate-fadeIn" : "opacity-0"}`}
+        className={`w-full bg-[#162232] dark:bg-gray-900 py-16 px-6 shadow-inner ${visible ? "animate-fadeIn" : "opacity-0"}`}
       >
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-10 items-center">
-          {/* Texto */}
-          <div
-            className={`flex-1 text-gray-200 
-              ${visible ? "animate-fadeInLeft" : "opacity-0"}`}
-          >
+          <div className={`flex-1 text-gray-200 ${visible ? "animate-fadeInLeft" : "opacity-0"}`}>
             <h3 className="text-2xl font-semibold mb-3">Dónde encontrarnos</h3>
-            <p className="text-lg">
-              Estamos ubicados en el centro de la ciudad, accesible y cómodo
-              para todos.
-            </p>
+            <p className="text-lg">Estamos ubicados en el centro de la ciudad.</p>
           </div>
 
-          {/* Mapa */}
           <div
-            className={`flex-1 w-full h-64 md:h-72 rounded-xl overflow-hidden shadow-lg 
-              border border-gray-700 
-              ${visible ? "animate-fadeInRight" : "opacity-0"}`}
+            className={`flex-1 w-full h-64 md:h-72 rounded-xl overflow-hidden shadow-lg border border-gray-700 ${visible ? "animate-fadeInRight" : "opacity-0"}`}
           >
             <iframe
               title="Ubicación NukeGym"

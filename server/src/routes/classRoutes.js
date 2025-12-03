@@ -8,6 +8,7 @@ import {
   createReservation,
   getUserReservations,
   cancelReservation,
+  getStudentsClass
 } from "../controllers/classController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { allowClasses, requireActiveMembership } from "../middleware/membershipMiddleware.js";
@@ -21,6 +22,7 @@ router.use(authenticateToken);
 router.get("/classes", getAllClasses); // Todas las clases (admin/entrenador)
 router.get("/classes/available",authenticateToken, requireActiveMembership, allowClasses, getAvailableClasses); // Clases disponibles (todos)
 router.post("/classes", createClass); // Crear clase (admin/entrenador)
+router.get("/classes/studentsClass/:id", getStudentsClass);
 router.put("/classes/:id", updateClass); // Actualizar clase (admin/entrenador)
 router.delete("/classes/:id", deleteClass); // Eliminar clase (admin)
 

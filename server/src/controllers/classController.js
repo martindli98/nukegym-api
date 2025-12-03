@@ -503,3 +503,44 @@ export const cancelReservation = async (req, res) => {
     res.status(500).json({ message: "Error al cancelar la reserva" });
   }
 };
+
+
+export const getStudentsClass = async (req, res) => {
+  console.log('entra al getstudentssssssssssssssssssssssssssssss')
+  const { id } = req.params; // id de la clase
+
+  try {
+    const [students] = await pool.query(
+      `
+      SELECT 
+        r.id AS id_reserva,
+        r.estado,
+        r.id_usuario,
+        r.id_clase,
+        u.nombre,
+        u.apellido,
+        u.email,
+        u.num_personal,
+        u.num_emergencia
+      FROM reserva r
+      INNER JOIN usuario u ON r.id_usuario = u.id
+      WHERE r.id_clase = ? AND r.estado = 'reservado'
+      ORDER BY u.nombre ASC
+      `,
+      [id]
+    );
+
+    // Si no hay alumnos inscriptos
+    if (students.length === 0) {
+      return res.json([]);
+    }
+
+    res.json(students);
+
+  } catch (error) {
+    console.error("Error obteniendo alumnos de la clase:", error);
+    res.status(500).json({
+      message: "Error al obtener alumnos de la clase"
+    });
+  }
+};

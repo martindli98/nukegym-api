@@ -103,7 +103,7 @@ const RoutineCard = ({ ejercicio, index, onUpdate, onDelete }) => {
 
       <button
         onClick={() => setShowInstructions((prev) => !prev)}
-        className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition w-full mb-2"
+        className="text-sm bg-gray-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition w-full mb-2"
       >
         {showInstructions ? "Ocultar instrucciones" : "Ver instrucciones"}
       </button>

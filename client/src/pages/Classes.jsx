@@ -6,7 +6,7 @@ import ClassForm from "../components/Class/ClassForm";
 import ReservationCard from "../components/Class/ReservationCard";
 import { useMembership } from "../hooks/useMembership";
 import ConfirmModal from "../components/confirmModal/confirmModal";
-
+import ClassDetailsModal from "../components/Class/ClassDetailsModal";
 const Classes = () => {
   const [userData, setUserData] = useState(null);
   const [classes, setClasses] = useState([]);
@@ -53,6 +53,13 @@ const Classes = () => {
   // Verificar permisos (debe declararse antes de cualquier uso)
   const isClient = userData?.id_rol === 2;
   const canManage = userData?.id_rol === 1 || userData?.id_rol === 3;
+
+
+  const [classDetails, setClassDetails] = useState(null);
+  const [classStudents, setClassStudents] = useState([]);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+
 
   useEffect(() => {
     if (!membership || !userData) return;
@@ -154,7 +161,7 @@ const Classes = () => {
 
       // Cliente ve clases disponibles, admin/entrenador ve todas
       const endpoint = user?.id_rol === 2 ? "/classes/available" : "/classes";
-      console.log("@@@@@@@@@@@aca entra@@@@@@@@@");
+   
       const data = await api(endpoint);
       setClasses(data);
     } catch (error) {
@@ -164,6 +171,22 @@ const Classes = () => {
       setLoading(false);
     }
   };
+
+
+  const getClassDetails = async (classItem) => {
+    setClassDetails(classItem);
+    try {
+      const students = await api(`/classes/studentsClass/${classItem.id_clase}`);
+      console.log(classItem)
+      setClassStudents(students);
+      setShowDetailsModal(true); 
+    } catch (error) {
+      toast.error("Error al cargar los alumnos de esta clase");
+      console.error(error);
+    }
+};
+
+
 
   // Reservar clase (solo clientes)
   const reserveClass = async (classId) => {
@@ -555,6 +578,7 @@ const Classes = () => {
                     onEdit={editClass}
                     onDelete={deleteClass}
                     formatDate={formatDate}
+                    getDetails={getClassDetails}
                   />
                 ))}
               </div>
@@ -606,6 +630,13 @@ const Classes = () => {
         }}
         onCancel={closeConfirm}
       />
+      <ClassDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        classDetails={classDetails}
+        students={classStudents}
+      />
+
     </section>
   );
 };
