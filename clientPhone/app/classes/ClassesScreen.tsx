@@ -39,6 +39,10 @@ const ClassesScreen: React.FC = () => {
   const theme = useColorScheme();
   const isDark = theme === "dark";
 
+  const [classDetails, setClassDetails] = useState(null);
+  const [classStudents, setClassStudents] = useState([]);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
   useFocusEffect(
     React.useCallback(() => {
       requireAuth();
@@ -115,6 +119,22 @@ const ClassesScreen: React.FC = () => {
       setLoading(false);
     }
   };
+
+
+  const getClassDetails = async (classItem) => {
+      setClassDetails(classItem);
+      try {
+        const students = await api(`/classes/studentsClass/${classItem.id_clase}`);
+      
+        setClassStudents(students);
+        console.log(students)
+        setShowDetailsModal(true); 
+      } catch (error) {
+        toast.error("Error al cargar los alumnos de esta clase");
+        console.error(error);
+      }
+  };
+
 
   const fetchReservations = async (token: string) => {
     try {
@@ -374,6 +394,123 @@ const ClassesScreen: React.FC = () => {
     );
   }
 
+
+  {/* ---------- MODAL DETALLES DE CLASE ---------- */}
+if(showDetailsModal){
+  return(
+  <View
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      zIndex: 999,
+    }}
+  >
+    <View
+      style={{
+        width: "100%",
+        maxWidth: 380,
+        backgroundColor: isDark ? "#1f2937" : "white",
+        padding: 20,
+        borderRadius: 16,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 22,
+          fontWeight: "bold",
+          color: "#f97316",
+          marginBottom: 10,
+        }}
+      >
+        {classDetails?.nombre}
+      </Text>
+
+      <Text
+        style={{
+          color: isDark ? "#d1d5db" : "#4b5563",
+          marginBottom: 6,
+        }}
+      >
+        🕒 {formatDate(classDetails?.horario)}
+      </Text>
+
+      <Text
+        style={{
+          color: isDark ? "#d1d5db" : "#4b5563",
+          marginBottom: 6,
+        }}
+      >
+        🏋️ Entrenador:{" "}
+        {classDetails?.entrenador_nombre || "Sin entrenador"}
+      </Text>
+
+      <Text
+        style={{
+          color: isDark ? "#d1d5db" : "#4b5563",
+          marginBottom: 6,
+        }}
+      >
+        👥 Cupo máximo: {classDetails?.cupo_maximo}
+      </Text>
+
+      <Text
+        style={{
+          marginTop: 14,
+          fontSize: 18,
+          fontWeight: "bold",
+          color: isDark ? "white" : "black",
+        }}
+      >
+        Alumnos inscriptos:
+      </Text>
+
+      {classStudents.length === 0 ? (
+        <Text style={{ color: "#6b7280", marginTop: 6 }}>
+          No hay alumnos reservados.
+        </Text>
+      ) : (
+        classStudents.map((al) => (
+          <Text
+            key={al.id_reserva}
+            style={{ color: isDark ? "#d1d5db" : "#4b5563", marginTop: 4 }}
+          >
+            • {al.nombre} {al.apellido}
+          </Text>
+        ))
+      )}
+
+      {/* BOTÓN CERRAR */}
+      <TouchableOpacity
+        onPress={() => setShowDetailsModal(false)}
+        style={{
+          marginTop: 20,
+          backgroundColor: "#f97316",
+          paddingVertical: 12,
+          borderRadius: 10,
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: 16,
+          }}
+        >
+          Cerrar
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>)
+}
+
   return (
     <>
       <ScrollView
@@ -451,19 +588,21 @@ const ClassesScreen: React.FC = () => {
           .map((c) => (
             <View key={c.id_clase} style={{ marginBottom: 14 }}>
               <ClassCard
-                classItem={c}
-                isClient={isClient}
-                canManage={canManage}
-                userReservations={reservations}
-                onReserve={reserveClass}
-                onCancelReservation={cancelReservation}
-                onEdit={(cls) => {
-                  setEditingClass(cls);
-                  setShowForm(true);
-                }}
-                onDelete={handleDeleteClass}
-                formatDate={formatDate}
-              />
+                  classItem={c}
+                  isClient={isClient}
+                  canManage={canManage}
+                  userReservations={reservations}
+                  onReserve={reserveClass}
+                  onCancelReservation={cancelReservation}
+                  onEdit={(cls) => {
+                    setEditingClass(cls);
+                    setShowForm(true);
+                  }}
+                  onDelete={handleDeleteClass}
+                  formatDate={formatDate}
+                  onViewDetails={getClassDetails}   // <-- AÑADÍ ESTO
+                />
+
             </View>
           ))}
 

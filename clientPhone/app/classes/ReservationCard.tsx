@@ -5,12 +5,14 @@ interface Props {
   reservation: any;
   formatDate: (date: string) => string;
   onCancelReservation: (id: number) => void;
+  onViewDetails?: (classItem: any) => void; 
 }
 
 const ReservationCard: React.FC<Props> = ({
   reservation,
   formatDate,
   onCancelReservation,
+  onViewDetails,
 }) => {
 
   const theme = useColorScheme();

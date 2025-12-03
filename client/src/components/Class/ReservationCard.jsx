@@ -12,7 +12,7 @@ const ReservationCard = ({ reservation, formatDate, onCancelReservation }) => {
       "
     >
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-6 py-4">
+      <div className="bg-gray-200 dark:bg-gray-900 px-6 py-4">
         <h3 className="text-xl font-bold text-white tracking-wide mb-1">
           {reservation.nombre}
         </h3>

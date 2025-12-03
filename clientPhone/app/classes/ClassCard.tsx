@@ -11,6 +11,7 @@ interface Props {
   onEdit?: (classItem: any) => void;
   onDelete?: (id: number) => void;
   formatDate: (date: string) => string;
+  onViewDetails?: (classItem: any) => void; 
 }
 
 const ClassCard: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const ClassCard: React.FC<Props> = ({
   onEdit,
   onDelete,
   formatDate,
+  onViewDetails,
 }) => {
   const theme = useColorScheme();
   const isDark = theme === "dark";
@@ -75,6 +77,16 @@ const ClassCard: React.FC<Props> = ({
         {classItem.cupos_disponibles !== undefined &&
           `(${classItem.cupos_disponibles} disponibles)`}
       </Text>
+
+       <TouchableOpacity
+          onPress={() => onViewDetails?.(classItem)}
+          style={{ marginTop: 10 }}
+        >
+          <Text style={{ color: "#f97316", fontWeight: "bold" }}>
+            Ver detalles →
+          </Text>
+        </TouchableOpacity>
+
 
       {/* CLIENT BUTTONS */}
       {isClient &&

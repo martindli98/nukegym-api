@@ -111,12 +111,26 @@ const ClassCard = ({
             </span>
           )}
         </div>
-        <button onClick={() => getDetails(classItem)}>
+        <button
+          onClick={() => getDetails(classItem)}
+          className="
+            w-full
+            mt-3
+            py-2.5
+            text-sm
+            font-semibold
+            rounded-xl
+            border border-orange-500
+            text-orange-600
+            dark:text-orange-400
+            hover:bg-orange-50 dark:hover:bg-gray-800
+            transition-all
+            active:scale-95
+          "
+        >
+          Ver detalles
+        </button>
 
-             
-            
-              Ver detalles
-            </button>
       </div>
 
       {/* BOTONES */}
