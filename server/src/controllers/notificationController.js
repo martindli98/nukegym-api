@@ -80,21 +80,18 @@ export const createNotification = async (req, res) => {
 
 export const getNotifications = async (req, res) => {
   try {
-    const { id, id_rol } = req.user;
+    const { id } = req.user;
 
-    let notifications;
-
-    if (id_rol === 1) {
-      [notifications] = await pool.query(
-        "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
-        [id]
-      );
-    } else {
-      [notifications] = await pool.query(
-         "SELECT * FROM Notificacion WHERE id_usuario = ? ORDER BY fecha DESC",
-        [id]
-      );
-    }
+    const [notifications] = await pool.query(
+      `
+      SELECT * 
+      FROM Notificacion 
+      WHERE id_usuario = 1
+         OR id_usuario = ?
+      ORDER BY fecha DESC
+      `,
+      [id]
+    );
 
     res.json(notifications || []);
   } catch (error) {
