@@ -261,107 +261,100 @@ function Membership() {
       <div className="w-full max-w-6xl flex flex-col gap-10 animate-fadeInUp">
         {/* SI ES ADMIN */}
         {user?.rol === "admin" ? (
-          <>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-              Listado de Membresías
-            </h1>
+  <>
+    <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+      Listado de Membresías
+    </h1>
 
-            <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide mb-6">
-              Administración completa de membresías en NUKEGYM
-            </p>
+    <p className="text-gray-600 dark:text-gray-400 text-sm tracking-wide mb-6">
+      Administración completa de membresías en NUKEGYM
+    </p>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold mb-4 text-orange-500 dark:text-orange-400">
-                📋 Membresías registradas
-              </h2>
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+      <h2 className="text-xl font-bold mb-4 text-orange-500 dark:text-orange-400">
+        📋 Membresías registradas
+      </h2>
 
-              {Array.isArray(membershipList) && membershipList.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-300">
-                  Cargando listado...
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead>
-                      <tr className="bg-gray-200 dark:bg-gray-700">
-                        <th className="p-3 text-left text-gray-700 dark:text-gray-300">
-                          Usuario
-                        </th>
-                        <th className="p-3 text-left text-gray-700 dark:text-gray-300">
-                          Tipo
-                        </th>
-                        <th className="p-3 text-left text-gray-700 dark:text-gray-300">
-                          Estado
-                        </th>
-                        <th className="p-3 text-left text-gray-700 dark:text-gray-300">
-                          Inicio
-                        </th>
-                        <th className="p-3 text-left text-gray-700 dark:text-gray-300">
-                          Fin
-                        </th>
-                      </tr>
-                    </thead>
+      {Array.isArray(membershipList) && membershipList.length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-300">Cargando listado...</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="bg-gray-200 dark:bg-gray-700">
+                <th className="p-3 text-left text-gray-700 dark:text-gray-300">Usuario</th>
+                <th className="p-3 text-left text-gray-700 dark:text-gray-300">Tipo</th>
+                <th className="p-3 text-left text-gray-700 dark:text-gray-300">Estado</th>
+                <th className="p-3 text-left text-gray-700 dark:text-gray-300">Inicio</th>
+                <th className="p-3 text-left text-gray-700 dark:text-gray-300">Fin</th>
+              </tr>
+            </thead>
 
-                    <tbody>
-                      {Array.isArray(membershipList) &&
-                        membershipList.map((m) => (
-                          <tr
-                            key={m.id}
-                            className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[oklch(17%_0.04_270)] transition-colors"
-                          >
-                            <td className="p-3 text-gray-800 dark:text-gray-100">
-                              {m.nombre} {m.apellido}
-                            </td>
-                            <td className="p-3 text-gray-800 dark:text-gray-100">
-                              {m.tipo}
-                            </td>
-                            <td className="p-3 text-gray-800 dark:text-gray-100">
-                              {m.estado}
-                            </td>
-                            <td className="p-3 text-gray-800 dark:text-gray-100">
-                              {m.fechaInicio}
-                            </td>
-                            <td className="p-3 text-gray-800 dark:text-gray-100">
-                              {m.fechaFin}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+            <tbody>
+              {Array.isArray(membershipList) &&
+                membershipList.map((m) => (
+                  <tr
+                    key={m.id}
+                    className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[oklch(17%_0.04_270)] transition-colors"
+                  >
+                    <td className="p-3 text-gray-800 dark:text-gray-100">
+                      {m.nombre} {m.apellido}
+                    </td>
+                    <td className="p-3 text-gray-800 dark:text-gray-100">{m.tipo}</td>
+                    <td className="p-3 text-gray-800 dark:text-gray-100">{m.estado}</td>
+                    <td className="p-3 text-gray-800 dark:text-gray-100">
+                      {new Date(m.fechaInicio).toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="p-3 text-gray-800 dark:text-gray-100">
+                      {new Date(m.fechaFin).toLocaleDateString("es-AR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-              <div className="mt-6">
-                <PDFDownloadLink
-                  document={<PDF memberships={membershipList} />}
-                  fileName="Membresias.pdf"
-                >
-                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition">
-                    Descargar PDF
-                  </button>
-                </PDFDownloadLink>
-              </div>
-            </div>
+      <div className="mt-6">
+        <PDFDownloadLink
+          document={<PDF memberships={membershipList} />}
+          fileName="Membresias.pdf"
+        >
+          <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition">
+            Descargar PDF
+          </button>
+        </PDFDownloadLink>
+      </div>
+    </div>
 
-            <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Gestión de Planes
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {plansList.map((plan) => (
-                <MembershipType
-                  key={plan.id}
-                  planId={plan.id}
-                  title={plan.nombre}
-                  descripcion={plan.descripcion}
-                  precio={plan.precio}
-                  isAdmin={true}
-                  onUpdate={getPlans}
-                />
-              ))}
-            </div>
-          </>
-        ) : (
+    <div className="w-full h-px bg-gray-300 dark:bg-gray-700 my-6" />
+    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+      Gestión de Planes
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {plansList.map((plan) => (
+        <MembershipType
+          key={plan.id}
+          planId={plan.id}
+          title={plan.nombre}
+          descripcion={plan.descripcion}
+          precio={plan.precio}
+          isAdmin={true}
+          onUpdate={getPlans}
+        />
+      ))}
+    </div>
+  </>
+)
+: (
           <>
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">

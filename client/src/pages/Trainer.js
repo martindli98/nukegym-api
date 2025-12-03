@@ -7,6 +7,8 @@ import ConfirmModal from "../components/confirmModal/confirmModal";
 import AddExercisesModal from "../components/Routine/AddExercisesModal";
 import { useMembership } from "../hooks/useMembership";
 
+import { createPortal } from "react-dom";
+
 const API_URL = "http://localhost:3000/api";
 const getAuthHeaders = () => ({
   headers: { Authorization: `Bearer ${sessionStorage.getItem("authToken")}` },
@@ -375,179 +377,182 @@ export default function Trainer() {
         />
       )}
 
-      {viewRoutineStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-4 ">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-6xl p-6 max-h-[95vh] overflow-y-auto my-auto">
-            {!selectedRoutine ? (
-              <>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-orange-500">
-                    Rutinas del Alumno
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setViewRoutineStudent(null);
-                      setStudentRoutines([]);
-                    }}
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+{viewRoutineStudent &&
+  createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto py-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-6xl p-6 max-h-[95vh] overflow-y-auto my-auto">
+        {!selectedRoutine ? (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-orange-500">
+                Rutinas del Alumno
+              </h2>
+              <button
+                onClick={() => {
+                  setViewRoutineStudent(null);
+                  setStudentRoutines([]);
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+              >
+                Cerrar
+              </button>
+            </div>
+            {studentRoutines.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {studentRoutines.map((r) => (
+                  <div
+                    key={r.id}
+                    onClick={() => handleSelectRoutine(r.id)}
+                    className="border border-gray-300 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg transition cursor-pointer hover:border-orange-500"
                   >
-                    Cerrar
-                  </button>
-                </div>
-                {studentRoutines.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {studentRoutines.map((r) => (
-                      <div
-                        key={r.id}
-                        onClick={() => handleSelectRoutine(r.id)}
-                        className="border border-gray-300 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg transition cursor-pointer hover:border-orange-500"
-                      >
-                        <h3 className="text-xl font-bold text-orange-500 mb-2">
-                          {r.objetivo}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          <strong>Fecha:</strong>{" "}
-                          {new Date(r.fecha).toLocaleDateString()}
-                        </p>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">
-                          {r.ejercicios?.length || 0} Ejercicios
-                        </p>
-                        {r.ejercicios && r.ejercicios.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            {r.ejercicios.slice(0, 3).map((ej, idx) => (
-                              <p
-                                key={idx}
-                                className="text-sm text-gray-700 dark:text-gray-300"
-                              >
-                                • {ej.nombre}
-                              </p>
-                            ))}
-                            {r.ejercicios.length > 3 && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                ...y {r.ejercicios.length - 3} más
-                              </p>
-                            )}
-                          </div>
+                    <h3 className="text-xl font-bold text-orange-500 mb-2">
+                      {r.objetivo}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      <strong>Fecha:</strong>{" "}
+                      {new Date(r.fecha).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                      {r.ejercicios?.length || 0} Ejercicios
+                    </p>
+                    {r.ejercicios && r.ejercicios.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {r.ejercicios.slice(0, 3).map((ej, idx) => (
+                          <p
+                            key={idx}
+                            className="text-sm text-gray-700 dark:text-gray-300"
+                          >
+                            • {ej.nombre}
+                          </p>
+                        ))}
+                        {r.ejercicios.length > 3 && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            ...y {r.ejercicios.length - 3} más
+                          </p>
                         )}
                       </div>
-                    ))}
+                    )}
                   </div>
-                ) : (
-                  <p className="text-center text-gray-500 dark:text-gray-400">
-                    Este alumno no tiene rutinas asignadas.
-                  </p>
-                )}
-              </>
+                ))}
+              </div>
             ) : (
-              <>
-                <div className="flex justify-between items-center mb-4">
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                Este alumno no tiene rutinas asignadas.
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={() => setSelectedRoutine(null)}
+                className="inline-flex items-center gap-2 text-white bg-orange-500 font-medium px-3 py-2 rounded-lg hover:bg-orange-400"
+              >
+                <span>←</span> Volver a rutinas
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedRoutine(null);
+                  setViewRoutineStudent(null);
+                  setStudentRoutines([]);
+                }}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="flex items-center gap-3 mb-2">
+              {isEditingName ? (
+                <div
+                  ref={editNameRef}
+                  className="flex items-center gap-3 flex-1"
+                >
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleUpdateRoutineName();
+                    }}
+                    autoFocus
+                    className="flex-1 text-2xl font-semibold text-orange-600 dark:text-orange-500 dark:bg-gray-800 border-2 border-orange-500 rounded px-2 py-1"
+                  />
                   <button
-                    onClick={() => setSelectedRoutine(null)}
-                    className="inline-flex items-center gap-2 text-white bg-orange-500 font-medium px-3 py-2 rounded-lg hover:bg-orange-400"
+                    onClick={handleUpdateRoutineName}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
                   >
-                    <span>←</span> Volver a rutinas
+                    Guardar
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedRoutine(null);
-                      setViewRoutineStudent(null);
-                      setStudentRoutines([]);
+                      setIsEditingName(false);
+                      setEditedName(selectedRoutine.objetivo);
                     }}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
                   >
-                    Cerrar
+                    Cancelar
                   </button>
                 </div>
-                <div className="flex items-center gap-3 mb-2">
-                  {isEditingName ? (
-                    <div
-                      ref={editNameRef}
-                      className="flex items-center gap-3 flex-1"
-                    >
-                      <input
-                        type="text"
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleUpdateRoutineName();
-                        }}
-                        autoFocus
-                        className="flex-1 text-2xl font-semibold text-orange-600 dark:text-orange-500 dark:bg-gray-800 border-2 border-orange-500 rounded px-2 py-1"
-                      />
-                      <button
-                        onClick={handleUpdateRoutineName}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditingName(false);
-                          setEditedName(selectedRoutine.objetivo);
-                        }}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <h3 className="text-2xl font-semibold text-orange-600 dark:text-orange-500">
-                        {selectedRoutine.objetivo}
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setIsEditingName(true);
-                          setEditedName(selectedRoutine.objetivo);
-                        }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm"
-                      >
-                        Editar nombre
-                      </button>
-                      <button
-                        onClick={() => setShowAddExercises(true)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm"
-                      >
-                        Agregar ejercicios
-                      </button>
-                    </>
-                  )}
-                </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  <strong>Fecha:</strong>{" "}
-                  {new Date(selectedRoutine.fecha).toLocaleDateString()}
+              ) : (
+                <>
+                  <h3 className="text-2xl font-semibold text-orange-600 dark:text-orange-500">
+                    {selectedRoutine.objetivo}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setIsEditingName(true);
+                      setEditedName(selectedRoutine.objetivo);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm"
+                  >
+                    Editar nombre
+                  </button>
+                  <button
+                    onClick={() => setShowAddExercises(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm"
+                  >
+                    Agregar ejercicios
+                  </button>
+                </>
+              )}
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <strong>Fecha:</strong>{" "}
+              {new Date(selectedRoutine.fecha).toLocaleDateString()}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {selectedRoutine.ejercicios?.length > 0 ? (
+                selectedRoutine.ejercicios
+                  .slice()
+                  .sort((a, b) => (a.orden ?? a.id) - (b.orden ?? b.id))
+                  .map((e, index) => (
+                    <RoutineCard
+                      key={e.id}
+                      ejercicio={e}
+                      index={index}
+                      onUpdate={handleUpdateExercise}
+                      onDelete={(ejercicioId) =>
+                        setConfirmModal({
+                          show: true,
+                          type: "exercise",
+                          data: ejercicioId,
+                        })
+                      }
+                    />
+                  ))
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400">
+                  No hay ejercicios asignados.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedRoutine.ejercicios?.length > 0 ? (
-                    selectedRoutine.ejercicios
-                      .slice()
-                      .sort((a, b) => (a.orden ?? a.id) - (b.orden ?? b.id))
-                      .map((e, index) => (
-                        <RoutineCard
-                          key={e.id}
-                          ejercicio={e}
-                          index={index}
-                          onUpdate={handleUpdateExercise}
-                          onDelete={(ejercicioId) =>
-                            setConfirmModal({
-                              show: true,
-                              type: "exercise",
-                              data: ejercicioId,
-                            })
-                          }
-                        />
-                      ))
-                  ) : (
-                    <p className="text-gray-500 dark:text-gray-400">
-                      No hay ejercicios asignados.
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>,
+    document.getElementById("modal-root")
+  )
+}
       <ConfirmModal
         isOpen={confirmModal.show && confirmModal.type === "exercise"}
         title="Eliminar ejercicio"

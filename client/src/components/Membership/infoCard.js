@@ -1,5 +1,13 @@
 function InfoCard({ estado, inicio, fin, tipo }) {
-  console.log(tipo)
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("es-AR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
   const tipoTexto =
     tipo === 1 ? "Básico" :
     tipo === 2 ? "Medio" :
@@ -38,12 +46,12 @@ function InfoCard({ estado, inicio, fin, tipo }) {
 
         <p className="text-gray-700 dark:text-gray-300">
           <span className="font-semibold text-gray-900 dark:text-gray-100">Inicio:</span>{" "}
-          {inicio}
+          {formatDate(inicio)}
         </p>
 
         <p className="text-gray-700 dark:text-gray-300">
           <span className="font-semibold text-gray-900 dark:text-gray-100">Fin:</span>{" "}
-          {fin}
+          {formatDate(fin)}
         </p>
 
       </div>

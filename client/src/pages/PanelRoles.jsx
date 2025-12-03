@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import ConfirmModal from "../components/confirmModal/confirmModal.jsx";
 
 export default function PanelRoles() {
   const [usuarios, setUsuarios] = useState([]);
   const [trainerData, setTrainerData] = useState({});
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedRol, setSelectedRol] = useState(null);
+
   const token = sessionStorage.getItem("authToken");
 
   useEffect(() => {
@@ -30,20 +35,35 @@ export default function PanelRoles() {
       .catch((err) => console.error("Error cargando entrenadores:", err));
   }, []);
 
-  const cambiarRol = async (id, id_rol) => {
+  // Se dispara al seleccionar un cambio de rol
+  const handleRolChange = (user, newRol) => {
+    setSelectedUser(user);
+    setSelectedRol(Number(newRol));
+    setConfirmModalOpen(true);
+  };
+
+  // Confirmar cambio de rol
+  const confirmarCambioRol = async () => {
+    if (!selectedUser || selectedRol === null) return;
+
     try {
       await axios.put(
-        `http://localhost:3000/api/roles/${id}`,
-        { id_rol: Number(id_rol) },
+        `http://localhost:3000/api/roles/${selectedUser.id}`,
+        { id_rol: selectedRol },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setUsuarios((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, id_rol: Number(id_rol) } : u))
+        prev.map((u) =>
+          u.id === selectedUser.id ? { ...u, id_rol: selectedRol } : u
+        )
       );
     } catch (err) {
-      console.error(err);
-      alert("Error al actualizar rol");
+      console.error("Error al actualizar rol:", err);
+    } finally {
+      setConfirmModalOpen(false);
+      setSelectedUser(null);
+      setSelectedRol(null);
     }
   };
 
@@ -67,8 +87,7 @@ export default function PanelRoles() {
         [id_usuario]: { ...prev[id_usuario], ...newData },
       }));
     } catch (err) {
-      console.error(err);
-      alert("Error al actualizar entrenador");
+      console.error("Error al actualizar entrenador:", err);
     }
   };
 
@@ -86,7 +105,7 @@ export default function PanelRoles() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-800  py-10 px-6 transform -translate-y-10 animate-fadeInUp">
+    <div className="min-h-screen bg-white dark:bg-gray-800 py-10 px-6 transform -translate-y-10 animate-fadeInUp">
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">
           Panel de Roles
@@ -95,7 +114,7 @@ export default function PanelRoles() {
         <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="py-3 px-4 ">Nombre</th>
+              <th className="py-3 px-4">Nombre</th>
               <th className="py-3 px-4">Email</th>
               <th className="py-3 px-4">Rol</th>
               <th className="py-3 px-4">Cambiar Rol</th>
@@ -112,10 +131,10 @@ export default function PanelRoles() {
                 <tr
                   key={u.id}
                   className={`${
-                            index % 2 === 0
-                              ? "text-black bg-gray-50 dark:text-gray-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
-                              : "text-black bg-gray-50 dark:text-gray-300 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
+                    index % 2 === 0
+                      ? "text-black bg-gray-50 dark:text-gray-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      : "text-black bg-white dark:text-gray-300 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
                 >
                   <td className="py-3 px-4">{u.nombre}</td>
                   <td className="py-3 px-4">{u.email}</td>
@@ -126,7 +145,7 @@ export default function PanelRoles() {
                   <td className="py-3 px-4">
                     <select
                       value={u.id_rol}
-                      onChange={(e) => cambiarRol(u.id, e.target.value)}
+                      onChange={(e) => handleRolChange(u, e.target.value)}
                       className="bg-white dark:bg-gray-700 rounded-lg px-2 py-1"
                     >
                       <option value={1}>Admin</option>
@@ -171,6 +190,14 @@ export default function PanelRoles() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModalOpen}
+        title="Confirmar cambio de rol"
+        message={`¿Estás seguro que quieres cambiar el rol de ${selectedUser?.nombre}?`}
+        onConfirm={confirmarCambioRol}
+        onCancel={() => setConfirmModalOpen(false)}
+      />
     </div>
   );
 }

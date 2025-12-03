@@ -636,10 +636,11 @@ if(showDetailsModal){
               .map((r) => (
                 <View key={r.id} style={{ marginBottom: 14 }}>
                   <ReservationCard
-                    reservation={r}
-                    formatDate={formatDate}
-                    onCancelReservation={cancelReservation}
-                  />
+                      reservation={r}
+                      formatDate={formatDate}
+                      onCancelReservation={cancelReservation}
+                      onViewDetails={getClassDetails}
+                    />
                 </View>
               ))}
           </>

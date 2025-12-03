@@ -17,7 +17,7 @@ const ReservationCard: React.FC<Props> = ({
 
   const theme = useColorScheme();
   const isDark = theme === "dark";
-  
+
   return (
     <View
       style={[
@@ -30,10 +30,7 @@ const ReservationCard: React.FC<Props> = ({
     >
       {/* TITLE */}
       <Text
-        style={[
-          styles.title,
-          { color: isDark ? "#f97316" : "#f97316" },
-        ]}
+        style={[styles.title, { color: isDark ? "#f97316" : "#f97316" }]}
       >
         {reservation.nombre}
       </Text>
@@ -44,12 +41,24 @@ const ReservationCard: React.FC<Props> = ({
       </Text>
 
       <Text style={[styles.text, { color: isDark ? "#d1d5db" : "#4b5563" }]}>
-        🏋️ {reservation.entrenador_nombre}
+        🏋️ {reservation.entrenador_nombre || "Anonimo"}
       </Text>
 
       <Text style={[styles.text, { color: isDark ? "#d1d5db" : "#4b5563" }]}>
         👥 Cupo: {reservation.cupo_maximo}
       </Text>
+
+      {/* VER DETALLES */}
+      {onViewDetails && (
+        <TouchableOpacity
+          onPress={() => onViewDetails(reservation)}
+          style={{ marginTop: 10 }}
+        >
+          <Text style={{ color: "#f97316", fontWeight: "bold" }}>
+            Ver detalles →
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* CANCEL BUTTON */}
       <TouchableOpacity

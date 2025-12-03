@@ -235,7 +235,7 @@ function Progress() {
         </div>
       ) : (
         <p className="text-center text-gray-500 italic mt-4">
-          Cargando rutinas o no hay ninguna disponible...
+       Sin progresos.
         </p>
       )}
     </div>
