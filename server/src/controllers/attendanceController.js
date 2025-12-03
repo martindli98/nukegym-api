@@ -34,7 +34,7 @@ export const markAttendance = async (req, res) => {
     );
 
     if (!membership.length) {
-      return res.status(403).json({
+      return res.status(200).json({
         success: false,
         message: "No tienes una membresía registrada",
       });

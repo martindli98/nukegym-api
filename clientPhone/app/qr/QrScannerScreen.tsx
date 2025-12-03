@@ -12,14 +12,17 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/src/utils/api";
 import { requireAuth } from "@/src/utils/authGuard";
-import { useFocusEffect } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { showError, showSuccess } from "@/src/utils/toast";
+
 
 export default function QrScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
+
+  const router = useRouter();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -53,37 +56,15 @@ export default function QrScannerScreen() {
         setTimeout(() => {
           setScanned(false);
           setLoading(false);
+          router.push("/(tabs)/rutine");
         }, 1500);
-        // Alert.alert(
-        //   result.already_registered
-        //     ? "✅ Ya estás Registrado"
-        //     : "✅ Asistencia Registrada",
-        //   result.message,
-        //   [
-        //     {
-        //       text: "OK",
-        //       onPress: () => {
-        //         setScanned(false);
-        //         setLoading(false);
-        //       },
-        //     },
-        //   ]
-        // );
       } else {
         showError(result.message, "Error");
         setTimeout(() => {
           setScanned(false);
           setLoading(false);
+          router.push("/(tabs)/rutine");
         }, 1500);
-        // Alert.alert("❌ Error", result.message, [
-        //   {
-        //     text: "Reintentar",
-        //     onPress: () => {
-        //       setScanned(false);
-        //       setLoading(false);
-        //     },
-        //   },
-        // ]);
       }
     } catch (error: any) {
       console.error("Error al verificar QR:", error);
@@ -95,17 +76,8 @@ export default function QrScannerScreen() {
       setTimeout(() => {
         setScanned(false);
         setLoading(false);
+        router.push("/(tabs)/rutine");
       }, 1500);
-
-      // Alert.alert("Error", errorMessage, [
-      //   {
-      //     text: "Reintentar",
-      //     onPress: () => {
-      //       setScanned(false);
-      //       setLoading(false);
-      //     },
-      //   },
-      // ]);
     }
   };
 

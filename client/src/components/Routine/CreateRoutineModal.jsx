@@ -3,7 +3,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
 
-
 const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
@@ -49,10 +48,14 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
   };
 
   const updateExerciseField = (id, field, value) => {
+    let num = Number(value);
+
+    if (isNaN(num)) num = "";
+    if (num < 1) num = 1;
+    if (num > 99) num = 99;
+
     setSelectedExercises((prev) =>
-      prev.map((e) =>
-        e.id_ejercicio === id ? { ...e, [field]: Number(value) } : e
-      )
+      prev.map((e) => (e.id_ejercicio === id ? { ...e, [field]: num } : e))
     );
   };
 
@@ -103,12 +106,12 @@ const CreateRoutineModal = ({ studentId, trainerId, onClose }) => {
     }
   };
 
-return createPortal(
-  (
-    
+  return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 
-                overflow-y-auto max-h-[85vh] my-auto">
+      <div
+        className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 max-w-5xl p-6 
+                overflow-y-auto max-h-[85vh] my-auto"
+      >
         <button
           onClick={onClose}
           className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
@@ -116,9 +119,13 @@ return createPortal(
           Volver
         </button>
 
-        <h2 className="text-black dark:text-orange-500 text-2xl font-bold mb-4 text-center">Crear Rutina</h2>
+        <h2 className="text-black dark:text-orange-500 text-2xl font-bold mb-4 text-center">
+          Crear Rutina
+        </h2>
 
-        <h3 className="text-black dark:text-white text-l mb-2">Ingrese el nombre de la rutina:</h3>
+        <h3 className="text-black dark:text-white text-l mb-2">
+          Ingrese el nombre de la rutina:
+        </h3>
         <input
           type="text"
           placeholder="Ej: Día 1: Pecho y Tríceps"
@@ -127,7 +134,9 @@ return createPortal(
           className="bg-white text-gray-300 dark:bg-gray-800 bg-border w-full p-2 rounded mb-4"
         />
 
-        <h5 className="text-black dark:text-white text-l mb-2">Filtrar por músculo</h5>
+        <h5 className="text-black dark:text-white text-l mb-2">
+          Filtrar por músculo
+        </h5>
         <input
           type="text"
           placeholder="Ej: pecho, espalda..."
@@ -150,7 +159,6 @@ return createPortal(
                                 ? "bg-purple-100 dark:bg-purple-900/40 border border-purple-500"
                                 : "hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
-
                 onClick={() => toggleExercise(ex)}
               >
                 {ex.url_media && (
@@ -161,50 +169,60 @@ return createPortal(
                   />
                 )}
                 <div className="p-3">
-                  <h4 className=" text-black dark:text-orange-500 text-sm font-semibold">{ex.nombre}</h4>
-                  <p className="text-xs dark:text-gray-400 text-gray-500">{ex.musculo_principal}</p>
+                  <h4 className=" text-black dark:text-orange-500 text-sm font-semibold">
+                    {ex.nombre}
+                  </h4>
+                  <p className="text-xs dark:text-gray-400 text-gray-500">
+                    {ex.musculo_principal}
+                  </p>
                 </div>
-                
+
                 {selected && (
-                  <div className="p-2 space-y-2" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          Series
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={selected.series}
-                          onChange={(e) =>
-                            updateExerciseField(ex.id, "series", e.target.value)
-                          }
-                          className="text-black dark:text-white bg-white dark:bg-purple-950/80
+                  <div
+                    className="p-2 space-y-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Series
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={selected.series}
+                        onChange={(e) =>
+                          updateExerciseField(ex.id, "series", e.target.value)
+                        }
+                        className="text-black dark:text-white bg-white dark:bg-purple-950/80
 
                                     w-20 p-1 rounded-md text-sm text-right focus:outline-none 
                                     focus:ring-2 focus:ring-purple-500 transition"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
 
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          Repeticiones
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={selected.repeticiones}
-                          onChange={(e) =>
-                            updateExerciseField(ex.id, "repeticiones", e.target.value)
-                          }
-                          className="text-black dark:text-white bg-white dark:bg-purple-950/80
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Repeticiones
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={selected.repeticiones}
+                        onChange={(e) =>
+                          updateExerciseField(
+                            ex.id,
+                            "repeticiones",
+                            e.target.value
+                          )
+                        }
+                        className="text-black dark:text-white bg-white dark:bg-purple-950/80
                                     w-20 p-1 rounded-md text-sm text-right focus:outline-none 
                                     focus:ring-2 focus:ring-purple-500 transition"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
                   </div>
-
                 )}
               </div>
             );
@@ -226,12 +244,9 @@ return createPortal(
           </button>
         </div>
       </div>
-
-     </div>
-    ),
-  document.getElementById("modal-root")
-);
-
+    </div>,
+    document.getElementById("modal-root")
+  );
 };
 
 export default CreateRoutineModal;

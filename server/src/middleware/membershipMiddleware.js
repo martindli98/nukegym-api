@@ -40,7 +40,7 @@ export const requireActiveMembership = async (req, res, next) => {
 
     // ❌ Sin membresía activa
     if (rows.length === 0) {
-      return res.status(403).json({
+      return res.status(200).json({
         success: false,
         membershipActive: false,
         message: "No tenés una membresía activa",

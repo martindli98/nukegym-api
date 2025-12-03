@@ -36,10 +36,15 @@ const AddExercisesModal = ({ onClose, onSubmit, existingExercises }) => {
   };
 
   const updateField = (id, field, value) => {
+    let num = Number(value);
+
+    // Validación dura 1–99 (igual que en modificar)
+    if (isNaN(num)) num = "";
+    if (num < 1) num = 1;
+    if (num > 99) num = 99;
+
     setSelectedExercises((prev) =>
-      prev.map((e) =>
-        e.id_ejercicio === id ? { ...e, [field]: Number(value) } : e
-      )
+      prev.map((e) => (e.id_ejercicio === id ? { ...e, [field]: num } : e))
     );
   };
 
